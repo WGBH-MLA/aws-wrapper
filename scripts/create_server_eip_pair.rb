@@ -40,7 +40,7 @@ end
 instances.each do |instance|
   response_allocate_address = ec2_client.allocate_address({
     dry_run: false,
-    domain: "vpc", # accepts vpc, standard
+    domain: "standard", # accepts vpc, standard
   })
   response_associate_address = ec2_client.associate_address({
     dry_run: false,
