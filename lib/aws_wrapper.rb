@@ -1,5 +1,6 @@
 require 'singleton'
 require 'aws-sdk'
+require 'logger'
 
 class AwsWrapper
   include Singleton
@@ -7,14 +8,19 @@ class AwsWrapper
   attr_reader :logger
   
   def initialize
-    region = 'us-east-1'
-    @ec2_client = Aws::EC2::Client.new(region: region)
-    
     log_file_name = $stdout
     @logger = Logger.new(log_file_name, 'daily')
     @logger.formatter = proc do |severity, datetime, _progname, msg|
       "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
     end
+    
+    region = 'us-east-1'
+    @ec2_client = Aws::EC2::Client.new(
+      region: region, 
+      logger: logger, 
+      log_level: :debug,
+      #log_formatter: Aws::Log::Formatter.new(':http_response_body')
+    )
   end
   
   def start_instances(n)
