@@ -45,22 +45,30 @@ class Ec2Manager
       dry_run: false,
       domain: "standard", # accepts vpc, standard
     })
-    response_associate_address = @ec2_client.associate_address({
+    public_ip = response_allocate_address.public_ip
+    assign_eip(public_ip, instance)
+    return public_ip
+  end
+  
+  def assign_eip(public_ip, instance)
+    instance_id = instance.instance_id
+    @ec2_client.associate_address({
       dry_run: false,
-      instance_id: instance.instance_id,
-      public_ip: response_allocate_address.public_ip, # required for EC2-Classic
+      instance_id: instance_id,
+      public_ip: public_ip, # required for EC2-Classic
       # allocation_id: response_allocate_address.allocation_id, # required for EC2-VPC
       # allow_reassociation: true, # allowReassociation parameter is only supported when mapping to a VPC
       # TODO: Isn't the whole point of EIP that it can be reassociated?
     })
-    
-    public_ip = response_allocate_address.public_ip
-    logger.info("EIP #{public_ip} -> EC2 #{instance.instance_id}")
-    return public_ip
+    logger.info("EIP #{public_ip} -> EC2 #{instance_id}")
   end
   
-  def reassign_eip
-    # TODO
+  def lookup_instance(instance_id)
+    response_describe_instances = @ec2_client.describe_instances({
+      dry_run: false,
+      instance_ids: [instance_id],
+    })
+    response_describe_instances.reservations[0].instances[0]
   end
   
   def stop_instances(instances)
