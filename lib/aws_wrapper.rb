@@ -5,6 +5,8 @@ module AwsWrapper
   
   attr_reader :logger
   
+  Aws.config[:region] = 'us-east-1' # One-time configuration at module load.
+  
   def initialize
     log_file_name = $stdout
     @logger = Logger.new(log_file_name, 'daily')

@@ -8,7 +8,6 @@ class Ec2Manager
   def initialize
     super
     @ec2_client = Aws::EC2::Client.new(
-      region: 'us-east-1', 
       logger: @logger, 
       log_level: :debug,
       #log_formatter: Aws::Log::Formatter.new(':http_response_body')
