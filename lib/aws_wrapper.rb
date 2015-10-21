@@ -1,9 +1,7 @@
-require 'singleton'
 require 'aws-sdk'
 require 'logger'
 
-class AwsWrapper
-  include Singleton
+module AwsWrapper
   
   attr_reader :logger
   
