@@ -1,10 +1,10 @@
 require 'singleton'
-require_relative 'dns_manager'
-require_relative 'ec2_manager'
+require_relative 'dns_wrapper'
+require_relative 'ec2_wrapper'
 
 class AwsWrapper
-  include DnsManager
-  include Ec2Manager
+  include DnsWrapper
+  include Ec2Wrapper
   include Singleton
   
   def initialize

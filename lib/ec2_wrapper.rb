@@ -1,15 +1,11 @@
-require_relative 'base_manager'
+require_relative 'base_wrapper'
 
-module Ec2Manager
-  include BaseManager
+module Ec2Wrapper
+  include BaseWrapper
   
   def initialize
     super
-    @ec2_client = Aws::EC2::Client.new(
-      logger: @logger, 
-      log_level: :debug,
-      #log_formatter: Aws::Log::Formatter.new(':http_response_body')
-    )
+    @ec2_client = Aws::EC2::Client.new(@client_config)
   end
   
   def start_instances(n)
@@ -38,7 +34,6 @@ module Ec2Manager
   end
   
   def allocate_eip(instance)
-    # TODO: We've run out of EIPs, so I have really tested this.
     response_allocate_address = @ec2_client.allocate_address({
       dry_run: false,
       domain: "standard", # accepts vpc, standard

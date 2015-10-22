@@ -1,7 +1,12 @@
 require 'aws-sdk'
 require 'logger'
+require 'set'
+# Unless I require 'set' I get:
+#   uninitialized constant Aws::Log::ParamFilter::Set (NameError)
+#	  from /Users/chuck_mccallum/.rvm/gems/ruby-2.0.0-p481/gems/aws-sdk-core-2.1.23/lib/aws-sdk-core/log/formatter.rb:89:in `new'
+# Was not able to make a minimal reproducer.
 
-module BaseManager
+module BaseWrapper
   
   attr_reader :logger
   
@@ -13,6 +18,12 @@ module BaseManager
     @logger.formatter = proc do |severity, datetime, _progname, msg|
       "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
     end
+    @client_config = {
+      logger: @logger, 
+      log_level: :debug,
+      # Optional log_formatter for more information:
+      log_formatter: Aws::Log::Formatter.new(':http_response_body')
+    }
   end
   
   def config_wait(w)
