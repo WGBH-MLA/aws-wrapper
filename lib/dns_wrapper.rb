@@ -40,10 +40,10 @@ module DnsWrapper
   def lookup_dns_a_record(zone_id, domain_name)
     response = @dns_client.list_resource_record_sets({
       hosted_zone_id: zone_id, # required
-      start_record_name: domain_name,
+      start_record_name: domain_name, # NOT a filter: all are returned, unless max_items set.
       start_record_type: 'A', # accepts SOA, A, TXT, NS, CNAME, MX, PTR, SRV, SPF, AAAA
       # start_record_identifier: "ResourceRecordSetIdentifier",
-      # max_items: 1,
+      max_items: 1,
     })
     record_sets = response.resource_record_sets
     fail("Expected 1 record set, not #{record_sets.count}") unless record_sets.count == 1

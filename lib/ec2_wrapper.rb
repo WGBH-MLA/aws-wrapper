@@ -33,6 +33,26 @@ module Ec2Wrapper
     return instances
   end
   
+  def lookup_eip(eip_ip)
+    response = @ec2_client.describe_addresses({
+      dry_run: false,
+      public_ips: [eip_ip],
+#      filters: [
+#        {
+#          name: "String",
+#          values: ["String"],
+#        },
+#      ],
+#      allocation_ids: ["String"],
+    })
+    fail("Expected exactly one match, not #{response.addresses.count}") unless response.addresses.count == 1
+    response.addresses[0] # Returns an Address, which has .instance_id
+  end
+  
+  def lookup_dns()
+    
+  end
+  
   def allocate_eip(instance)
     response_allocate_address = @ec2_client.allocate_address({
       dry_run: false,
@@ -59,9 +79,21 @@ module Ec2Wrapper
   def lookup_instance(instance_id)
     response_describe_instances = @ec2_client.describe_instances({
       dry_run: false,
-      instance_ids: [instance_id],
+      instance_ids: [instance_id]
     })
     response_describe_instances.reservations[0].instances[0]
+  end
+  
+  def lookup_ip(ip)
+    response_describe_instances = @ec2_client.describe_instances({
+      dry_run: false
+    })
+    instances = response_describe_instances.reservations.map {|reservation|
+      reservation.instances
+    }.flatten
+    matches = instances.select{|instance| instance.public_ip_address == ip}
+    fail("Expected exactly one instance with IP #{ip}, not #{matches.count}") unless matches.count == 1
+    matches[0]
   end
   
   def stop_instances(instances)

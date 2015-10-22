@@ -24,4 +24,9 @@ module BaseWrapper
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 100
   
+  def logger
+    # TODO: either the const or the method, not both
+    LOGGER
+  end
+  
 end
