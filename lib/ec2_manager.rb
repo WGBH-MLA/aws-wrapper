@@ -1,9 +1,7 @@
-require 'singleton'
-require_relative 'aws_wrapper'
+require_relative 'base_manager'
 
-class Ec2Manager
-  include AwsWrapper
-  include Singleton
+module Ec2Manager
+  include BaseManager
   
   def initialize
     super

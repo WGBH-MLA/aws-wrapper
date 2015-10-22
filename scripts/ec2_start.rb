@@ -1,6 +1,6 @@
-require_relative '../lib/ec2_manager'
+require_relative '../lib/aws_wrapper'
 
-Ec2Manager.instance.tap do |aws|
+AwsWrapper.instance.tap do |aws|
   instances = aws.start_instances(1)
   #eip = aws.allocate_eip(instances.first)
   
