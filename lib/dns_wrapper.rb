@@ -5,7 +5,7 @@ module DnsWrapper
   
   def initialize
     super
-    @dns_client = Aws::Route53::Client.new(@client_config)
+    @dns_client = Aws::Route53::Client.new(CLIENT_CONFIG)
   end
   
   def update_dns_a_record(zone_id, domain_name, new_ip)
@@ -28,7 +28,7 @@ module DnsWrapper
 #                subdivision_code: "GeoLocationSubdivisionCode",
 #              },
 #              failover: "PRIMARY", # accepts PRIMARY, SECONDARY
-#              ttl: 1,
+              ttl: 30, # required (but not documented as such)
               resource_records: [
                 {
                   value: new_ip, # required

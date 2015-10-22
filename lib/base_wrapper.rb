@@ -8,23 +8,18 @@ require 'set'
 
 module BaseWrapper
   
-  attr_reader :logger
-  
   Aws.config[:region] = 'us-east-1' # One-time configuration at module load.
   
-  def initialize
-    log_file_name = $stdout
-    @logger = Logger.new(log_file_name, 'daily')
-    @logger.formatter = proc do |severity, datetime, _progname, msg|
-      "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
-    end
-    @client_config = {
-      logger: @logger, 
-      log_level: :debug,
-      # Optional log_formatter for more information:
-      log_formatter: Aws::Log::Formatter.new(':http_response_body')
-    }
+  LOGGER = Logger.new($stdout, 'daily')
+  LOGGER.formatter = proc do |severity, datetime, _progname, msg|
+    "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
   end
+  CLIENT_CONFIG = {
+    logger: LOGGER, 
+    log_level: :debug,
+    # Optional log_formatter for more information:
+    log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
+  }
   
   def config_wait(w)
     w.interval = 5
@@ -36,7 +31,7 @@ module BaseWrapper
           "#{i.instance_id}: #{i.state.name}"
         }
       }.flatten
-      logger.info("#{n}: Waiting... #{status}")
+      LOGGER.info("#{n}: Waiting... #{status}")
     end
   end
   

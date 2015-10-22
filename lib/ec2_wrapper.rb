@@ -5,7 +5,7 @@ module Ec2Wrapper
   
   def initialize
     super
-    @ec2_client = Aws::EC2::Client.new(@client_config)
+    @ec2_client = Aws::EC2::Client.new(CLIENT_CONFIG)
   end
   
   def start_instances(n)
@@ -24,7 +24,7 @@ module Ec2Wrapper
     })
     instances = response_run_instances.instances
 
-    logger.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
+    LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
 
     @ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
       config_wait(w)
@@ -53,7 +53,7 @@ module Ec2Wrapper
       # allow_reassociation: true, # allowReassociation parameter is only supported when mapping to a VPC
       # TODO: Isn't the whole point of EIP that it can be reassociated?
     })
-    logger.info("EIP #{public_ip} -> EC2 #{instance_id}")
+    LOGGER.info("EIP #{public_ip} -> EC2 #{instance_id}")
   end
   
   def lookup_instance(instance_id)
@@ -75,7 +75,7 @@ module Ec2Wrapper
       force: true,
     })
 
-    logger.info("Requested EC2 instance termination: #{response_stop_instances.inspect}")
+    LOGGER.info("Requested EC2 instance termination: #{response_stop_instances.inspect}")
 
     @ec2_client.wait_until(:instance_terminated, instance_ids: instance_ids) do |w|
       config_wait(w)
