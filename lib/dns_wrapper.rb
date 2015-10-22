@@ -1,4 +1,5 @@
 require_relative 'base_wrapper'
+require 'resolv'
 
 module DnsWrapper
   include BaseWrapper
@@ -9,6 +10,47 @@ module DnsWrapper
   end
   
   def update_dns_a_record(zone_id, domain_name, new_ip)
+    update_response = request_update_dns_a_record(zone_id, domain_name, new_ip)
+    try = 0
+    while !update_insync?(update_response)
+      try += 1
+      LOGGER.info("try #{try}: DNS update not yet propagated to AWS nameservers...")
+      sleep(5)
+    end
+  end
+  
+  def update_insync?(update_request_response)
+    response = @dns_client.get_change({
+      id: update_request_response.change_info.id
+    })
+    response.change_info.status == 'INSYNC'
+    # This means all the AWS NSs are up-to-date: 
+    # It does not imply that DNS records have
+    # been refreshed in all local caches.
+  end
+  
+  def lookup_dns_a_record(zone_id, domain_name)
+    response = @dns_client.list_resource_record_sets({
+      hosted_zone_id: zone_id, # required
+      start_record_name: domain_name,
+      start_record_type: 'A', # accepts SOA, A, TXT, NS, CNAME, MX, PTR, SRV, SPF, AAAA
+      # start_record_identifier: "ResourceRecordSetIdentifier",
+      # max_items: 1,
+    })
+    record_sets = response.resource_record_sets
+    fail("Expected 1 record set, not #{record_sets.count}") unless record_sets.count == 1
+    resource_records = record_sets[0].resource_records
+    fail("Expected 1 resource record, not #{resource_records.count}") unless resource_records.count == 1
+    resource_records[0].value
+  end
+  
+  def request_update_dns_a_record(zone_id, domain_name, new_ip)
+    if lookup_dns_a_record(zone_id, domain_name) == new_ip
+      fail("AWS says #{domain_name} already has IP #{new_ip}")
+    end
+    if Resolv.getaddress(domain_name) == new_ip
+      fail("DNS says #{domain_name} already has IP #{new_ip}")
+    end
     @dns_client.change_resource_record_sets({
       hosted_zone_id: zone_id, # required
       change_batch: { # required
