@@ -11,11 +11,19 @@ module DnsWrapper
   
   def update_dns_a_record(zone_id, domain_name, new_ip)
     update_response = request_update_dns_a_record(zone_id, domain_name, new_ip)
-    try = 0
-    while !update_insync?(update_response)
-      try += 1
+    
+    1.upto(WAIT_ATTEMPTS) do |try|
+      break if update_insync?(update_response)
+      fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: DNS update not yet propagated to AWS nameservers...")
-      sleep(5)
+      sleep(WAIT_INTERVAL)
+    end
+    
+    1.upto(WAIT_ATTEMPTS) do |try|
+      break if Resolv.getaddress(domain_name) == new_ip
+      fail('Giving up') if try >= WAIT_ATTEMPTS
+      LOGGER.info("try #{try}: DNS update not yet propagated to local nameserver...")
+      sleep(WAIT_INTERVAL)
     end
   end
   

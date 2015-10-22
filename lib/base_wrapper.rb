@@ -18,21 +18,10 @@ module BaseWrapper
     logger: LOGGER, 
     log_level: :debug,
     # Optional log_formatter for more information:
-    log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
+    #log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
   }
   
-  def config_wait(w)
-    w.interval = 5
-    w.max_attempts = 100
-    w.before_wait do |n, last_response|
-      # TODO: If this is only for EC2s, it should be moved there.
-      status = last_response.data.reservations.map { |r| 
-        r.instances.map { |i| 
-          "#{i.instance_id}: #{i.state.name}"
-        }
-      }.flatten
-      LOGGER.info("#{n}: Waiting... #{status}")
-    end
-  end
+  WAIT_INTERVAL = 5
+  WAIT_ATTEMPTS = 100
   
 end

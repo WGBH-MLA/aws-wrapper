@@ -82,4 +82,20 @@ module Ec2Wrapper
     end
   end
   
+  private
+  
+  def config_wait(w)
+    w.interval = WAIT_INTERVAL
+    w.max_attempts = WAIT_ATTEMPTS
+    w.before_wait do |n, last_response|
+      # TODO: If this is only for EC2s, it should be moved there.
+      status = last_response.data.reservations.map { |r| 
+        r.instances.map { |i| 
+          "#{i.instance_id}: #{i.state.name}"
+        }
+      }.flatten
+      LOGGER.info("#{n}: Waiting... #{status}")
+    end
+  end
+  
 end
