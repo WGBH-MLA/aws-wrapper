@@ -27,11 +27,25 @@ describe Ec2Wrapper do
   end
   
   describe '#assign_eip' do
-    # TODO
+    it 'makes expected calls to AWS' do
+      wrapper = TestWrapper.new
+      expect(wrapper).to receive(:ec2_client).and_return(
+        instance_double(Aws::EC2::Client).tap do |client|
+          expect(client).to receive(:associate_address)
+            .with(dry_run: false, instance_id: 'instance-id', public_ip: 'public.ip.address')
+        end
+      )
+      instance = instance_double(Aws::EC2::Instance).tap do |instance|
+        expect(instance).to receive(:instance_id).and_return('instance-id')
+      end
+      expect(wrapper.assign_eip('public.ip.address', instance)).to eq true
+    end
   end
   
   describe '#lookup_instance' do
-    # TODO
+    it 'makes expected calls to AWS' do
+      # TODO
+    end
   end
   
 end
