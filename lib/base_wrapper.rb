@@ -14,6 +14,7 @@ module BaseWrapper
   LOGGER.formatter = proc do |severity, datetime, _progname, msg|
     "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
   end
+  
   CLIENT_CONFIG = {
     logger: LOGGER, 
     log_level: :debug,
@@ -23,10 +24,5 @@ module BaseWrapper
   
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 100
-  
-  def logger
-    # TODO: either the const or the method, not both
-    LOGGER
-  end
   
 end

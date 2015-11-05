@@ -4,9 +4,19 @@ require 'resolv'
 module DnsWrapper
   include BaseWrapper
   
-  def initialize
-    super
-    @dns_client = Aws::Route53::Client.new(CLIENT_CONFIG)
+  private
+  
+  def dns_client
+    @dns_client ||= Aws::Route53::Client.new(CLIENT_CONFIG)
+  end
+  
+  public
+  
+  def lookup_dns(zone_id, domain_name)
+    aws_ip = lookup_dns_a_record(zone_id, domain_name)
+    dns_ip = Resolv.getaddress(domain_name)
+    fail("Discrepancy for #{domain_name}: AWS=#{aws_ip} but DNS=#{dns_ip}") unless dns_ip == aws_ip
+    dns_ip
   end
   
   def update_dns_a_record(zone_id, domain_name, new_ip)
@@ -28,7 +38,7 @@ module DnsWrapper
   end
   
   def update_insync?(update_request_response)
-    response = @dns_client.get_change({
+    response = dns_client.get_change({
       id: update_request_response.change_info.id
     })
     response.change_info.status == 'INSYNC'
@@ -38,7 +48,7 @@ module DnsWrapper
   end
   
   def lookup_dns_a_record(zone_id, domain_name)
-    response = @dns_client.list_resource_record_sets({
+    response = dns_client.list_resource_record_sets({
       hosted_zone_id: zone_id, # required
       start_record_name: domain_name, # NOT a filter: all are returned, unless max_items set.
       start_record_type: 'A', # accepts SOA, A, TXT, NS, CNAME, MX, PTR, SRV, SPF, AAAA
@@ -59,7 +69,7 @@ module DnsWrapper
     if Resolv.getaddress(domain_name) == new_ip
       fail("DNS says #{domain_name} already has IP #{new_ip}")
     end
-    @dns_client.change_resource_record_sets({
+    dns_client.change_resource_record_sets({
       hosted_zone_id: zone_id, # required
       change_batch: { # required
         # comment: "ResourceDescription",

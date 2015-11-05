@@ -3,13 +3,16 @@ require_relative 'base_wrapper'
 module Ec2Wrapper
   include BaseWrapper
   
-  def initialize
-    super
-    @ec2_client = Aws::EC2::Client.new(CLIENT_CONFIG)
+  private
+  
+  def ec2_client
+    @ec2_client ||= Aws::EC2::Client.new(CLIENT_CONFIG)
   end
   
+  public
+  
   def start_instances(n)
-    response_run_instances = @ec2_client.run_instances({
+    response_run_instances = ec2_client.run_instances({
       dry_run: false,
       image_id: "ami-cf1066aa", # PV EBS-Backed 64-bit / US East
       min_count: n, # required
@@ -26,7 +29,7 @@ module Ec2Wrapper
 
     LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
 
-    @ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
+    ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
       config_wait(w)
     end
     
@@ -34,7 +37,7 @@ module Ec2Wrapper
   end
   
   def lookup_eip(eip_ip)
-    response = @ec2_client.describe_addresses({
+    response = ec2_client.describe_addresses({
       dry_run: false,
       public_ips: [eip_ip],
 #      filters: [
@@ -49,12 +52,8 @@ module Ec2Wrapper
     response.addresses[0] # Returns an Address, which has .instance_id
   end
   
-  def lookup_dns()
-    
-  end
-  
   def allocate_eip(instance)
-    response_allocate_address = @ec2_client.allocate_address({
+    response_allocate_address = ec2_client.allocate_address({
       dry_run: false,
       domain: "standard", # accepts vpc, standard
     })
@@ -65,7 +64,7 @@ module Ec2Wrapper
   
   def assign_eip(public_ip, instance)
     instance_id = instance.instance_id
-    @ec2_client.associate_address({
+    ec2_client.associate_address({
       dry_run: false,
       instance_id: instance_id,
       public_ip: public_ip, # required for EC2-Classic
@@ -77,7 +76,7 @@ module Ec2Wrapper
   end
   
   def lookup_instance(instance_id)
-    response_describe_instances = @ec2_client.describe_instances({
+    response_describe_instances = ec2_client.describe_instances({
       dry_run: false,
       instance_ids: [instance_id]
     })
@@ -85,7 +84,7 @@ module Ec2Wrapper
   end
   
   def lookup_ip(ip)
-    response_describe_instances = @ec2_client.describe_instances({
+    response_describe_instances = ec2_client.describe_instances({
       dry_run: false
     })
     instances = response_describe_instances.reservations.map {|reservation|
@@ -101,7 +100,7 @@ module Ec2Wrapper
     # TODO: release_address
     instance_ids = instances.map(&:instance_id)
   
-    response_stop_instances = @ec2_client.stop_instances({
+    response_stop_instances = ec2_client.stop_instances({
       dry_run: false,
       instance_ids: instance_ids,
       force: true,
@@ -109,7 +108,7 @@ module Ec2Wrapper
 
     LOGGER.info("Requested EC2 instance termination: #{response_stop_instances.inspect}")
 
-    @ec2_client.wait_until(:instance_terminated, instance_ids: instance_ids) do |w|
+    ec2_client.wait_until(:instance_terminated, instance_ids: instance_ids) do |w|
       config_wait(w)
     end
   end
