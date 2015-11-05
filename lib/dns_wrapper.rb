@@ -12,8 +12,8 @@ module DnsWrapper
   
   public
   
-  def lookup_dns(domain_name)
-    aws_ip = lookup_dns_a_record(ZONE_ID, domain_name)
+  def lookup_dns(zone_id, domain_name)
+    aws_ip = lookup_dns_a_record(zone_id, domain_name)
     dns_ip = Resolv.getaddress(domain_name)
     fail("Discrepancy for #{domain_name}: AWS=#{aws_ip} but DNS=#{dns_ip}") unless dns_ip == aws_ip
     dns_ip
