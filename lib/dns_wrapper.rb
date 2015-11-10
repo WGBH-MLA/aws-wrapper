@@ -12,6 +12,15 @@ module DnsWrapper
   
   public
   
+  def lookup_cname(zone_id, name)
+    cname_from_dns = Resolv::DNS.new.getresource(name, Resolv::DNS::Resource::IN::CNAME).name.to_s
+    cname_from_aws = lookup_dns_cname_record(zone_id, name)
+    if cname_from_dns != cname_from_aws
+      fail("CNAME from DNS (#{cname_from_dns}) != CNAME from AWS (#{cname_from_aws})")
+    end
+    cname_from_aws
+  end
+  
   def lookup_dns(zone_id, domain_name)
     aws_ip = lookup_dns_a_record(zone_id, domain_name)
     dns_ip = Resolv.getaddress(domain_name)
@@ -45,6 +54,21 @@ module DnsWrapper
     # This means all the AWS NSs are up-to-date: 
     # It does not imply that DNS records have
     # been refreshed in all local caches.
+  end
+  
+  def lookup_dns_cname_record(zone_id, domain_name)
+    response = dns_client.list_resource_record_sets({
+      hosted_zone_id: zone_id, # required
+      start_record_name: domain_name, # NOT a filter: all are returned, unless max_items set.
+      start_record_type: 'CNAME', # accepts SOA, A, TXT, NS, CNAME, MX, PTR, SRV, SPF, AAAA
+      # start_record_identifier: "ResourceRecordSetIdentifier",
+      max_items: 1,
+    })
+    record_sets = response.resource_record_sets
+    fail("Expected 1 record set, not #{record_sets.count}") unless record_sets.count == 1
+    resource_records = record_sets[0].resource_records
+    fail("Expected 1 resource record, not #{resource_records.count}") unless resource_records.count == 1
+    resource_records[0].value
   end
   
   def lookup_dns_a_record(zone_id, domain_name)
