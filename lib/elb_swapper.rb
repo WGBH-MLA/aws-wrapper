@@ -10,8 +10,8 @@ class ElbSwapper < AwsWrapper
     demo = lookup_elb_and_instance(zone_id, demo_name)
     LOGGER.info("demo: #{demo.elb_name} / #{demo.instance_id}")
     
-    register_instance_to_elb(demo.instance_id, live.elb_name)
-    register_instance_to_elb(live.instance_id, demo.elb_name)
+    register_instance_with_elb(demo.instance_id, live.elb_name)
+    register_instance_with_elb(live.instance_id, demo.elb_name)
     LOGGER.info("Registered both instances to both ELBs")
     
     deregister_instance_from_elb(demo.instance_id, demo.elb_name)
@@ -29,19 +29,5 @@ class ElbSwapper < AwsWrapper
     end
     OpenStruct.new(elb_name: elb_name, instance_id: instance_ids.first)
   end
-  
-  def register_instance_to_elb(instance_id, elb_name)
-    LOGGER.info('TODO')
-    # TODO
-    # TODO: Wait for completion.
-  end
-  
-  def deregister_instance_from_elb(instance_id, elb_name)
-    LOGGER.info('TODO')
-    # TODO
-    # TODO: Wait for completion
-  end
-  
-  
   
 end

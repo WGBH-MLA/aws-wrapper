@@ -19,4 +19,28 @@ module ElbWrapper
     matches.first
   end
   
+  def register_instance_with_elb(instance_id, elb_name)
+    elb_client.register_instances_with_load_balancer({
+      load_balancer_name: elb_name, # required
+      instances: [ # required
+        {
+          instance_id: instance_id,
+        },
+      ],
+    })
+    # TODO: Wait for completion.
+  end
+  
+  def deregister_instance_from_elb(instance_id, elb_name)
+    elb_client.deregister_instances_from_load_balancer({
+      load_balancer_name: elb_name, # required
+      instances: [ # required
+        {
+          instance_id: instance_id,
+        },
+      ],
+    })
+    # TODO: Wait for completion.
+  end
+  
 end
