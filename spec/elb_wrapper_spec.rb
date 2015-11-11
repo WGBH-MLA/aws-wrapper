@@ -6,7 +6,7 @@ describe ElbWrapper do
     include ElbWrapper
   end
   
-  def expect_client_to_describe_lb(client, lb_description)
+  def expect_client_to_describe_elb(client, lb_description)
     expect(client).to receive(:describe_load_balancers)
       .and_return(
         instance_double(Aws::ElasticLoadBalancing::Types::DescribeAccessPointsOutput).tap do |output|
@@ -41,7 +41,7 @@ describe ElbWrapper do
       
       expect(wrapper).to receive(:elb_client).and_return(
         instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect_client_to_describe_lb(client, elb_description)
+          expect_client_to_describe_elb(client, elb_description)
         end
       )
 
@@ -57,7 +57,7 @@ describe ElbWrapper do
       
       expect(wrapper).to receive(:elb_client).and_return(
         instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect_client_to_describe_lb(client, elb_description)
+          expect_client_to_describe_elb(client, elb_description)
         end
       )
 
@@ -75,9 +75,9 @@ describe ElbWrapper do
       expect(wrapper).to receive(:elb_client).and_return(
         instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
           expect(client).to receive(:register_instances_with_load_balancer)
-          expect_client_to_describe_lb(client, elb_description)
+          expect_client_to_describe_elb(client, elb_description)
         end
-      ).at_most(2).times
+      ).at_least(:once)
       
       expect{wrapper.register_instance_with_elb(instance_id, elb_name)}.not_to raise_error
     end
@@ -93,9 +93,9 @@ describe ElbWrapper do
       expect(wrapper).to receive(:elb_client).and_return(
         instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
           expect(client).to receive(:deregister_instances_from_load_balancer)
-          expect_client_to_describe_lb(client, elb_description)
+          expect_client_to_describe_elb(client, elb_description)
         end
-      ).at_most(2).times
+      ).at_least(:once)
       
       expect{wrapper.deregister_instance_from_elb(instance_id, elb_name)}.not_to raise_error
     end

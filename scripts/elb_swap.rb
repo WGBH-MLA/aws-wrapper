@@ -7,6 +7,7 @@ USAGE: #{File.basename(__FILE__)} NAME
    - be a CNAME managed by AWS.
    - resolve to an AWS ELB with one EC2 instance behind it.
    - "demo.NAME" should resolve to a separate parallel ELB.
+
 When run, the instances behind the two load balancers are swapped.
 EOF
   exit 1

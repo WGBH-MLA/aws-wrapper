@@ -2,12 +2,42 @@ require_relative '../lib/ec2_wrapper'
 
 describe Ec2Wrapper do
   
-# TODO: Delete what we don't use.  
+  class TestWrapper
+    include Ec2Wrapper
+  end
+
+  describe '#start_instances' do
+    it 'makes expected SDK calls' do
+      wrapper = TestWrapper.new
+      
+      def instance(id)
+        instance_double(Aws::EC2::Types::Instance).tap do |instance|
+          expect(instance).to receive(:instance_id)
+            .and_return(id).at_least(:once)
+        end
+      end
+      
+      instances = ['instance-1-id', 'instance-2-id'].map{ |id| instance(id) }
+      
+      expect(wrapper).to receive(:ec2_client).and_return(
+        instance_double(Aws::EC2::Client).tap do |client|
+          expect(client).to receive(:run_instances)
+            .and_return(
+              instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
+                expect(reservation).to receive(:instances)
+                  .and_return(instances)
+              end
+            )
+          expect(client).to receive(:wait_until)
+        end
+      ).at_least(:once)
+      
+      expect(wrapper.start_instances(2)).to eq instances
+    end
+  end
+
+
   
-#  class TestWrapper
-#    include Ec2Wrapper
-#  end
-#  
 #  describe '#lookup_eip' do
 #    it 'makes expected calls to AWS' do
 #      wrapper = TestWrapper.new

@@ -13,30 +13,30 @@ module Ec2Wrapper
   
 # TODO: Delete what we don't use.  
   
-#  def start_instances(n)
-#    response_run_instances = ec2_client.run_instances({
-#      dry_run: false,
-#      image_id: "ami-cf1066aa", # PV EBS-Backed 64-bit / US East
-#      min_count: n, # required
-#      max_count: n, # required
-#      key_name: "aapb", # TODO: Command-line parameter? Script to create in the first place?
-#      instance_type: "t1.micro",
-#      monitoring: {
-#        enabled: false, # required
-#      },
-#      disable_api_termination: false,
-#      instance_initiated_shutdown_behavior: "terminate", # accepts stop, terminate
-#    })
-#    instances = response_run_instances.instances
-#
-#    LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
-#
-#    ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
-#      config_wait(w)
-#    end
-#    
-#    return instances
-#  end
+  def start_instances(n)
+    response_run_instances = ec2_client.run_instances({
+      dry_run: false,
+      image_id: "ami-cf1066aa", # PV EBS-Backed 64-bit / US East
+      min_count: n, # required
+      max_count: n, # required
+      key_name: "aapb", # TODO: Command-line parameter? Script to create in the first place?
+      instance_type: "t1.micro",
+      monitoring: {
+        enabled: false, # required
+      },
+      disable_api_termination: false,
+      instance_initiated_shutdown_behavior: "terminate", # accepts stop, terminate
+    })
+    instances = response_run_instances.instances
+
+    LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
+
+    ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
+      config_wait(w)
+    end
+    
+    return instances
+  end
   
 #  def lookup_eip(eip_ip)
 #    response = ec2_client.describe_addresses({
@@ -115,20 +115,20 @@ module Ec2Wrapper
 #    end
 #  end
   
-#  private
-#  
-#  def config_wait(w)
-#    w.interval = WAIT_INTERVAL
-#    w.max_attempts = WAIT_ATTEMPTS
-#    w.before_wait do |n, last_response|
-#      # TODO: If this is only for EC2s, it should be moved there.
-#      status = last_response.data.reservations.map { |r| 
-#        r.instances.map { |i| 
-#          "#{i.instance_id}: #{i.state.name}"
-#        }
-#      }.flatten
-#      LOGGER.info("#{n}: Waiting... #{status}")
-#    end
-#  end
+  private
+  
+  def config_wait(w)
+    w.interval = WAIT_INTERVAL
+    w.max_attempts = WAIT_ATTEMPTS
+    w.before_wait do |n, last_response|
+      # TODO: If this is only for EC2s, it should be moved there.
+      status = last_response.data.reservations.map { |r| 
+        r.instances.map { |i| 
+          "#{i.instance_id}: #{i.state.name}"
+        }
+      }.flatten
+      LOGGER.info("#{n}: Waiting... #{status}")
+    end
+  end
   
 end
