@@ -2,6 +2,8 @@ require_relative '../lib/ec2_wrapper'
 
 describe Ec2Wrapper do
   
+# TODO: Delete what we don't use.  
+  
 #  class TestWrapper
 #    include Ec2Wrapper
 #  end

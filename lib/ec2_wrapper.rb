@@ -11,6 +11,8 @@ module Ec2Wrapper
   
   public
   
+# TODO: Delete what we don't use.  
+  
 #  def start_instances(n)
 #    response_run_instances = ec2_client.run_instances({
 #      dry_run: false,
