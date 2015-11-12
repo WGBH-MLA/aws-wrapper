@@ -10,7 +10,7 @@ describe ElbWrapper do
       instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
         yield client
       end
-    ).at_least(:once)
+    )
     wrapper
   end
   

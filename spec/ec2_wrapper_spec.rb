@@ -10,7 +10,7 @@ describe Ec2Wrapper do
       instance_double(Aws::EC2::Client).tap do |client|
         yield client
       end
-    ).at_least(:once)
+    )
     wrapper
   end
 
