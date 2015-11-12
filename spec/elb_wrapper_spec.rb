@@ -2,8 +2,16 @@ require_relative '../lib/elb_wrapper'
 
 describe ElbWrapper do
   
-  class TestWrapper
-    include ElbWrapper
+  def expect_wrapper
+    wrapper = Class.new do
+      include ElbWrapper
+    end.new
+    expect(wrapper).to receive(:elb_client).and_return(
+      instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
+        yield client
+      end
+    ).at_least(:once)
+    wrapper
   end
   
   def expect_client_to_describe_elb(client, lb_description)
@@ -35,68 +43,48 @@ describe ElbWrapper do
   
   describe '#lookup_elb_by_cname' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
       dns_name = 'elb.cname.example.org'
       elb_description = elb_description(dns_name: dns_name)
-      
-      expect(wrapper).to receive(:elb_client).and_return(
-        instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect_client_to_describe_elb(client, elb_description)
-        end
-      )
-
+      wrapper = expect_wrapper do |client|
+        expect_client_to_describe_elb(client, elb_description)
+      end
       expect(wrapper.lookup_elb_by_cname(dns_name)).to eq elb_description
     end
   end
 
   describe '#lookup_elb_by_name' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
       load_balancer_name = 'test-load-balancer'
       elb_description = elb_description(load_balancer_name: load_balancer_name)
-      
-      expect(wrapper).to receive(:elb_client).and_return(
-        instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect_client_to_describe_elb(client, elb_description)
-        end
-      )
-
+      wrapper = expect_wrapper do |client|
+        expect_client_to_describe_elb(client, elb_description)
+      end
       expect(wrapper.lookup_elb_by_name(load_balancer_name)).to eq elb_description
     end
   end
   
   describe '#register_instance_with_elb' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
       instance_id = 'instance-id'
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [instance(instance_id)])
-      
-      expect(wrapper).to receive(:elb_client).and_return(
-        instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect(client).to receive(:register_instances_with_load_balancer)
-          expect_client_to_describe_elb(client, elb_description)
-        end
-      ).at_least(:once)
-      
+      wrapper = expect_wrapper do |client|
+        expect(client).to receive(:register_instances_with_load_balancer)
+        expect_client_to_describe_elb(client, elb_description)
+      end
       expect{wrapper.register_instance_with_elb(instance_id, elb_name)}.not_to raise_error
     end
   end
   
   describe '#deregister_instance_from_elb' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
       instance_id = 'instance-id'
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [])
-      
-      expect(wrapper).to receive(:elb_client).and_return(
-        instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
-          expect(client).to receive(:deregister_instances_from_load_balancer)
-          expect_client_to_describe_elb(client, elb_description)
-        end
-      ).at_least(:once)
-      
+      wrapper = expect_wrapper do |client|
+        expect(client).to receive(:deregister_instances_from_load_balancer)
+        expect_client_to_describe_elb(client, elb_description)
+      end
       expect{wrapper.deregister_instance_from_elb(instance_id, elb_name)}.not_to raise_error
     end
   end
