@@ -20,7 +20,7 @@ describe Ec2Wrapper do
       wrapper = expect_wrapper do |client|
         expect(client).to receive(:create_key_pair).and_return(kp)
       end
-      expect(wrapper.create_key('name')).to eq kp
+      expect(wrapper.create_key('name',false)).to eq kp
     end
   end
   
@@ -46,7 +46,7 @@ describe Ec2Wrapper do
         expect(client).to receive(:wait_until)
       end
       
-      expect(wrapper.start_instances(2)).to eq instances
+      expect(wrapper.start_instances(2, 'testing')).to eq instances
     end
   end
 

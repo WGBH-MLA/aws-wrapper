@@ -11,20 +11,27 @@ module Ec2Wrapper
   
   public
   
-  def create_key(name)
-    ec2_client.create_key_pair({
+  def create_key(name, save_key = true)
+    key_path = "#{Dir.home}/.ssh/#{name}.pem"
+    fail("PK already exists: #{key_path}") if File.exists?(key_path)
+    key = ec2_client.create_key_pair({
       key_name: name  
     })
+    if save_key
+      File.write(key_path, key.key_material)
+      LOGGER.info("Created key pair and stored private key at #{key_path}. Fingerprint: #{key.key_fingerprint}")
+    end
+    key
   end
   
-  def start_instances(n)
+  def start_instances(n, key_name, instance_type = 't1.micro')
     response_run_instances = ec2_client.run_instances({
       dry_run: false,
       image_id: "ami-cf1066aa", # PV EBS-Backed 64-bit / US East
       min_count: n, # required
       max_count: n, # required
-      key_name: "aapb", # TODO: Command-line parameter? Script to create in the first place?
-      instance_type: "t1.micro",
+      key_name: key_name,
+      instance_type: instance_type,
       monitoring: {
         enabled: false, # required
       },
