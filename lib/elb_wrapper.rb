@@ -9,7 +9,33 @@ module ElbWrapper
     @elb_client ||= Aws::ElasticLoadBalancing::Client.new(CLIENT_CONFIG)
   end
   
-  public 
+  public
+  
+  def create_elb(name)
+    elb_client.create_load_balancer({
+      load_balancer_name: name, # required
+      listeners: [ # required
+        {
+          protocol: 'HTTP', # required
+          load_balancer_port: 80, # required
+          instance_protocol: 'HTTP',
+          instance_port: 80, # required
+          # ssl_certificate_id: "SSLCertificateId",
+        },
+      ],
+      # Either AvailabilityZones or SubnetIds must be specified
+      availability_zones: ['us-east-1c'],
+#      subnets: ["SubnetId"],
+#      security_groups: ["SecurityGroupId"],
+#      scheme: "LoadBalancerScheme",
+#      tags: [
+#        {
+#          key: "TagKey", # required
+#          value: "TagValue",
+#        },
+#      ],
+    }).dns_name
+  end
   
   def lookup_elb_by_cname(cname)
     matches = elb_client.describe_load_balancers().load_balancer_descriptions.select do |elb|

@@ -1,4 +1,4 @@
-require_relative '../lib/elb_swapper'
+require_relative '../lib/ec2_elb_starter'
 
 if ARGV.count != 1
   puts <<EOF
