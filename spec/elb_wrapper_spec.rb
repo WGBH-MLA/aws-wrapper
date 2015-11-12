@@ -6,7 +6,7 @@ describe ElbWrapper do
     wrapper = Class.new do
       include ElbWrapper
     end.new
-    expect(wrapper).to receive(:elb_client).and_return(
+    allow(wrapper).to receive(:elb_client).and_return(
       instance_double(Aws::ElasticLoadBalancing::Client).tap do |client|
         yield client
       end
@@ -15,10 +15,10 @@ describe ElbWrapper do
   end
   
   def expect_client_to_describe_elb(client, lb_description)
-    expect(client).to receive(:describe_load_balancers)
+    allow(client).to receive(:describe_load_balancers)
       .and_return(
         instance_double(Aws::ElasticLoadBalancing::Types::DescribeAccessPointsOutput).tap do |output|
-          expect(output).to receive(:load_balancer_descriptions)
+          allow(output).to receive(:load_balancer_descriptions)
             .and_return(
               [lb_description] 
             )
@@ -29,7 +29,7 @@ describe ElbWrapper do
   def elb_description(opts)
     instance_double(Aws::ElasticLoadBalancing::Types::LoadBalancerDescription).tap do |description|
       opts.each do |key, value|
-        expect(description).to receive(key).and_return(value)
+        allow(description).to receive(key).and_return(value)
       end
     end
   end
@@ -69,7 +69,7 @@ describe ElbWrapper do
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [instance(instance_id)])
       wrapper = expect_wrapper do |client|
-        expect(client).to receive(:register_instances_with_load_balancer)
+        allow(client).to receive(:register_instances_with_load_balancer)
         expect_client_to_describe_elb(client, elb_description)
       end
       expect{wrapper.register_instance_with_elb(instance_id, elb_name)}.not_to raise_error
@@ -82,7 +82,7 @@ describe ElbWrapper do
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [])
       wrapper = expect_wrapper do |client|
-        expect(client).to receive(:deregister_instances_from_load_balancer)
+        allow(client).to receive(:deregister_instances_from_load_balancer)
         expect_client_to_describe_elb(client, elb_description)
       end
       expect{wrapper.deregister_instance_from_elb(instance_id, elb_name)}.not_to raise_error

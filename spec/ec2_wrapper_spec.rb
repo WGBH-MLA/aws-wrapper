@@ -6,7 +6,7 @@ describe Ec2Wrapper do
     wrapper = Class.new do
       include Ec2Wrapper
     end.new
-    expect(wrapper).to receive(:ec2_client).and_return(
+    allow(wrapper).to receive(:ec2_client).and_return(
       instance_double(Aws::EC2::Client).tap do |client|
         yield client
       end
@@ -18,7 +18,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       kp = instance_double(Aws::EC2::Types::KeyPair)
       wrapper = expect_wrapper do |client|
-        expect(client).to receive(:create_key_pair).and_return(kp)
+        allow(client).to receive(:create_key_pair).and_return(kp)
       end
       expect(wrapper.create_key('name',false)).to eq kp
     end
@@ -28,7 +28,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       def instance(id)
         instance_double(Aws::EC2::Types::Instance).tap do |instance|
-          expect(instance).to receive(:instance_id)
+          allow(instance).to receive(:instance_id)
             .and_return(id).at_least(:once)
         end
       end
@@ -36,10 +36,10 @@ describe Ec2Wrapper do
       instances = ['instance-1-id', 'instance-2-id'].map{ |id| instance(id) }
       
       wrapper = expect_wrapper do |client|
-        expect(client).to receive(:run_instances)
+        allow(client).to receive(:run_instances)
           .and_return(
             instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-              expect(reservation).to receive(:instances)
+              allow(reservation).to receive(:instances)
                 .and_return(instances)
             end
           )
