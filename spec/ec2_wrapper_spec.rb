@@ -2,32 +2,30 @@ require_relative '../lib/ec2_wrapper'
 
 describe Ec2Wrapper do
   
-  class TestWrapper
-    include Ec2Wrapper
+  def expect_wrapper
+    wrapper = Class.new do
+      include Ec2Wrapper
+    end.new
+    expect(wrapper).to receive(:ec2_client).and_return(
+      instance_double(Aws::EC2::Client).tap do |client|
+        yield client
+      end
+    ).at_least(:once)
+    wrapper
   end
 
   describe '#create_key' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
-      
       kp = instance_double(Aws::EC2::Types::KeyPair)
-      
-      expect(wrapper).to receive(:ec2_client).and_return(
-        instance_double(Aws::EC2::Client).tap do |client|
-          expect(client).to receive(:create_key_pair).and_return(
-            kp
-          )
-        end
-      )
-      
+      wrapper = expect_wrapper do |client|
+        expect(client).to receive(:create_key_pair).and_return(kp)
+      end
       expect(wrapper.create_key('name')).to eq kp
     end
   end
   
   describe '#start_instances' do
     it 'makes expected SDK calls' do
-      wrapper = TestWrapper.new
-      
       def instance(id)
         instance_double(Aws::EC2::Types::Instance).tap do |instance|
           expect(instance).to receive(:instance_id)
@@ -37,18 +35,16 @@ describe Ec2Wrapper do
       
       instances = ['instance-1-id', 'instance-2-id'].map{ |id| instance(id) }
       
-      expect(wrapper).to receive(:ec2_client).and_return(
-        instance_double(Aws::EC2::Client).tap do |client|
-          expect(client).to receive(:run_instances)
-            .and_return(
-              instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-                expect(reservation).to receive(:instances)
-                  .and_return(instances)
-              end
-            )
-          expect(client).to receive(:wait_until)
-        end
-      ).at_least(:once)
+      wrapper = expect_wrapper do |client|
+        expect(client).to receive(:run_instances)
+          .and_return(
+            instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
+              expect(reservation).to receive(:instances)
+                .and_return(instances)
+            end
+          )
+        expect(client).to receive(:wait_until)
+      end
       
       expect(wrapper.start_instances(2)).to eq instances
     end
