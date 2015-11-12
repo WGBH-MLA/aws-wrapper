@@ -9,8 +9,11 @@ class Ec2ElbStarter < AwsWrapper
     instance_ids.zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
     end
-    
-    # TODO: Create DNS CNAMES for ELBs
+    # TODO: Exercise this.
+    [name, "demo.#{name}"].zip(elb_a_names).each do |domain_name, elb_target_name|
+      request_create_dns_cname_record(zone_id, domain_name, elb_target_name)
+    end
+    # TODO: Confirm DNS update.
   end
   
 end
