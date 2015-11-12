@@ -11,7 +11,11 @@ module Ec2Wrapper
   
   public
   
-# TODO: Delete what we don't use.  
+  def create_key(name)
+    ec2_client.create_key_pair({
+      key_name: name  
+    })
+  end
   
   def start_instances(n)
     response_run_instances = ec2_client.run_instances({
