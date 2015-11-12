@@ -6,6 +6,24 @@ describe Ec2Wrapper do
     include Ec2Wrapper
   end
 
+  describe '#create_key' do
+    it 'makes expected SDK calls' do
+      wrapper = TestWrapper.new
+      
+      kp = instance_double(Aws::EC2::Types::KeyPair)
+      
+      expect(wrapper).to receive(:ec2_client).and_return(
+        instance_double(Aws::EC2::Client).tap do |client|
+          expect(client).to receive(:create_key_pair).and_return(
+            kp
+          )
+        end
+      )
+      
+      expect(wrapper.create_key('name')).to eq kp
+    end
+  end
+  
   describe '#start_instances' do
     it 'makes expected SDK calls' do
       wrapper = TestWrapper.new
