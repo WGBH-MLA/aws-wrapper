@@ -21,7 +21,7 @@ module ElbWrapper
           instance_protocol: 'HTTP',
           instance_port: 80, # required
           # ssl_certificate_id: "SSLCertificateId",
-        },
+        }
       ],
       # Either AvailabilityZones or SubnetIds must be specified
       availability_zones: [AVAILABILITY_ZONE],

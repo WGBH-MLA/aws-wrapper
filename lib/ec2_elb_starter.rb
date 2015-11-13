@@ -26,8 +26,7 @@ class Ec2ElbStarter < AwsWrapper
       name.downcase # Otherwise there are discrepancies between DNS and the API.
     end.zip(elb_a_names)
     create_dns_cname_records(zone_id, name_target_pairs)
-    LOGGER.info("Created CNAMEs. Try:")
-    LOGGER.info("    ssh -i ~/.ssh/#{name}.pem  ec2-user@#{name} # OR demo.#{name}")
+    LOGGER.info("Created CNAMEs")
   end
   
 end
