@@ -11,8 +11,9 @@ module Ec2Wrapper
   
   public
   
-  def create_volume()
-    ec2_client.create_volume({
+  
+  def create_and_attach_volume(instance_id, device)
+    volume_id = ec2_client.create_volume({
       # dry_run: true,
       size: 1,
       #snapshot_id: "String",
@@ -22,14 +23,20 @@ module Ec2Wrapper
       #encrypted: true,
       #kms_key_id: "String",
     }).volume_id
-  end
-  
-  def attach_volume_to_instance(volume_id, instance_id, device)
+    1.upto(WAIT_ATTEMPTS) do |try|
+      volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.select do |vol|
+        vol.volume_id = volume_id
+      end.first
+      break if volume && volume.state == 'available'
+      fail('Giving up') if try >= WAIT_ATTEMPTS
+      LOGGER.info("try #{try}: Volume #{volume_id} not yet available")
+      sleep(WAIT_INTERVAL)
+    end
     ec2_client.attach_volume({
       # dry_run: true,
       volume_id: volume_id, # required
       instance_id: instance_id, # required
-      device: device, # required: /dev/sdb - /dev/sdp
+      device: device, # required: /dev/sdb thru /dev/sdp
     })
   end
   
