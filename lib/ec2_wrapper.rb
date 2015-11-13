@@ -11,6 +11,28 @@ module Ec2Wrapper
   
   public
   
+  def create_volume()
+    ec2_client.create_volume({
+      # dry_run: true,
+      size: 1,
+      #snapshot_id: "String",
+      availability_zone: AVAILABILITY_ZONE, # required
+      volume_type: "standard", # accepts standard, io1, gp2
+      #iops: 1,
+      #encrypted: true,
+      #kms_key_id: "String",
+    }).volume_id
+  end
+  
+  def attach_volume_to_instance(volume_id, instance_id, device)
+    ec2_client.attach_volume({
+      # dry_run: true,
+      volume_id: volume_id, # required
+      instance_id: instance_id, # required
+      device: device, # required: /dev/sdb - /dev/sdp
+    })
+  end
+  
   def create_key(name, save_key = true)
     key_path = "#{Dir.home}/.ssh/#{name}.pem"
     fail("PK already exists: #{key_path}") if File.exists?(key_path)

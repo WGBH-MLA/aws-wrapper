@@ -25,4 +25,6 @@ module BaseWrapper
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 100
   
+  AVAILABILITY_ZONE = 'us-east-1c'
+  
 end

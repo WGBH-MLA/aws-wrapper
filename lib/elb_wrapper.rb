@@ -24,7 +24,7 @@ module ElbWrapper
         },
       ],
       # Either AvailabilityZones or SubnetIds must be specified
-      availability_zones: ['us-east-1c'],
+      availability_zones: [AVAILABILITY_ZONE],
 #      subnets: ["SubnetId"],
 #      security_groups: ["SecurityGroupId"],
 #      scheme: "LoadBalancerScheme",
