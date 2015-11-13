@@ -69,8 +69,6 @@ module Ec2Wrapper
     })
     instances = response_run_instances.instances
 
-    LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
-
     ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
       config_wait(w)
     end
@@ -167,7 +165,7 @@ module Ec2Wrapper
           "#{i.instance_id}: #{i.state.name}"
         }
       }.flatten
-      LOGGER.info("#{n}: Waiting... #{status}")
+      LOGGER.info("try #{n}: EC2 instances not ready yet. #{status}")
     end
   end
   
