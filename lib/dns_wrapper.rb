@@ -88,8 +88,7 @@ module DnsWrapper
 #    resource_records[0].value
 #  end
   
-  def request_create_dns_cname_record(zone_id, domain_name, target)
-    # TODO: validate
+  def create_dns_cname_record(zone_id, domain_name, target)
     dns_client.change_resource_record_sets({
       hosted_zone_id: zone_id, # required
       change_batch: { # required
@@ -125,7 +124,14 @@ module DnsWrapper
           },
         ],
       },
-    })
+    }).change_info.id.tap do |id|
+      1.upto(WAIT_ATTEMPTS) do |try|
+        break if dns_client.get_change({id: id}).change_info.status == 'INSYNC'
+        fail('Giving up') if try >= WAIT_ATTEMPTS
+        LOGGER.info("try #{try}: DNS update for #{domain_name} not yet propagated to all AWS NS")
+        sleep(WAIT_INTERVAL)
+      end
+    end
   end
   
 end

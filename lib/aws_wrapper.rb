@@ -12,7 +12,7 @@ class AwsWrapper
   def initialize(opts = {})
     @client_config = {
       logger: opts[:debug] ? LOGGER : nil,
-      log_level: :debug,
+      log_level: :debug, # Does not change the volume of logging, but instead sets the level of the messages.
       # Optional log_formatter for more information:
       #log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
     }

@@ -1,8 +1,5 @@
 require_relative '../lib/ec2_elb_starter'
 require 'optparse'
-require 'ostruct'
-require 'optparse/time'
-require 'pp'
 
 name = nil
 debug = false

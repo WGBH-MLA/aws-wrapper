@@ -17,9 +17,8 @@ class Ec2ElbStarter < AwsWrapper
     [name, "demo.#{name}"].map do |name|
       name.downcase # Otherwise there are discrepancies between DNS and the API.
     end.zip(elb_a_names).each do |domain_name, elb_target_name|
-      request_create_dns_cname_record(zone_id, domain_name, elb_target_name)
+      create_dns_cname_record(zone_id, domain_name, elb_target_name)
     end
-    # TODO: Confirm DNS update.
   end
   
 end
