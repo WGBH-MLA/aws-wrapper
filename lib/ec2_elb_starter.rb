@@ -14,11 +14,10 @@ class Ec2ElbStarter < AwsWrapper
     instance_ids.zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
     end
-    [name, "demo.#{name}"].map do |name|
+    name_target_pairs = [name, "demo.#{name}"].map do |name|
       name.downcase # Otherwise there are discrepancies between DNS and the API.
-    end.zip(elb_a_names).each do |domain_name, elb_target_name|
-      create_dns_cname_record(zone_id, domain_name, elb_target_name)
-    end
+    end.zip(elb_a_names)
+    create_dns_cname_records(zone_id, name_target_pairs)
   end
   
 end

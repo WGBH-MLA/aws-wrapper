@@ -88,7 +88,23 @@ module DnsWrapper
 #    resource_records[0].value
 #  end
   
-  def create_dns_cname_record(zone_id, domain_name, target)
+  def create_dns_cname_records(zone_id, domain_name_target_hash)
+    # Since it takes a while for the updates to propagate, it makes sense to make
+    # both requests first, and then wait for them to complete.
+    domain_name_target_hash.map do |domain_name, target|
+      request_create_dns_cname_record(zone_id, domain_name, target)
+    end.each do |request_id|
+      1.upto(WAIT_ATTEMPTS) do |try|
+        break if dns_client.get_change({id: request_id}).change_info.status == 'INSYNC'
+        fail('Giving up') if try >= WAIT_ATTEMPTS
+        LOGGER.info("try #{try}: DNS update #{request_id} not yet propagated to all AWS NS")
+        sleep(WAIT_INTERVAL)
+      end
+    end
+  end
+  
+  
+  def request_create_dns_cname_record(zone_id, domain_name, target)
     dns_client.change_resource_record_sets({
       hosted_zone_id: zone_id, # required
       change_batch: { # required
@@ -124,14 +140,7 @@ module DnsWrapper
           },
         ],
       },
-    }).change_info.id.tap do |id|
-      1.upto(WAIT_ATTEMPTS) do |try|
-        break if dns_client.get_change({id: id}).change_info.status == 'INSYNC'
-        fail('Giving up') if try >= WAIT_ATTEMPTS
-        LOGGER.info("try #{try}: DNS update for #{domain_name} not yet propagated to all AWS NS")
-        sleep(WAIT_INTERVAL)
-      end
-    end
+    }).change_info.id
   end
   
 end
