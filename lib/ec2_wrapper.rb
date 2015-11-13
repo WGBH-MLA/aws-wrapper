@@ -6,7 +6,7 @@ module Ec2Wrapper
   private
   
   def ec2_client
-    @ec2_client ||= Aws::EC2::Client.new(CLIENT_CONFIG)
+    @ec2_client ||= Aws::EC2::Client.new(client_config)
   end
   
   public

@@ -6,7 +6,7 @@ module ElbWrapper
   private
   
   def elb_client
-    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(CLIENT_CONFIG)
+    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(client_config)
   end
   
   public

@@ -7,7 +7,7 @@ module DnsWrapper
   private
   
   def dns_client
-    @dns_client ||= Aws::Route53::Client.new(CLIENT_CONFIG)
+    @dns_client ||= Aws::Route53::Client.new(client_config)
   end
   
   public

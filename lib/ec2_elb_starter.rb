@@ -3,9 +3,8 @@ require_relative 'aws_wrapper'
 class Ec2ElbStarter < AwsWrapper
   
   def start(zone_id, name)
-    key_name = name
     create_key(name)
-    instance_ids = start_instances(2, key_name).map(&:instance_id)
+    instance_ids = start_instances(2, name).map(&:instance_id)
     instance_ids.each do |instance_id|
       create_and_attach_volume(instance_id, '/dev/sdb')
     end
