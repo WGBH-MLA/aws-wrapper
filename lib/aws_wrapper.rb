@@ -7,16 +7,15 @@ class AwsWrapper
   include Ec2Wrapper
   include ElbWrapper
   
-  def initialize(log_level = :debug)
-    @log_level = log_level
-  end
+  attr_reader :client_config
   
-  def client_config
-    {
-      logger: LOGGER, 
-      log_level: @log_level,
+  def initialize(opts = {})
+    @client_config = {
+      logger: opts[:debug] ? LOGGER : nil,
+      log_level: :debug,
       # Optional log_formatter for more information:
       #log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
     }
   end
+  
 end
