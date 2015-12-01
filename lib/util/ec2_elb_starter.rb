@@ -6,6 +6,9 @@ class Ec2ElbStarter < AwsWrapper
     create_key(name)
     LOGGER.info("Created PK for #{name}")
     
+    create_group(name)
+    LOGGER.info("Created group for #{name}")
+    
     instance_ids = start_instances(2, name).map(&:instance_id)
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
     

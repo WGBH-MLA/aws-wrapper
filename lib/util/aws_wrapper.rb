@@ -1,11 +1,13 @@
 require_relative '../core/dns_wrapper'
 require_relative '../core/ec2_wrapper'
 require_relative '../core/elb_wrapper'
+require_relative '../core/iam_wrapper'
 
 class AwsWrapper
   include DnsWrapper
   include Ec2Wrapper
   include ElbWrapper
+  include IamWrapper
   
   attr_reader :client_config
   
