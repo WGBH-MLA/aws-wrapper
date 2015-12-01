@@ -1,4 +1,4 @@
-require_relative '../lib/ec2_elb_starter'
+require_relative '../lib/util/ec2_elb_starter'
 require 'optparse'
 
 name = nil

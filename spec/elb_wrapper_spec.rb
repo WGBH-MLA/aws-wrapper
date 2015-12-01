@@ -1,4 +1,4 @@
-require_relative '../lib/elb_wrapper'
+require_relative '../lib/core/elb_wrapper'
 
 describe ElbWrapper do
   

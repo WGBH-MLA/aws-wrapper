@@ -1,4 +1,4 @@
-require_relative '../lib/ec2_wrapper'
+require_relative '../lib/core/ec2_wrapper'
 
 describe Ec2Wrapper do
   

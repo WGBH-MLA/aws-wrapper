@@ -1,6 +1,6 @@
-require_relative 'dns_wrapper'
-require_relative 'ec2_wrapper'
-require_relative 'elb_wrapper'
+require_relative '../core/dns_wrapper'
+require_relative '../core/ec2_wrapper'
+require_relative '../core/elb_wrapper'
 
 class AwsWrapper
   include DnsWrapper

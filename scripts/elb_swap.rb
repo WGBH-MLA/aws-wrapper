@@ -1,4 +1,4 @@
-require_relative '../lib/elb_swapper'
+require_relative '../lib/util/elb_swapper'
 require 'optparse'
 
 name = nil
