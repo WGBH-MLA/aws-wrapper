@@ -4,6 +4,7 @@ require 'optparse'
 name = nil
 debug = false
 zone_id = 'Z1JB6V9RIBL7FX' # https://console.aws.amazon.com/route53/home?region=us-east-1#hosted-zones
+# TODO: Maybe a git-ignored config file? or ~/.aws?
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"

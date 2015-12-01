@@ -28,7 +28,7 @@ class Ec2ElbStarter < AwsWrapper
     
     # Maybe this would be better managed than inline?
     # But then that would be another thing to clean up.
-    put_group_policy(name, "allow-group-#{name}-to-swap-elbs", {
+    put_group_policy(name, "allow-group-to-swap-elbs", {
       'Effect' => 'Allow',
       'Action' => 'elasticloadbalancing:*', # TODO: tighten
       'Resource' => elb_names.map { |elb_name| elb_arn('us-east-1c', '127946490116', elb_name) }
