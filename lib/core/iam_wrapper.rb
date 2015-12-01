@@ -1,4 +1,5 @@
 require_relative 'base_wrapper'
+require 'json'
 
 module IamWrapper
   include BaseWrapper
@@ -31,6 +32,17 @@ module IamWrapper
   
   def add_current_user_to_group(group_name)
     add_user_to_group(current_user_name, group_name)
+  end
+  
+  def put_group_policy(group_name, policy_name, statement)
+    iam_client.put_group_policy({
+      group_name: group_name, # required
+      policy_name: policy_name, # required
+      policy_document: {
+        'Version' => '2012-10-17',
+        'Statement' => statement
+      }.to_json, # required
+    })
   end
   
 end

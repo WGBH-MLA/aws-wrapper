@@ -11,6 +11,10 @@ module ElbWrapper
   
   public
   
+  def elb_arn(region, account_id, elb_name)
+    "arn:aws:elasticloadbalancing:#{region}:#{account_id}:loadbalancer/#{elb_name}"
+  end
+  
   def create_elb(name)
     elb_client.create_load_balancer({
       load_balancer_name: name, # required

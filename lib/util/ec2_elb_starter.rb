@@ -26,6 +26,16 @@ class Ec2ElbStarter < AwsWrapper
     end
     LOGGER.info("Created load balancers and registered instances")
     
+    # Maybe this would be better managed than inline?
+    # But then that would be another thing to clean up.
+    put_group_policy(name, "allow-group-#{name}-to-swap-elbs", {
+      'Effect' => 'Allow',
+      'Action' => 'elasticloadbalancing:*', # TODO: tighten
+      'Resource' => elb_names.map { |elb_name| elb_arn('us-east-1c', '127946490116', elb_name) }
+      # TODO: pull zone and account ID from somewhere.
+    })
+    LOGGER.info("Create group policy for ELB")
+    
     name_target_pairs = [name, "demo.#{name}"].map do |name|
       name.downcase # Otherwise there are discrepancies between DNS and the API.
     end.zip(elb_a_names)
