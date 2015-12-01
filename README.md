@@ -4,11 +4,11 @@ Scripts for our most common interactions with AWS.
 For documentation on a particular script, run it without arguments.
 Typically, bare servers can be set up with:
 ```
-ruby scripts/ec2_elb_start.rb abc.wgbh-mla-test.org
+ruby scripts/ec2_elb_start.rb --name abc.wgbh-mla-test.org
 ```
 and then we can swap them with
 ```
-ruby scripts/elb_swap.rb abc.wgbh-mla-test.org
+ruby scripts/elb_swap.rb --name abc.wgbh-mla-test.org
 ```
 
 ## Organization
