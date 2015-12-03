@@ -18,8 +18,7 @@ class Ec2ElbStarter < AwsWrapper
     end
     LOGGER.info("Attached EBS volume to each instance")
     
-    elb_names = ['a', 'b'].map{ |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
-    # AWS restricts length and characters of ELB names
+    elb_names = elb_names(name)
     elb_a_names = elb_names.map{ |name| create_elb(name) }
     instance_ids.zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
@@ -28,7 +27,7 @@ class Ec2ElbStarter < AwsWrapper
     
     # Maybe this would be better managed than inline?
     # But then that would be another thing to clean up.
-    put_group_policy(name, "allow-group-to-swap-elbs", {
+    put_group_policy(name, {
       'Effect' => 'Allow',
       'Action' => 'elasticloadbalancing:*', # TODO: tighten
       'Resource' => elb_names.map { |elb_name| elb_arn('us-east-1c', '127946490116', elb_name) }
@@ -36,9 +35,7 @@ class Ec2ElbStarter < AwsWrapper
     })
     LOGGER.info("Create group policy for ELB")
     
-    name_target_pairs = [name, "demo.#{name}"].map do |name|
-      name.downcase # Otherwise there are discrepancies between DNS and the API.
-    end.zip(elb_a_names)
+    name_target_pairs = cname_pair(name).zip(elb_a_names)
     create_dns_cname_records(zone_id, name_target_pairs)
     LOGGER.info("Created CNAMEs")
   end

@@ -38,10 +38,27 @@ module Ec2Wrapper
       instance_id: instance_id, # required
       device: device, # required: /dev/sdb thru /dev/sdp
     })
+    ec2_client.modify_instance_attribute(
+      instance_id: instance_id, # required
+      attribute: 'blockDeviceMapping',
+      block_device_mappings: [
+        {
+          device_name: device,
+          ebs: {
+            volume_id: volume_id,
+            delete_on_termination: true,
+          }
+        }
+      ]
+    )
+  end
+  
+  def key_path(name)
+    "#{Dir.home}/.ssh/#{name}.pem"
   end
   
   def create_key(name, save_key = true)
-    key_path = "#{Dir.home}/.ssh/#{name}.pem"
+    key_path = key_path(name)
     fail("PK already exists: #{key_path}") if File.exists?(key_path)
     key = ec2_client.create_key_pair({
       key_name: name  
@@ -51,6 +68,13 @@ module Ec2Wrapper
       LOGGER.info("Created key pair and stored private key at #{key_path}. Fingerprint: #{key.key_fingerprint}")
     end
     key
+  end
+  
+  def delete_key(name)
+    File.delete(key_path(name))
+    ec2_client.delete_key_pair({
+      key_name: name  
+    })
   end
   
   def start_instances(n, key_name, instance_type = 't1.micro')
@@ -74,6 +98,18 @@ module Ec2Wrapper
     end
     
     return instances
+  end
+  
+  def terminate_instances(key_name)
+    instance_ids = ec2_client.describe_instances({
+      filters: [{
+        name: 'key-name',
+        values: [key_name],
+      }]
+    }).reservations.map { |res| res.instances.map { |inst| inst.instance_id } }.flatten
+    ec2_client.terminate_instances({
+      instance_ids: instance_ids
+    })
   end
   
 #  def lookup_eip(eip_ip)

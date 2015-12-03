@@ -15,6 +15,10 @@ module ElbWrapper
     "arn:aws:elasticloadbalancing:#{region}:#{account_id}:loadbalancer/#{elb_name}"
   end
   
+  def elb_names(name)
+    ['a', 'b'].map{ |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
+  end
+  
   def create_elb(name)
     elb_client.create_load_balancer({
       load_balancer_name: name, # required
@@ -39,6 +43,12 @@ module ElbWrapper
 #        },
 #      ],
     }).dns_name
+  end
+  
+  def delete_elb(name)
+    elb_client.delete_load_balancer({
+      load_balancer_name: name, # required
+    })
   end
   
   def lookup_elb_by_cname(cname)
