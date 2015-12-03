@@ -15,14 +15,9 @@ module BaseWrapper
     "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
   end
   
-  CLIENT_CONFIG = {
-    logger: LOGGER, 
-    log_level: :debug,
-    # Optional log_formatter for more information:
-    #log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
-  }
-  
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 100
+  
+  AVAILABILITY_ZONE = 'us-east-1c'
   
 end

@@ -12,11 +12,11 @@ class ElbSwapper < AwsWrapper
     
     register_instance_with_elb(demo.instance_id, live.elb_name)
     register_instance_with_elb(live.instance_id, demo.elb_name)
-    LOGGER.info("Registered both instances to both ELBs")
+    LOGGER.info("Half swapped: Registered both instances to both ELBs")
     
     deregister_instance_from_elb(demo.instance_id, demo.elb_name)
     deregister_instance_from_elb(live.instance_id, live.elb_name)
-    LOGGER.info("De-registered both instances from original ELBs")
+    LOGGER.info("Swap complete: De-registered both instances from original ELBs")
   end
   
   def lookup_elb_and_instance(zone_id, name)

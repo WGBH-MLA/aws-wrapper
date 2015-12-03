@@ -6,10 +6,14 @@ module ElbWrapper
   private
   
   def elb_client
-    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(CLIENT_CONFIG)
+    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(client_config)
   end
   
   public
+  
+  def elb_arn(region, account_id, elb_name)
+    "arn:aws:elasticloadbalancing:#{region}:#{account_id}:loadbalancer/#{elb_name}"
+  end
   
   def create_elb(name)
     elb_client.create_load_balancer({
@@ -21,10 +25,10 @@ module ElbWrapper
           instance_protocol: 'HTTP',
           instance_port: 80, # required
           # ssl_certificate_id: "SSLCertificateId",
-        },
+        }
       ],
       # Either AvailabilityZones or SubnetIds must be specified
-      availability_zones: ['us-east-1c'],
+      availability_zones: [AVAILABILITY_ZONE],
 #      subnets: ["SubnetId"],
 #      security_groups: ["SecurityGroupId"],
 #      scheme: "LoadBalancerScheme",

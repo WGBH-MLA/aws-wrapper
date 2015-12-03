@@ -6,10 +6,39 @@ module Ec2Wrapper
   private
   
   def ec2_client
-    @ec2_client ||= Aws::EC2::Client.new(CLIENT_CONFIG)
+    @ec2_client ||= Aws::EC2::Client.new(client_config)
   end
   
   public
+  
+  
+  def create_and_attach_volume(instance_id, device)
+    volume_id = ec2_client.create_volume({
+      # dry_run: true,
+      size: 1,
+      #snapshot_id: "String",
+      availability_zone: AVAILABILITY_ZONE, # required
+      volume_type: "standard", # accepts standard, io1, gp2
+      #iops: 1,
+      #encrypted: true,
+      #kms_key_id: "String",
+    }).volume_id
+    1.upto(WAIT_ATTEMPTS) do |try|
+      volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.select do |vol|
+        vol.volume_id = volume_id
+      end.first
+      break if volume && volume.state == 'available'
+      fail('Giving up') if try >= WAIT_ATTEMPTS
+      LOGGER.info("try #{try}: Volume #{volume_id} not yet available")
+      sleep(WAIT_INTERVAL)
+    end
+    ec2_client.attach_volume({
+      # dry_run: true,
+      volume_id: volume_id, # required
+      instance_id: instance_id, # required
+      device: device, # required: /dev/sdb thru /dev/sdp
+    })
+  end
   
   def create_key(name, save_key = true)
     key_path = "#{Dir.home}/.ssh/#{name}.pem"
@@ -39,8 +68,6 @@ module Ec2Wrapper
       instance_initiated_shutdown_behavior: "terminate", # accepts stop, terminate
     })
     instances = response_run_instances.instances
-
-    LOGGER.info("Requested EC2 instances: #{instances.map(&:instance_id)}")
 
     ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
       config_wait(w)
@@ -138,7 +165,7 @@ module Ec2Wrapper
           "#{i.instance_id}: #{i.state.name}"
         }
       }.flatten
-      LOGGER.info("#{n}: Waiting... #{status}")
+      LOGGER.info("try #{n}: EC2 instances not ready yet. #{status}")
     end
   end
   
