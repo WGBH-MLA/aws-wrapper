@@ -31,6 +31,12 @@ module DnsWrapper
   end
   
   def lookup_dns_cname_record(zone_id, domain_name)
+    resource_records = lookup_dns_cname_record_set(zone_id, domain_name).resource_records
+    fail("Expected 1 resource record, not #{resource_records.count}") unless resource_records.count == 1
+    resource_records[0].value
+  end
+  
+  def lookup_dns_cname_record_set(zone_id, domain_name)
     response = dns_client.list_resource_record_sets({
       hosted_zone_id: zone_id, # required
       start_record_name: domain_name, # NOT a filter: all are returned, unless max_items set.
@@ -40,9 +46,7 @@ module DnsWrapper
     })
     record_sets = response.resource_record_sets
     fail("Expected 1 record set, not #{record_sets.count}") unless record_sets.count == 1
-    resource_records = record_sets[0].resource_records
-    fail("Expected 1 resource record, not #{resource_records.count}") unless resource_records.count == 1
-    resource_records[0].value
+    record_sets[0]
   end
   
 # TODO: Delete all the code below when we're confident it's not needed.  
@@ -123,6 +127,10 @@ module DnsWrapper
   end
   
   def request_delete_dns_cname_record(zone_id, domain_name)
+    # Annoyingly, you need to specify the entire record in order to delete:
+    # Just the name is not enough.
+    record_set = lookup_dns_cname_record_set(zone_id, domain_name)
+    
     dns_client.change_resource_record_sets({
       hosted_zone_id: zone_id, # required
       change_batch: { # required
@@ -142,12 +150,8 @@ module DnsWrapper
 #                subdivision_code: "GeoLocationSubdivisionCode",
 #              },
 #              failover: "PRIMARY", # accepts PRIMARY, SECONDARY
-#              ttl: 300, # required (but not documented as such)
-#              resource_records: [
-#                {
-#                  value: target, # required
-#                }
-#              ],
+              ttl: record_set.ttl, # required (but not documented as such)
+              resource_records: record_set.resource_records,
 #              alias_target: {
 #                hosted_zone_id: "ResourceId", # required
 #                dns_name: "DNSName", # required
