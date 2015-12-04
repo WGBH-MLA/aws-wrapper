@@ -1,9 +1,9 @@
 require_relative '../lib/util/group_adder'
+require_relative '../lib/script_helper'
 require 'optparse'
 
-user = nil
-group = nil
-debug = nil
+user = group = debug = nil
+ScriptHelper.read_config(binding)
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"

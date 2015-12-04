@@ -3,6 +3,12 @@
 Scripts for our most common interactions with AWS. 
 For documentation on a particular script, run it without arguments.
 
+Before running any of the examples, you will need to have an AWS IAM user,
+with your API credentials in the conventional location, and also have a zone ID 
+for your Route 53 DNS zone. The zone ID could be passed as a command line
+argument in all the examples below, but you can also specify it just once in
+`.config.yml`, as you can with all command line arguments.
+
 Typically, bare servers can be set up:
 ```
 ruby scripts/ec2_elb_start.rb --name abc.wgbh-mla-test.org
@@ -45,10 +51,12 @@ Each layer should `require` only from the layer immediately below.
 
 ## Reference
 
-The scripts create all kinds of interrelated AWS resources. If you want to keep an eye on them:
+The scripts create all kinds of interrelated AWS resources. If you want to keep an eye on them
+(may need to change region to match yours):
 
 - [EC2s](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:launchTime)
 - [Volumes](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Volumes:sort=desc:createTime)
 - [Key Pairs](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName)
 - [CNAMEs](https://console.aws.amazon.com/route53/home?region=us-east-1)
 - [ELBs](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#LoadBalancers:)
+- [Groups](https://console.aws.amazon.com/iam/home?region=us-east-1#groups)

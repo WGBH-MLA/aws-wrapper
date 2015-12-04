@@ -49,6 +49,7 @@ module IamWrapper
       group_name: group_name, # required
       user_name: user_name, # required
     })
+    LOGGER.info("Added #{user_name} to #{group_name}")
   end
   
   def add_current_user_to_group(group_name)

@@ -1,17 +1,16 @@
 require_relative '../lib/util/cleanuper'
+require_relative '../lib/script_helper'
 require 'optparse'
 
-name = nil
-debug = false
-zone_id = 'Z1JB6V9RIBL7FX' # https://console.aws.amazon.com/route53/home?region=us-east-1#hosted-zones
-# TODO: Maybe a git-ignored config file? or ~/.aws?
+name = debug = zone_id = nil
+ScriptHelper.read_config(binding)
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
   opts.on('--name NAME', 'NAME should be a CNAME managed by AWS, among other things') do |n|
     name = n
   end
-  opts.on('--zone ZONE', 'AWS Zone ID') do |z|
+  opts.on('--zone_id ZONE', 'AWS Zone ID') do |z|
     zone_id = z
   end
   opts.on('--debug', 'Turn on debugging') do
@@ -21,8 +20,8 @@ opt_parser = OptionParser.new do |opts|
 end
 
 opt_parser.parse!(ARGV)
-unless name
-  STDERR.puts '--name is missing'
+unless name && zone_id
+  STDERR.puts '--name and --zone_id are required'
   STDERR.puts opt_parser
   exit 1
 end
