@@ -10,8 +10,10 @@ class AwsWrapper
   include IamWrapper
   
   attr_reader :client_config
+  attr_reader :availability_zone
   
   def initialize(opts = {})
+    @availability_zone = opts[:availability_zone]
     @client_config = {
       logger: opts[:debug] ? LOGGER : nil,
       log_level: :debug, # Does not change the volume of logging, but instead sets the level of the messages.

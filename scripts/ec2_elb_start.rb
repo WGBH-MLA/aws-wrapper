@@ -2,7 +2,7 @@ require_relative '../lib/util/ec2_elb_starter'
 require_relative '../lib/script_helper'
 require 'optparse'
 
-name = debug = zone_id = nil
+name = debug = zone_id = availability_zone = nil
 ScriptHelper.read_config(binding)
 
 opt_parser = OptionParser.new do |opts|
@@ -14,6 +14,9 @@ opt_parser = OptionParser.new do |opts|
   end
   opts.on('--zone_id ZONE', 'AWS Zone ID') do |z|
     zone_id = z
+  end
+  opts.on('--availability_zone', 'Availability Zone') do |z|
+    availability_zone = z
   end
   opts.on('--debug', 'Turn on debugging') do
     debug = true
@@ -29,4 +32,4 @@ unless name && zone_id
   exit 1
 end
 
-Ec2ElbStarter.new(debug: debug).start(zone_id, name)
+Ec2ElbStarter.new(debug: debug, availability_zone: availability_zone).start(zone_id, name)

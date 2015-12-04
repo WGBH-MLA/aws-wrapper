@@ -13,7 +13,7 @@ module ElbWrapper
   
   def elb_arn(elb_name)
     account_id = Aws::IAM::CurrentUser.new.arn.match(/^arn:aws:iam::(\d+)/)[1]
-    "arn:aws:elasticloadbalancing:#{AVAILABILITY_ZONE}:#{account_id}:loadbalancer/#{elb_name}"
+    "arn:aws:elasticloadbalancing:#{availability_zone}:#{account_id}:loadbalancer/#{elb_name}"
   end
   
   def elb_names(name)
@@ -33,7 +33,7 @@ module ElbWrapper
         }
       ],
       # Either AvailabilityZones or SubnetIds must be specified
-      availability_zones: [AVAILABILITY_ZONE],
+      availability_zones: [availability_zone],
 #      subnets: ["SubnetId"],
 #      security_groups: ["SecurityGroupId"],
 #      scheme: "LoadBalancerScheme",

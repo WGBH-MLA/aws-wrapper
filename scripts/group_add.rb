@@ -2,7 +2,7 @@ require_relative '../lib/util/group_adder'
 require_relative '../lib/script_helper'
 require 'optparse'
 
-user = group = debug = nil
+user = group = debug = availability_zone = nil
 ScriptHelper.read_config(binding)
 
 opt_parser = OptionParser.new do |opts|
@@ -12,6 +12,9 @@ opt_parser = OptionParser.new do |opts|
   end
   opts.on('--group GROUP', 'AWS group name') do |g|
     group = g
+  end
+  opts.on('--availability_zone', 'Availability Zone') do |z|
+    availability_zone = z
   end
   opts.on('--debug', 'Turn on debugging') do
     debug = true
@@ -26,4 +29,4 @@ unless user && group
   exit 1
 end
 
-GroupAdder.new(debug: debug).add_user_to_group(user, group)
+GroupAdder.new(debug: debug, availability_zone: availability_zone).add_user_to_group(user, group)

@@ -17,7 +17,7 @@ module Ec2Wrapper
       # dry_run: true,
       size: 1,
       #snapshot_id: "String",
-      availability_zone: AVAILABILITY_ZONE, # required
+      availability_zone: availability_zone, # required
       volume_type: "standard", # accepts standard, io1, gp2
       #iops: 1,
       #encrypted: true,
@@ -201,7 +201,7 @@ module Ec2Wrapper
         r.instances.map { |i| 
           "#{i.instance_id}: #{i.state.name}"
         }
-      }.flatten rescue LOGGER.warn("Error reading EC2 reservations; will try again: #{$!} at #{$@}")
+      }.flatten rescue LOGGER.warn("Error reading EC2 reservations; will try again: #{$!}")
       LOGGER.info("try #{n}: EC2 instances not ready yet. #{status}")
     end
   end
