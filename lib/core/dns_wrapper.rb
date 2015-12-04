@@ -11,7 +11,7 @@ module DnsWrapper
   end
   
   def wait_until_updates_propagate(request_id)
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       break if dns_client.get_change({id: request_id}).change_info.status == 'INSYNC'
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: DNS update #{request_id} not yet propagated to all AWS NS")
@@ -61,14 +61,14 @@ module DnsWrapper
 #  def update_dns_a_record(zone_id, domain_name, new_ip)
 #    update_response = request_update_dns_a_record(zone_id, domain_name, new_ip)
 #    
-#    1.upto(WAIT_ATTEMPTS) do |try|
+#    1.step do |try|
 #      break if update_insync?(update_response)
 #      fail('Giving up') if try >= WAIT_ATTEMPTS
 #      LOGGER.info("try #{try}: DNS update not yet propagated to AWS nameservers...")
 #      sleep(WAIT_INTERVAL)
 #    end
 #    
-#    1.upto(WAIT_ATTEMPTS) do |try|
+#    1.step do |try|
 #      break if Resolv.getaddress(domain_name) == new_ip
 #      fail('Giving up') if try >= WAIT_ATTEMPTS
 #      LOGGER.info("try #{try}: DNS update not yet propagated to local nameserver...")

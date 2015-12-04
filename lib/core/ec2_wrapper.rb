@@ -23,7 +23,7 @@ module Ec2Wrapper
       #encrypted: true,
       #kms_key_id: "String",
     }).volume_id
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.select do |vol|
         vol.volume_id = volume_id
       end.first

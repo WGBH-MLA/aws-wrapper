@@ -76,7 +76,7 @@ module ElbWrapper
         },
       ],
     })
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       break if lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: Instance #{instance_id} not yet registered with ELB #{elb_name}")
@@ -93,7 +93,7 @@ module ElbWrapper
         },
       ],
     })
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       break unless lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: Instance #{instance_id} not yet de-registered from ELB #{elb_name}")

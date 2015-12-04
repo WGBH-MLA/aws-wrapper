@@ -18,6 +18,11 @@ and then that user can swap them:
 ruby scripts/elb_swap.rb --name abc.wgbh-mla-test.org
 ```
 
+log in to the demo machine:
+```
+ssh `ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org`
+```
+
 and if this is development and we want to delete it all:
 ```
 ruby scripts/cleanup.rb --name abc.wgbh-mla-test.org
