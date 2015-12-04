@@ -10,7 +10,7 @@ module BaseWrapper
   
   Aws.config[:region] = 'us-east-1' # One-time configuration at module load.
   
-  LOGGER = Logger.new($stdout, 'daily')
+  LOGGER = Logger.new($stderr, 'daily')
   LOGGER.formatter = proc do |severity, datetime, _progname, msg|
     "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
   end

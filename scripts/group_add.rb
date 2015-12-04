@@ -21,8 +21,8 @@ end
 
 opt_parser.parse!(ARGV)
 unless user && group
-  puts '--user and --group are required'
-  puts opt_parser
+  STDERR.puts '--user and --group are required'
+  STDERR.puts opt_parser
   exit 1
 end
 

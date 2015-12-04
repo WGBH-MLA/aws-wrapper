@@ -22,14 +22,14 @@ end
 
 opt_parser.parse!(ARGV)
 unless name
-  puts '--name is missing'
-  puts opt_parser
+  STDERR.puts '--name is missing'
+  STDERR.puts opt_parser
   exit 1
 end
 
 print "Really delete everything relating to #{name}? Reenter to confirm: "
 unless gets.strip == name
-  puts 'Quit without touching anything.'
+  STDERR.puts 'Quit without touching anything.'
   exit 1
 end 
 

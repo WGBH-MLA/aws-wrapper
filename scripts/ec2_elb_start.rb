@@ -24,8 +24,8 @@ end
 
 opt_parser.parse!(ARGV)
 unless name
-  puts '--name is missing'
-  puts opt_parser
+  STDERR.puts '--name is missing'
+  STDERR.puts opt_parser
   exit 1
 end
 

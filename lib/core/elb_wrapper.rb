@@ -51,7 +51,7 @@ module ElbWrapper
     })
   end
   
-  def lookup_elb_by_cname(cname)
+  def lookup_elb_by_dns_name(cname)
     matches = elb_client.describe_load_balancers().load_balancer_descriptions.select do |elb|
       elb.dns_name == cname
     end

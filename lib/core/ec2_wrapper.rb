@@ -151,13 +151,12 @@ module Ec2Wrapper
 #    LOGGER.info("EIP #{public_ip} -> EC2 #{instance_id}")
 #  end
   
-#  def lookup_instance(instance_id)
-#    response_describe_instances = ec2_client.describe_instances({
-#      dry_run: false,
-#      instance_ids: [instance_id]
-#    })
-#    response_describe_instances.reservations[0].instances[0]
-#  end
+  def lookup_instance(instance_id)
+    response_describe_instances = ec2_client.describe_instances({
+      instance_ids: [instance_id]
+    })
+    response_describe_instances.reservations[0].instances[0]
+  end
   
 #  def lookup_ip(ip)
 #    response_describe_instances = ec2_client.describe_instances({
