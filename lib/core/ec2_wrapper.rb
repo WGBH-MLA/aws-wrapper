@@ -197,12 +197,11 @@ module Ec2Wrapper
     w.interval = WAIT_INTERVAL
     w.max_attempts = WAIT_ATTEMPTS
     w.before_wait do |n, last_response|
-      # TODO: If this is only for EC2s, it should be moved there.
       status = last_response.data.reservations.map { |r| 
         r.instances.map { |i| 
           "#{i.instance_id}: #{i.state.name}"
         }
-      }.flatten
+      }.flatten rescue LOGGER.warn("Error reading EC2 reservations; will try again: #{$!} at #{$@}")
       LOGGER.info("try #{n}: EC2 instances not ready yet. #{status}")
     end
   end
