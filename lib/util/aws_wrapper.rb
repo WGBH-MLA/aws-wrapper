@@ -14,6 +14,7 @@ class AwsWrapper
   
   def initialize(opts = {})
     @availability_zone = opts[:availability_zone]
+    Aws.config[:region] = @availability_zone.gsub(/.$/, '') # Like 'us-east-1' : not sure if this is universal.
     @client_config = {
       logger: opts[:debug] ? LOGGER : nil,
       log_level: :debug, # Does not change the volume of logging, but instead sets the level of the messages.
