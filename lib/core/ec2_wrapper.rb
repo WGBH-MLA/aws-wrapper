@@ -63,15 +63,18 @@ module Ec2Wrapper
     key = ec2_client.create_key_pair({
       key_name: name  
     })
-    if save_key
+    if save_key # So tests can avoid writing to filesystem
       File.write(key_path, key.key_material)
+      FileUtils.chmod('u=wr,go=', key_path)
       LOGGER.info("Created key pair and stored private key at #{key_path}. Fingerprint: #{key.key_fingerprint}")
     end
     key
   end
   
   def delete_key(name)
-    File.delete(key_path(name))
+    key_path(name).tap do |key_path|
+      File.delete(key_path) rescue LOGGER.warn("Error deleting #{key_path}: #{$!} at #{$@}")    
+    end
     ec2_client.delete_key_pair({
       key_name: name  
     })
