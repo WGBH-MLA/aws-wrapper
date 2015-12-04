@@ -11,8 +11,9 @@ module ElbWrapper
   
   public
   
-  def elb_arn(region, account_id, elb_name)
-    "arn:aws:elasticloadbalancing:#{region}:#{account_id}:loadbalancer/#{elb_name}"
+  def elb_arn(elb_name)
+    account_id = Aws::IAM::CurrentUser.new.arn.match(/^arn:aws:iam::(\d+)/)[1]
+    "arn:aws:elasticloadbalancing:#{AVAILABILITY_ZONE}:#{account_id}:loadbalancer/#{elb_name}"
   end
   
   def elb_names(name)

@@ -30,7 +30,7 @@ class Ec2ElbStarter < AwsWrapper
     put_group_policy(name, {
       'Effect' => 'Allow',
       'Action' => 'elasticloadbalancing:*', # TODO: tighten
-      'Resource' => elb_names.map { |elb_name| elb_arn('us-east-1c', '127946490116', elb_name) }
+      'Resource' => elb_names.map { |elb_name| elb_arn(elb_name) }
       # TODO: pull zone and account ID from somewhere.
     })
     LOGGER.info("Create group policy for ELB")
