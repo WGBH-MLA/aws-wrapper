@@ -7,7 +7,7 @@ Before running any of the examples, you will need to have an AWS IAM user,
 with your API credentials in the conventional location, and also have a zone ID 
 for your Route 53 DNS zone. The zone ID could be passed as a command line
 argument in all the examples below, but you can also specify it just once in
-`.config.yml`, as you can with all command line arguments.
+`scipts/config.yml`, as you can with all command line arguments.
 
 Typically, bare servers can be set up:
 ```

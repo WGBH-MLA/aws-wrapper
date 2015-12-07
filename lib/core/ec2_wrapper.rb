@@ -12,10 +12,10 @@ module Ec2Wrapper
   public
   
   
-  def create_and_attach_volume(instance_id, device)
+  def create_and_attach_volume(instance_id, device, size_in_gb)
     volume_id = ec2_client.create_volume({
       # dry_run: true,
-      size: 1,
+      size: size_in_gb,
       #snapshot_id: "String",
       availability_zone: availability_zone, # required
       volume_type: "standard", # accepts standard, io1, gp2

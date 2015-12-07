@@ -2,7 +2,7 @@ require_relative 'aws_wrapper'
 
 class Ec2ElbStarter < AwsWrapper
   
-  def start(zone_id, name)
+  def start(zone_id, name, size_in_gb)
     create_key(name)
     LOGGER.info("Created PK for #{name}")
     
@@ -14,7 +14,7 @@ class Ec2ElbStarter < AwsWrapper
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
     
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, '/dev/sdb')
+      create_and_attach_volume(instance_id, '/dev/sdb', size_in_gb)
     end
     LOGGER.info("Attached EBS volume to each instance")
     

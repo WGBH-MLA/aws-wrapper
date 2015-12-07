@@ -2,7 +2,7 @@ require_relative '../lib/util/ec2_elb_starter'
 require_relative '../lib/script_helper'
 require 'optparse'
 
-name = debug = zone_id = availability_zone = nil
+name = debug = zone_id = availability_zone = size_in_gb = nil
 ScriptHelper.read_config(binding)
 
 opt_parser = OptionParser.new do |opts|
@@ -21,6 +21,9 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--debug', 'Turn on debugging') do
     debug = true
   end
+  opts.on('--size_in_gb', 'Size of EBS volume, in GB') do |s|
+    size_in_gb = s
+  end
   opts.separator('When run, two EC2/ELB pairs are created, along with DNS entries pointing to the ELBs.')
   opts.separator('When this script completes, elb_swap can be run.')
 end
@@ -32,4 +35,4 @@ unless name && zone_id
   exit 1
 end
 
-Ec2ElbStarter.new(debug: debug, availability_zone: availability_zone).start(zone_id, name)
+Ec2ElbStarter.new(debug: debug, availability_zone: availability_zone).start(zone_id, name, size_in_gb)
