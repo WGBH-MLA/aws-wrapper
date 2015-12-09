@@ -53,6 +53,25 @@ module Ec2Wrapper
     )
   end
   
+  def create_snapshot(volume_id)
+    snapshot_id = ec2_client.create_snapshot(volume_id: volume_id).snapshot_id
+    1.step do |try|
+      description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
+      case description.state
+      when 'pending'
+        LOGGER.info("try #{try}: Snapshot #{snapshot_id} of volume #{volume_id} is still pending")
+        sleep(WAIT_INTERVAL)
+      when 'completed'
+        break
+      when 'error'
+        fail("Snapshot #{snapshot_id} in error state: #{description.state_message}")
+      else
+        fail("Snapshot #{snapshot_id} in unexpected state: #{description.state} #{description.state_message}")
+      end
+    end
+    snapshot_id
+  end
+  
   def key_path(name)
     "#{Dir.home}/.ssh/#{name}.pem"
   end
@@ -159,6 +178,10 @@ module Ec2Wrapper
       instance_ids: [instance_id]
     })
     response_describe_instances.reservations[0].instances[0]
+  end
+  
+  def lookup_volume_id(instance_id)
+    lookup_instance(instance_id).block_device_mappings[0].ebs.volume_id
   end
   
 #  def lookup_ip(ip)
