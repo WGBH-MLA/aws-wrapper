@@ -53,7 +53,7 @@ module Ec2Wrapper
     )
   end
   
-  def create_snapshot(volume_id)
+  def create_snapshot(volume_id, wait=false)
     snapshot_id = ec2_client.create_snapshot(volume_id: volume_id).snapshot_id
     1.step do |try|
       description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
@@ -68,7 +68,7 @@ module Ec2Wrapper
       else
         fail("Snapshot #{snapshot_id} in unexpected state: #{description.state} #{description.state_message}")
       end
-    end
+    end if wait
     snapshot_id
   end
   
