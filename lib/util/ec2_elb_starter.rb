@@ -45,7 +45,7 @@ class Ec2ElbStarter < AwsWrapper
     
     Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
       command = [
-        "yum update", # TODO: non-interactive?
+        "yum update --assumeyes",
         "mkfs -t ext4 #{DEVICE_PATH}",
         "mkdir #{MOUNT_PATH}",
         "mount #{DEVICE_PATH} #{MOUNT_PATH}"
