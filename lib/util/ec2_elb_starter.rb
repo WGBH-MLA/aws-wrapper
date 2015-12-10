@@ -1,6 +1,11 @@
+require_relative 'sudoer'
+require_relative 'elb_swapper'
 require_relative 'aws_wrapper'
 
 class Ec2ElbStarter < AwsWrapper
+  
+  DEVICE_PATH = '/dev/sdb'
+  MOUNT_PATH = '/mnt/ebs'
   
   def start(zone_id, name, size_in_gb)
     create_key(name)
@@ -14,7 +19,7 @@ class Ec2ElbStarter < AwsWrapper
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
     
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, '/dev/sdb', size_in_gb)
+      create_and_attach_volume(instance_id, DEVICE_PATH, size_in_gb)
     end
     LOGGER.info("Attached EBS volume to each instance")
     
@@ -31,7 +36,6 @@ class Ec2ElbStarter < AwsWrapper
       'Effect' => 'Allow',
       'Action' => 'elasticloadbalancing:*', # TODO: tighten
       'Resource' => elb_names.map { |elb_name| elb_arn(elb_name) }
-      # TODO: pull zone and account ID from somewhere.
     })
     LOGGER.info("Create group policy for ELB")
     
@@ -39,10 +43,19 @@ class Ec2ElbStarter < AwsWrapper
     create_dns_cname_records(zone_id, name_target_pairs)
     LOGGER.info("Created CNAMEs")
     
-    # TODO: Login to each and mount the EBS volume:
-    # sudo mkfs -t ext4 /dev/sdb
-    # sudo mkdir /mnt/ebs
-    # sudo mount /dev/sdb /mnt/ebs
+    Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
+      command = [
+        "yum update", # TODO: non-interactive?
+        "mkfs -t ext4 #{DEVICE_PATH}",
+        "mkdir #{MOUNT_PATH}",
+        "mount #{DEVICE_PATH} #{MOUNT_PATH}"
+      ].join (' && ')
+      sudoer.sudo(zone_id, "demo.#{name}", command)
+      LOGGER.info("Swap instances and do it again.")
+      ElbSwapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name)
+      sudoer.sudo(zone_id, "demo.#{name}", command)
+    end
+    LOGGER.info("Instances are up / EBS volumes are mounted.")
   end
   
 end
