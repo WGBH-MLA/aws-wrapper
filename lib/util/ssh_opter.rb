@@ -8,6 +8,6 @@ class SshOpter < AwsWrapper
     ip = lookup_instance(instance_ids.first).public_ip_address
     # "~" was not expanding in backticks, so we lookup the homedir here.
     key_path = "#{Dir.home}/.ssh/#{name.gsub(/^demo\./,'')}.pem"
-    "-i #{key_path} ec2-user@#{ip}"
+    "-i #{key_path} -o StrictHostKeyChecking=no ec2-user@#{ip}"
   end
 end

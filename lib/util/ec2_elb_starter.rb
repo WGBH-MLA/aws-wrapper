@@ -38,6 +38,11 @@ class Ec2ElbStarter < AwsWrapper
     name_target_pairs = cname_pair(name).zip(elb_a_names)
     create_dns_cname_records(zone_id, name_target_pairs)
     LOGGER.info("Created CNAMEs")
+    
+    # TODO: Login to each and mount the EBS volume:
+    # sudo mkfs -t ext4 /dev/sdb
+    # sudo mkdir /mnt/ebs
+    # sudo mount /dev/sdb /mnt/ebs
   end
   
 end
