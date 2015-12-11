@@ -2,11 +2,13 @@ require 'yaml'
 
 module ScriptHelper
   
+  YAML_PATH = File.absolute_path(__dir__+'/../scripts/defaults.yml')
+  
   def self.read_defaults(config)
     begin
-      defaults = YAML.load_file(__dir__+'/../scripts/defaults.yml')
+      defaults = YAML.load_file(YAML_PATH)
     rescue 
-      STDERR.puts("Error reading config file. Copy from defaults.template.yml and fill in the blanks.")
+      STDERR.puts("Error reading config file. Copy template to #{YAML_PATH}.")
       STDERR.puts("#{$!} at #{$@.first}")
       exit 1
     end
@@ -30,7 +32,7 @@ module ScriptHelper
     end
     unless (required - config.keys).empty?
       required_string = required.map { |k| "--#{k}"}.join(', ')
-      STDERR.puts "#{required_string} are required, either in defaults.yml or as arguments"
+      STDERR.puts "#{required_string} are required, either in #{YAML_PATH} or as arguments"
       STDERR.puts opt_parser
       exit 1
     end 
