@@ -3,13 +3,26 @@ require 'yaml'
 module ScriptHelper
   
   def self.read_defaults(config)
-    YAML.load_file(__dir__+'/../scripts/defaults.yml').each do |key, value|
+    begin
+      defaults = YAML.load_file(__dir__+'/../scripts/defaults.yml')
+    rescue 
+      STDERR.puts("Error reading config file. Copy from defaults.template.yml and fill in the blanks.")
+      STDERR.puts("#{$!} at #{$@.first}")
+      exit 1
+    end
+    defaults.each do |key, value|
       config[key.to_sym] = value
     end
   end
   
   def self.read_args(config, opt_parser, required)
-    opt_parser.parse!(ARGV)
+    begin
+      opt_parser.parse!(ARGV)
+    rescue OptionParser::InvalidOption
+      STDERR.puts $!
+      STDERR.puts opt_parser
+      exit 1
+    end
     unless ARGV.empty?
       STDERR.puts "Unexpected argument '#{ARGV.join(' ')}'"
       STDERR.puts opt_parser
