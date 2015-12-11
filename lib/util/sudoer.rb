@@ -4,9 +4,13 @@ require 'open3'
 
 class Sudoer < AwsWrapper
   
-  def sudo(zone_id, name, command)
+  def sudo(zone_id, name, command, sudo=true) # TODO: rename method, use named params.
     ssh_opts = SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_id, name)
-    ssh_command = "ssh #{ssh_opts} -t -t 'sudo sh -c \"#{command}\"'" # TODO: escaping
+    ssh_command = if sudo
+      "ssh #{ssh_opts} -t -t 'sudo sh -c \"#{command}\"'" # TODO: escaping
+    else
+      "ssh #{ssh_opts} -t -t '#{command}'"
+    end
     # With no "-t": 
     #   "sudo: sorry, you must have a tty to run sudo"
     # One "-t" is sufficient when running directly from the shell, but inside a script:

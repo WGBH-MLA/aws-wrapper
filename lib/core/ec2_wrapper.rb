@@ -184,18 +184,6 @@ module Ec2Wrapper
     lookup_instance(instance_id).block_device_mappings[0].ebs.volume_id
   end
   
-#  def lookup_ip(ip)
-#    response_describe_instances = ec2_client.describe_instances({
-#      dry_run: false
-#    })
-#    instances = response_describe_instances.reservations.map {|reservation|
-#      reservation.instances
-#    }.flatten
-#    matches = instances.select{|instance| instance.public_ip_address == ip}
-#    fail("Expected exactly one instance with IP #{ip}, not #{matches.count}") unless matches.count == 1
-#    matches[0]
-#  end
-  
 #  def stop_instances(instances)
 #    # TODO: disassociate_address?
 #    # TODO: release_address

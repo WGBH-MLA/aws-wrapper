@@ -47,7 +47,10 @@ class Ec2ElbStarter < AwsWrapper
       commands = [
         "mkfs -t ext4 #{DEVICE_PATH}",
         "mkdir #{MOUNT_PATH}",
-        "mount #{DEVICE_PATH} #{MOUNT_PATH}"
+        "mount #{DEVICE_PATH} #{MOUNT_PATH}",
+        # Agent forwarding allows one machine to connect directly to the other,
+        # relying on the local private key.
+        "ruby -i.back -pne '$_=\"AllowAgentForwarding yes\\n\" if /AllowAgentForwarding/' /etc/ssh/sshd_config"
       ]
       commands.push['yum update --assumeyes'] unless skip_updates # Takes a long time
       commands_joined = commands.join (' && ')

@@ -1,4 +1,6 @@
 require_relative 'aws_wrapper'
+require_relative 'ssh_opter'
+require_relative 'sudoer'
 require 'ostruct'
 
 class ElbSwapper < AwsWrapper
@@ -11,7 +13,7 @@ class ElbSwapper < AwsWrapper
     LOGGER.info("demo: #{demo.elb_name} / #{demo.instance_id}")
     
     snapshot_id = create_snapshot(lookup_volume_id(demo.instance_id))
-    LOGGER.info("Created snapshot #{snapshot_id}")
+    LOGGER.info("Creating snapshot #{snapshot_id}. Process is slow and will continue in background.")
     
     register_instance_with_elb(demo.instance_id, live.elb_name)
     register_instance_with_elb(live.instance_id, demo.elb_name)
@@ -20,6 +22,12 @@ class ElbSwapper < AwsWrapper
     deregister_instance_from_elb(demo.instance_id, demo.elb_name)
     deregister_instance_from_elb(live.instance_id, live.elb_name)
     LOGGER.info("Swap complete: De-registered both instances from original ELBs")
+    
+    live_ip = SshOpter.new(debug: @debug, availability_zone: @availability_zone).lookup_ip(zone_id, live_name)
+    rsync_command = "rsync -ave \"ssh -A -o StrictHostKeyChecking=no -l ec2-user\" --exclude=lost+found ec2-user@#{live_ip}:/mnt/ebs/ /mnt/ebs/"
+    # -a: archive, -v: verbose, -e: for SSH agent forwarding.
+    LOGGER.info("Will login to demo, and ssh /mnt/ebs from live to demo using SSH agent forwarding.")
+    Sudoer.new(debug: @debug, availability_zone: @availability_zone).sudo(zone_id, demo_name, rsync_command, false)
   end
   
   def lookup_elb_and_instance(zone_id, name)
