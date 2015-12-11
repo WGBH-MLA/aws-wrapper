@@ -10,6 +10,9 @@ class ElbSwapper < AwsWrapper
     demo = lookup_elb_and_instance(zone_id, demo_name)
     LOGGER.info("demo: #{demo.elb_name} / #{demo.instance_id}")
     
+    snapshot_id = create_snapshot(lookup_volume_id(demo.instance_id))
+    LOGGER.info("Created snapshot #{snapshot_id}")
+    
     register_instance_with_elb(demo.instance_id, live.elb_name)
     register_instance_with_elb(live.instance_id, demo.elb_name)
     LOGGER.info("Half swapped: Registered both instances to both ELBs")
@@ -21,7 +24,7 @@ class ElbSwapper < AwsWrapper
   
   def lookup_elb_and_instance(zone_id, name)
     cname = lookup_cname(zone_id, name)
-    elb = lookup_elb_by_cname(cname)
+    elb = lookup_elb_by_dns_name(cname)
     elb_name = elb.load_balancer_name
     instance_ids = elb.instances.map(&:instance_id)
     if instance_ids.count != 1

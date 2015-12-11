@@ -1,4 +1,4 @@
-require_relative '../lib/util/elb_swapper'
+require_relative '../lib/util/ssh_opter'
 require_relative '../lib/script_helper'
 require 'optparse'
 
@@ -7,9 +7,7 @@ ScriptHelper.read_defaults(config)
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
-  opts.on('--name NAME', 'NAME should be a CNAME managed by AWS,',
-                         'resolve to an AWS ELB with one EC2 instance behind it,',
-                         'and "demo.NAME" should resolve to a separate parallel ELB.') do |n|
+  opts.on('--name NAME', 'DNS name of ELB') do |n|
     config[:name] = n
   end
   opts.on('--zone_id ZONE', 'AWS Zone ID') do |z|
@@ -21,9 +19,15 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--debug', 'Turn on debugging') do
     config[:debug] = true
   end
-  opts.separator('When run, the instances behind the two load balancers are swapped.')
+  opts.separator('Returns the ssh opts to connect to the instance behind the ELB.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-ElbSwapper.new(debug: config[:debug], availability_zone: config[:availability_zone]).swap(config[:zone_id], config[:name])
+prefix = /^demo\./
+if config[:name] !~ prefix
+  warn 'The supplied name must start with "demo.": You should not touch production.'
+  exit 1
+end
+
+puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone]).ssh_opts(config[:zone_id], config[:name])

@@ -1,3 +1,7 @@
+scripts/defaults.yml
+
+### Everything below is default.
+
 *.gem
 *.rbc
 /.config

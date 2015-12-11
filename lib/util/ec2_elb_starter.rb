@@ -1,8 +1,13 @@
+require_relative 'sudoer'
+require_relative 'elb_swapper'
 require_relative 'aws_wrapper'
 
 class Ec2ElbStarter < AwsWrapper
   
-  def start(zone_id, name)
+  DEVICE_PATH = '/dev/sdb'
+  MOUNT_PATH = '/mnt/ebs'
+  
+  def start(zone_id, name, size_in_gb, skip_updates)
     create_key(name)
     LOGGER.info("Created PK for #{name}")
     
@@ -14,12 +19,11 @@ class Ec2ElbStarter < AwsWrapper
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
     
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, '/dev/sdb')
+      create_and_attach_volume(instance_id, DEVICE_PATH, size_in_gb)
     end
     LOGGER.info("Attached EBS volume to each instance")
     
-    elb_names = ['a', 'b'].map{ |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
-    # AWS restricts length and characters of ELB names
+    elb_names = elb_names(name)
     elb_a_names = elb_names.map{ |name| create_elb(name) }
     instance_ids.zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
@@ -28,19 +32,31 @@ class Ec2ElbStarter < AwsWrapper
     
     # Maybe this would be better managed than inline?
     # But then that would be another thing to clean up.
-    put_group_policy(name, "allow-group-to-swap-elbs", {
+    put_group_policy(name, {
       'Effect' => 'Allow',
       'Action' => 'elasticloadbalancing:*', # TODO: tighten
-      'Resource' => elb_names.map { |elb_name| elb_arn('us-east-1c', '127946490116', elb_name) }
-      # TODO: pull zone and account ID from somewhere.
+      'Resource' => elb_names.map { |elb_name| elb_arn(elb_name) }
     })
     LOGGER.info("Create group policy for ELB")
     
-    name_target_pairs = [name, "demo.#{name}"].map do |name|
-      name.downcase # Otherwise there are discrepancies between DNS and the API.
-    end.zip(elb_a_names)
+    name_target_pairs = cname_pair(name).zip(elb_a_names)
     create_dns_cname_records(zone_id, name_target_pairs)
     LOGGER.info("Created CNAMEs")
+    
+    Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
+      commands = [
+        "mkfs -t ext4 #{DEVICE_PATH}",
+        "mkdir #{MOUNT_PATH}",
+        "mount #{DEVICE_PATH} #{MOUNT_PATH}"
+      ]
+      commands.push['yum update --assumeyes'] unless skip_updates # Takes a long time
+      commands_joined = commands.join (' && ')
+      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
+      LOGGER.info("Swap instances and do it again.")
+      ElbSwapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name)
+      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
+    end
+    LOGGER.info("Instances are up / EBS volumes are mounted.")
   end
   
 end

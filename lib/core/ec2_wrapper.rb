@@ -12,18 +12,18 @@ module Ec2Wrapper
   public
   
   
-  def create_and_attach_volume(instance_id, device)
+  def create_and_attach_volume(instance_id, device, size_in_gb)
     volume_id = ec2_client.create_volume({
       # dry_run: true,
-      size: 1,
+      size: size_in_gb,
       #snapshot_id: "String",
-      availability_zone: AVAILABILITY_ZONE, # required
+      availability_zone: availability_zone, # required
       volume_type: "standard", # accepts standard, io1, gp2
       #iops: 1,
       #encrypted: true,
       #kms_key_id: "String",
     }).volume_id
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.select do |vol|
         vol.volume_id = volume_id
       end.first
@@ -38,19 +38,65 @@ module Ec2Wrapper
       instance_id: instance_id, # required
       device: device, # required: /dev/sdb thru /dev/sdp
     })
+    ec2_client.modify_instance_attribute(
+      instance_id: instance_id, # required
+      attribute: 'blockDeviceMapping',
+      block_device_mappings: [
+        {
+          device_name: device,
+          ebs: {
+            volume_id: volume_id,
+            delete_on_termination: true,
+          }
+        }
+      ]
+    )
+  end
+  
+  def create_snapshot(volume_id, wait=false)
+    snapshot_id = ec2_client.create_snapshot(volume_id: volume_id).snapshot_id
+    1.step do |try|
+      description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
+      case description.state
+      when 'pending'
+        LOGGER.info("try #{try}: Snapshot #{snapshot_id} of volume #{volume_id} is still pending")
+        sleep(WAIT_INTERVAL)
+      when 'completed'
+        break
+      when 'error'
+        fail("Snapshot #{snapshot_id} in error state: #{description.state_message}")
+      else
+        fail("Snapshot #{snapshot_id} in unexpected state: #{description.state} #{description.state_message}")
+      end
+    end if wait
+    snapshot_id
+  end
+  
+  def key_path(name)
+    "#{Dir.home}/.ssh/#{name}.pem"
   end
   
   def create_key(name, save_key = true)
-    key_path = "#{Dir.home}/.ssh/#{name}.pem"
+    key_path = key_path(name)
     fail("PK already exists: #{key_path}") if File.exists?(key_path)
     key = ec2_client.create_key_pair({
       key_name: name  
     })
-    if save_key
+    if save_key # So tests can avoid writing to filesystem
       File.write(key_path, key.key_material)
+      FileUtils.chmod('u=wr,go=', key_path)
       LOGGER.info("Created key pair and stored private key at #{key_path}. Fingerprint: #{key.key_fingerprint}")
     end
     key
+  end
+  
+  def delete_key(name)
+    key_path(name).tap do |key_path|
+      File.delete(key_path) rescue LOGGER.warn("Error deleting #{key_path}: #{$!} at #{$@}")    
+    end
+    ec2_client.delete_key_pair({
+      key_name: name  
+    })
   end
   
   def start_instances(n, key_name, instance_type = 't1.micro')
@@ -74,6 +120,18 @@ module Ec2Wrapper
     end
     
     return instances
+  end
+  
+  def terminate_instances(key_name)
+    instance_ids = ec2_client.describe_instances({
+      filters: [{
+        name: 'key-name',
+        values: [key_name],
+      }]
+    }).reservations.map { |res| res.instances.map { |inst| inst.instance_id } }.flatten
+    ec2_client.terminate_instances({
+      instance_ids: instance_ids
+    })
   end
   
 #  def lookup_eip(eip_ip)
@@ -115,13 +173,16 @@ module Ec2Wrapper
 #    LOGGER.info("EIP #{public_ip} -> EC2 #{instance_id}")
 #  end
   
-#  def lookup_instance(instance_id)
-#    response_describe_instances = ec2_client.describe_instances({
-#      dry_run: false,
-#      instance_ids: [instance_id]
-#    })
-#    response_describe_instances.reservations[0].instances[0]
-#  end
+  def lookup_instance(instance_id)
+    response_describe_instances = ec2_client.describe_instances({
+      instance_ids: [instance_id]
+    })
+    response_describe_instances.reservations[0].instances[0]
+  end
+  
+  def lookup_volume_id(instance_id)
+    lookup_instance(instance_id).block_device_mappings[0].ebs.volume_id
+  end
   
 #  def lookup_ip(ip)
 #    response_describe_instances = ec2_client.describe_instances({
@@ -159,12 +220,11 @@ module Ec2Wrapper
     w.interval = WAIT_INTERVAL
     w.max_attempts = WAIT_ATTEMPTS
     w.before_wait do |n, last_response|
-      # TODO: If this is only for EC2s, it should be moved there.
       status = last_response.data.reservations.map { |r| 
         r.instances.map { |i| 
           "#{i.instance_id}: #{i.state.name}"
         }
-      }.flatten
+      }.flatten rescue LOGGER.warn("Error reading EC2 reservations; will try again: #{$!}")
       LOGGER.info("try #{n}: EC2 instances not ready yet. #{status}")
     end
   end

@@ -11,8 +11,13 @@ module ElbWrapper
   
   public
   
-  def elb_arn(region, account_id, elb_name)
-    "arn:aws:elasticloadbalancing:#{region}:#{account_id}:loadbalancer/#{elb_name}"
+  def elb_arn(elb_name)
+    account_id = Aws::IAM::CurrentUser.new.arn.match(/^arn:aws:iam::(\d+)/)[1]
+    "arn:aws:elasticloadbalancing:#{availability_zone}:#{account_id}:loadbalancer/#{elb_name}"
+  end
+  
+  def elb_names(name)
+    ['a', 'b'].map{ |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
   end
   
   def create_elb(name)
@@ -28,7 +33,7 @@ module ElbWrapper
         }
       ],
       # Either AvailabilityZones or SubnetIds must be specified
-      availability_zones: [AVAILABILITY_ZONE],
+      availability_zones: [availability_zone],
 #      subnets: ["SubnetId"],
 #      security_groups: ["SecurityGroupId"],
 #      scheme: "LoadBalancerScheme",
@@ -41,7 +46,13 @@ module ElbWrapper
     }).dns_name
   end
   
-  def lookup_elb_by_cname(cname)
+  def delete_elb(name)
+    elb_client.delete_load_balancer({
+      load_balancer_name: name, # required
+    })
+  end
+  
+  def lookup_elb_by_dns_name(cname)
     matches = elb_client.describe_load_balancers().load_balancer_descriptions.select do |elb|
       elb.dns_name == cname
     end
@@ -66,7 +77,7 @@ module ElbWrapper
         },
       ],
     })
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       break if lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: Instance #{instance_id} not yet registered with ELB #{elb_name}")
@@ -83,7 +94,7 @@ module ElbWrapper
         },
       ],
     })
-    1.upto(WAIT_ATTEMPTS) do |try|
+    1.step do |try|
       break unless lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: Instance #{instance_id} not yet de-registered from ELB #{elb_name}")

@@ -41,14 +41,14 @@ describe ElbWrapper do
 #    end
   end
   
-  describe '#lookup_elb_by_cname' do
+  describe '#lookup_elb_by_dns_name' do
     it 'makes expected SDK calls' do
       dns_name = 'elb.cname.example.org'
       elb_description = elb_description(dns_name: dns_name)
       wrapper = expect_wrapper do |client|
         expect_client_to_describe_elb(client, elb_description)
       end
-      expect(wrapper.lookup_elb_by_cname(dns_name)).to eq elb_description
+      expect(wrapper.lookup_elb_by_dns_name(dns_name)).to eq elb_description
     end
   end
 
