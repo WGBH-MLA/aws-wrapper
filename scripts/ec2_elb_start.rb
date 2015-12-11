@@ -21,6 +21,9 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--debug', 'Turn on debugging') do
     config[:debug] = true
   end
+  opts.on('--skip_updates', 'Skip yum updates') do
+    config[:skip_updates] = true
+  end
   opts.on('--size_in_gb', 'Size of EBS volume, in GB') do |s|
     config[:size_in_gb] = s
   end
@@ -30,4 +33,4 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb])
 
-Ec2ElbStarter.new(debug: config[:debug], availability_zone: config[:availability_zone]).start(config[:zone_id], config[:name], config[:size_in_gb])
+Ec2ElbStarter.new(debug: config[:debug], availability_zone: config[:availability_zone]).start(config[:zone_id], config[:name], config[:size_in_gb], config[:skip_updates])

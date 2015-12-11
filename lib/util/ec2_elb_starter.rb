@@ -7,7 +7,7 @@ class Ec2ElbStarter < AwsWrapper
   DEVICE_PATH = '/dev/sdb'
   MOUNT_PATH = '/mnt/ebs'
   
-  def start(zone_id, name, size_in_gb)
+  def start(zone_id, name, size_in_gb, skip_updates)
     create_key(name)
     LOGGER.info("Created PK for #{name}")
     
@@ -44,16 +44,17 @@ class Ec2ElbStarter < AwsWrapper
     LOGGER.info("Created CNAMEs")
     
     Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
-      command = [
-        "yum update --assumeyes",
+      commands = [
         "mkfs -t ext4 #{DEVICE_PATH}",
         "mkdir #{MOUNT_PATH}",
         "mount #{DEVICE_PATH} #{MOUNT_PATH}"
-      ].join (' && ')
-      sudoer.sudo(zone_id, "demo.#{name}", command)
+      ]
+      commands.push['yum update --assumeyes'] unless skip_updates # Takes a long time
+      commands_joined = commands.join (' && ')
+      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
       LOGGER.info("Swap instances and do it again.")
       ElbSwapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name)
-      sudoer.sudo(zone_id, "demo.#{name}", command)
+      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
     end
     LOGGER.info("Instances are up / EBS volumes are mounted.")
   end
