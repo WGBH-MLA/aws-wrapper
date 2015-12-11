@@ -26,7 +26,7 @@ ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name]
 
 prefix = /^demo\./
 if config[:name] !~ prefix
-  STDERR.puts 'The supplied name must start with "demo.": You should not touch production.'
+  warn 'The supplied name must start with "demo.": You should not touch production.'
   exit 1
 end
 

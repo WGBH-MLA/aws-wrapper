@@ -26,7 +26,7 @@ ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name]
 
 print "Really delete everything relating to #{config[:name]}? Reenter to confirm: "
 unless gets.strip == config[:name]
-  STDERR.puts 'Quit without touching anything.'
+  warn 'Quit without touching anything.'
   exit 1
 end 
 

@@ -8,8 +8,8 @@ module ScriptHelper
     begin
       defaults = YAML.load_file(YAML_PATH)
     rescue 
-      STDERR.puts("Error reading config file. Copy template to #{YAML_PATH}.")
-      STDERR.puts("#{$!} at #{$@.first}")
+      warn "Error reading config file. Copy template to #{YAML_PATH}."
+      warn "#{$!} at #{$@.first}"
       exit 1
     end
     defaults.each do |key, value|
@@ -21,19 +21,19 @@ module ScriptHelper
     begin
       opt_parser.parse!(ARGV)
     rescue OptionParser::InvalidOption
-      STDERR.puts $!
-      STDERR.puts opt_parser
+      warn $!
+      warn opt_parser
       exit 1
     end
     unless ARGV.empty?
-      STDERR.puts "Unexpected argument '#{ARGV.join(' ')}'"
-      STDERR.puts opt_parser
+      warn "Unexpected argument '#{ARGV.join(' ')}'"
+      warn opt_parser
       exit 1
     end
     unless (required - config.keys).empty?
       required_string = required.map { |k| "--#{k}"}.join(', ')
-      STDERR.puts "#{required_string} are required, either in #{YAML_PATH} or as arguments"
-      STDERR.puts opt_parser
+      warn "#{required_string} are required, either in #{YAML_PATH} or as arguments."
+      warn opt_parser
       exit 1
     end 
   end
