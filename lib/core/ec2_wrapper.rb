@@ -101,7 +101,9 @@ module Ec2Wrapper
   
   def start_instances(n, key_name, instance_type = 't1.micro')
     response_run_instances = ec2_client.run_instances({
-      dry_run: false,
+      placement: {
+        availability_zone: availability_zone
+      },
       image_id: "ami-cf1066aa", # PV EBS-Backed 64-bit / US East
       min_count: n, # required
       max_count: n, # required

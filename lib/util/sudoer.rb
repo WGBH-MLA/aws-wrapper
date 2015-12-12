@@ -7,7 +7,7 @@ class Sudoer < AwsWrapper
   def sudo(zone_id, name, command, sudo=true) # TODO: rename method, use named params.
     ssh_opts = SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_id, name)
     ssh_command = if sudo
-      "ssh #{ssh_opts} -t -t 'sudo sh -c \"#{command}\"'" # TODO: escaping
+      "ssh #{ssh_opts} -t -t 'sudo sh -c '\\''#{command}'\\'' '" # TODO: escaping
     else
       "ssh #{ssh_opts} -t -t '#{command}'"
     end
@@ -25,6 +25,7 @@ class Sudoer < AwsWrapper
           end
           throw :success if thread.value.success?
           LOGGER.warn("ssh was not successful: #{thread.value}")
+          LOGGER.warn("(But new servers need time to warm up. Will retry.)")
         end
         fail('Giving up') if try >= WAIT_ATTEMPTS
         sleep(WAIT_INTERVAL)
