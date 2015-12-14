@@ -48,12 +48,12 @@ class Ec2ElbStarter < AwsWrapper
         "mkfs -t ext4 #{DEVICE_PATH}",
         "mkdir #{MOUNT_PATH}",
         "mount #{DEVICE_PATH} #{MOUNT_PATH}",
-        "chown ec2-user #{MOUNT_PATH}",
-        # Agent forwarding allows one machine to connect directly to the other,
-        # relying on the local private key.
-        "ruby -i.back -pne '\''\'\'''\''$_=%qq{AllowAgentForwarding yes\n} if /AllowAgentForwarding/'\''\'\'''\'' /etc/ssh/sshd_config"
-        # TODO: Util function for escaping!!!!
+        "chown ec2-user #{MOUNT_PATH}"
       ]
+      # Agent forwarding allows one machine to connect directly to the other,
+      # relying on the local private key.
+      one_liner = '$_=%qq{AllowAgentForwarding yes\n} if /AllowAgentForwarding/'
+      commands.push('ruby -i.back -pne '+sh_q(one_liner)+' /etc/ssh/sshd_config')
       commands.push('yum update --assumeyes') unless skip_updates # Takes a long time
       commands_joined = commands.join (' && ')
       sudoer.sudo(zone_id, "demo.#{name}", commands_joined)

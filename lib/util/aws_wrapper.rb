@@ -23,4 +23,8 @@ class AwsWrapper
     }
   end
   
+  def sh_q(s)
+    "'#{s.gsub('\'') { |m| "'\\''" }}'"
+  end
+  
 end
