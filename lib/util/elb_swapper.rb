@@ -24,10 +24,12 @@ class ElbSwapper < AwsWrapper
     LOGGER.info("Swap complete: De-registered both instances from original ELBs")
     
     live_ip = SshOpter.new(debug: @debug, availability_zone: @availability_zone).lookup_ip(zone_id, live_name)
-    rsync_command = "rsync -ave \"ssh -A -o StrictHostKeyChecking=no -l ec2-user\" --exclude=lost+found ec2-user@#{live_ip}:/mnt/ebs/ /mnt/ebs/"
+    rsync_command = "rsync -ave 'ssh -A -o StrictHostKeyChecking=no -l ec2-user' --exclude=lost+found ec2-user@#{live_ip}:/mnt/ebs/ /mnt/ebs/"
     # -a: archive, -v: verbose, -e: for SSH agent forwarding.
-    LOGGER.info("Will login to demo, and ssh /mnt/ebs from live to demo using SSH agent forwarding.")
-    Sudoer.new(debug: @debug, availability_zone: @availability_zone).sudo(zone_id, demo_name, rsync_command, false)
+    if_exists_rsync_command = "if [ -e /mnt/ebs ]; then #{rsync_command}; fi"
+    # On the first swap the directory does not yet exist, and user does not have privs to create.
+    LOGGER.info("Will login to demo, and ssh /mnt/ebs from live to demo using SSH agent forwarding, if target exists.")
+    Sudoer.new(debug: @debug, availability_zone: @availability_zone).sudo(zone_id, demo_name, if_exists_rsync_command, false)
   end
   
   def lookup_elb_and_instance(zone_id, name)
