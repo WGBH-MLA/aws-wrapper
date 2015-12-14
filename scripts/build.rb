@@ -8,8 +8,8 @@ ScriptHelper.read_defaults(config)
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
   opts.on('--name NAME', 'Name to be used for PK, EBS, DNS, etc.',
-                         'NAME and "demo.NAME" should not already',
-                         'be allocated in our DNS zone.') do |n|
+          'NAME and "demo.NAME" should not already',
+          'be allocated in our DNS zone.') do |n|
     config[:name] = n
   end
   opts.on('--zone_id ZONE', 'AWS Zone ID') do |z|
@@ -33,4 +33,4 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb])
 
-Ec2ElbStarter.new(debug: config[:debug], availability_zone: config[:availability_zone]).start(config[:zone_id], config[:name], config[:size_in_gb], config[:skip_updates])
+Builder.new(debug: config[:debug], availability_zone: config[:availability_zone]).build(config[:zone_id], config[:name], config[:size_in_gb], config[:skip_updates])
