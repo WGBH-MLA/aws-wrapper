@@ -11,6 +11,9 @@ describe Ec2Wrapper do
         yield client
       end
     )
+    allow(wrapper).to receive(:availability_zone).and_return(
+      'mock-availability-zone'
+    )
     wrapper
   end
 
