@@ -4,9 +4,14 @@ require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
   DEVICE_PATH = '/dev/sdb'
-  MOUNT_PATH = '/mnt/ebs'
 
-  def build(zone_id, name, size_in_gb, skip_updates)
+  def build(config)
+    zone_id = config[:zone_id]
+    name = config[:name]
+    size_in_gb = config[:size_in_gb]
+    skip_updates = config[:skip_updates]
+    mount_path = config[:mount_path]
+    
     create_key(name)
     LOGGER.info("Created PK for #{name}")
 
@@ -43,9 +48,9 @@ class Builder < AwsWrapper
     Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
       commands = [
         "mkfs -t ext4 #{DEVICE_PATH}",
-        "mkdir #{MOUNT_PATH}",
-        "mount #{DEVICE_PATH} #{MOUNT_PATH}",
-        "chown ec2-user #{MOUNT_PATH}"
+        "mkdir #{mount_path}",
+        "mount #{DEVICE_PATH} #{mount_path}",
+        "chown ec2-user #{mount_path}"
       ]
       # Agent forwarding allows one machine to connect directly to the other,
       # relying on the local private key.
@@ -55,7 +60,7 @@ class Builder < AwsWrapper
       commands_joined = commands.join (' && ')
       sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
       LOGGER.info('Swap instances and do it again.')
-      Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name)
+      Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, mount_path)
       sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
     end
     LOGGER.info('Instances are up / EBS volumes are mounted.')

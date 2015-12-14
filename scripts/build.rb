@@ -27,10 +27,13 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--size_in_gb', 'Size of EBS volume, in GB') do |s|
     config[:size_in_gb] = s
   end
+  opts.on('--mount_path', 'Path for EBS') do |m|
+    config[:mount_path] = m
+  end
   opts.separator('When run, two EC2/ELB pairs are created, along with DNS entries pointing to the ELBs.')
-  opts.separator('When this script completes, elb_swap can be run.')
+  opts.separator('When this script completes, swap can be run.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :mount_path])
 
-Builder.new(debug: config[:debug], availability_zone: config[:availability_zone]).build(config[:zone_id], config[:name], config[:size_in_gb], config[:skip_updates])
+Builder.new(debug: config[:debug], availability_zone: config[:availability_zone]).build(config)
