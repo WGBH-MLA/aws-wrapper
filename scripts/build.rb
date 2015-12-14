@@ -1,4 +1,4 @@
-require_relative '../lib/util/ec2_elb_starter'
+require_relative '../lib/util/builder'
 require_relative '../lib/script_helper'
 require 'optparse'
 

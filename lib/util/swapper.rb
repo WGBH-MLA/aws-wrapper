@@ -3,7 +3,7 @@ require_relative 'ssh_opter'
 require_relative 'sudoer'
 require 'ostruct'
 
-class ElbSwapper < AwsWrapper
+class Swapper < AwsWrapper
   def swap(zone_id, live_name)
     demo_name = 'demo.'+live_name
     

@@ -11,17 +11,18 @@ argument in all the examples below, but you can also specify it just once in
 
 Typically, bare servers can be set up:
 ```
-ruby scripts/ec2_elb_start.rb --name abc.wgbh-mla-test.org
+ruby scripts/build.rb --name abc.wgbh-mla-test.org
 ```
 
-and another user can be given swap privs:
+The current user is added to the priv group by default,
+but another user can be added to the group:
 ```
 ruby scripts/group_add.rb --user someone_else --group abc.wgbh-mla-test.org
 ```
 
 and then that user can swap them:
 ```
-ruby scripts/elb_swap.rb --name abc.wgbh-mla-test.org
+ruby scripts/swap.rb --name abc.wgbh-mla-test.org
 ```
 
 log in to the demo machine:
@@ -29,9 +30,14 @@ log in to the demo machine:
 ssh `ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org`
 ```
 
-and if this is development and we want to delete it all:
+or for a one-liner:
 ```
-ruby scripts/cleanup.rb --name abc.wgbh-mla-test.org
+ruby scripts/sudo.rb --name abc.wgbh-mla-test.org --command 'echo "I am sudo"'
+```
+
+and if this is development and we want to clear the slate:
+```
+ruby scripts/destroy.rb --name abc.wgbh-mla-test.org
 ```
 
 ## Organization

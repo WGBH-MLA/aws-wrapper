@@ -2,7 +2,7 @@ require_relative 'sudoer'
 require_relative 'elb_swapper'
 require_relative 'aws_wrapper'
 
-class Ec2ElbStarter < AwsWrapper
+class Builder < AwsWrapper
   
   DEVICE_PATH = '/dev/sdb'
   MOUNT_PATH = '/mnt/ebs'

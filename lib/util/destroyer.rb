@@ -1,6 +1,6 @@
 require_relative 'aws_wrapper'
 
-class Cleanuper < AwsWrapper
+class Destroyer < AwsWrapper
   def cleanup(zone_id, name)
     # We want to do as much cleaning as possible, hence the "rescue"s.
     
