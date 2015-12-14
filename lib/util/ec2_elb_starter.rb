@@ -52,7 +52,7 @@ class Ec2ElbStarter < AwsWrapper
       ]
       # Agent forwarding allows one machine to connect directly to the other,
       # relying on the local private key.
-      one_liner = '$_=%qq{AllowAgentForwarding yes\n} if /AllowAgentForwarding/'
+      one_liner = '$_="AllowAgentForwarding yes\n" if /AllowAgentForwarding/'
       commands.push('ruby -i.back -pne '+sh_q(one_liner)+' /etc/ssh/sshd_config')
       commands.push('yum update --assumeyes') unless skip_updates # Takes a long time
       commands_joined = commands.join (' && ')

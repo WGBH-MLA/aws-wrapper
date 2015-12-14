@@ -3,7 +3,10 @@ require_relative 'aws_wrapper'
 class SshOpter < AwsWrapper
   
   def ssh_opts(zone_id, name)
-    ip = lookup_ip(zone_id, name)
+    ssh_delete_identities = 'ssh-add -D'
+    system(ssh_delete_identities) || fail("Failed '#{ssh_delete_identities}'")
+    LOGGER.info("Deleted old identities from SSH agent: #{ssh_delete_identities}")
+    
     # "~" was not expanding in backticks, so we lookup the homedir here.
     key_path = "#{Dir.home}/.ssh/#{name.gsub(/^demo\./,'')}.pem"
     ssh_add = "ssh-add -K #{key_path}"
@@ -13,6 +16,8 @@ class SshOpter < AwsWrapper
     # the key on connect. (Starting with SSH agent is necessary for 
     # agent forwarding between blue and green to work: "-i" is not enough.)
     # Turn off HostKeyChecking so this can be non-interactive.
+    
+    ip = lookup_ip(zone_id, name)
     args = "-A -o StrictHostKeyChecking=no ec2-user@#{ip}"
     LOGGER.info(args)
     args
