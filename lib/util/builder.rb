@@ -5,6 +5,7 @@ require_relative 'aws_wrapper'
 class Builder < AwsWrapper
   DEVICE_PATH = '/dev/sdb'
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
@@ -12,7 +13,7 @@ class Builder < AwsWrapper
     skip_updates = config[:skip_updates]
     mount_path = config[:mount_path]
     instance_type = config[:instance_type]
-    
+
     create_key(name)
     LOGGER.info("Created PK for #{name}")
 

@@ -10,3 +10,6 @@ Style/SpaceAroundEqualsInParameterDefault:
 # I like to distinguish code blocks which are commented out from real comments
 Style/CommentIndentation:
   Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false
