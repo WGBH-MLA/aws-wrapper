@@ -48,7 +48,7 @@ describe Ec2Wrapper do
         expect(client).to receive(:wait_until)
       end
 
-      expect(wrapper.start_instances(2, 'testing')).to eq instances
+      expect(wrapper.start_instances(2, 'testing', 'mock-instance-type')).to eq instances
     end
   end
 

@@ -11,6 +11,7 @@ class Builder < AwsWrapper
     size_in_gb = config[:size_in_gb]
     skip_updates = config[:skip_updates]
     mount_path = config[:mount_path]
+    instance_type = config[:instance_type]
     
     create_key(name)
     LOGGER.info("Created PK for #{name}")
@@ -19,7 +20,7 @@ class Builder < AwsWrapper
     add_current_user_to_group(name)
     LOGGER.info("Created group #{name}, and added current user")
 
-    instance_ids = start_instances(2, name).map(&:instance_id)
+    instance_ids = start_instances(2, name, instance_type).map(&:instance_id)
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
 
     instance_ids.each do |instance_id|

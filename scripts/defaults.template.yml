@@ -2,3 +2,4 @@ zone_id: '..............' # https://console.aws.amazon.com/route53/home?region=u
 availability_zone: 'us-east-1c'
 mount_path: '/mnt/ebs'
 size_in_gb: 1
+instance_type: 'ti.micro'

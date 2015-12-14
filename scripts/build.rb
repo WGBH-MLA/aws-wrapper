@@ -30,10 +30,13 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--mount_path', 'Path for EBS') do |m|
     config[:mount_path] = m
   end
+  opts.on('--instance_type', 'EC2 instance type') do |i|
+    config[:instance_type] = i
+  end
   opts.separator('When run, two EC2/ELB pairs are created, along with DNS entries pointing to the ELBs.')
   opts.separator('When this script completes, swap can be run.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :mount_path])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :mount_path, :instance_type])
 
 Builder.new(debug: config[:debug], availability_zone: config[:availability_zone]).build(config)

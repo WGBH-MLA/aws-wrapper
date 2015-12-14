@@ -52,8 +52,8 @@ module Ec2Wrapper
     )
   end
 
-  def create_snapshot(volume_id, wait=false)
-    snapshot_id = ec2_client.create_snapshot(volume_id: volume_id).snapshot_id
+  def create_snapshot(volume_id, description, wait=false)
+    snapshot_id = ec2_client.create_snapshot(volume_id: volume_id, description: description).snapshot_id
     1.step do |try|
       description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
       case description.state
@@ -98,7 +98,7 @@ module Ec2Wrapper
     ec2_client.delete_key_pair(key_name: name)
   end
 
-  def start_instances(n, key_name, instance_type='t1.micro')
+  def start_instances(n, key_name, instance_type)
     response_run_instances = ec2_client.run_instances(
       placement: {
         availability_zone: availability_zone
