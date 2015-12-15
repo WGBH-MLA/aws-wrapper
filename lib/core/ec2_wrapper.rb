@@ -70,6 +70,17 @@ module Ec2Wrapper
     end if wait
     snapshot_id
   end
+  
+  def list_snapshots(volume_id)
+    ec2_client.describe_snapshots(
+      filters: [
+        {
+          name: 'volume-id',
+          values: [volume_id],
+        },
+      ]
+    ).snapshots
+  end
 
   def key_path(name)
     "#{Dir.home}/.ssh/#{name}.pem"
@@ -172,11 +183,21 @@ module Ec2Wrapper
 
   def lookup_instance(instance_id)
     response_describe_instances = ec2_client.describe_instances(instance_ids: [instance_id])
-    response_describe_instances.reservations[0].instances[0]
+    reservations = response_describe_instances.reservations
+    fail("Expected one reservation on #{instance_id}, not #{reservations}") if reservations.count != 1
+    instances = reservations[0].instances
+    fail("Expected one instance on #{reservations[0]}, not #{instances}") if instances.count != 1
+    instances[0]
   end
 
   def lookup_volume_id(instance_id)
-    lookup_instance(instance_id).block_device_mappings[0].ebs.volume_id
+    ids = lookup_volume_ids(instance_id)
+    fail("Expected one volume_id on #{instance_id}, not #{ids}") if ids.count != 1
+    ids[0]
+  end
+  
+  def lookup_volume_ids(instance_id)
+    lookup_instance(instance_id).block_device_mappings.map { |mapping| mapping.ebs.volume_id }
   end
 
 #  def stop_instances(instances)

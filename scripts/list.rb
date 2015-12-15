@@ -1,6 +1,7 @@
 require_relative '../lib/util/lister'
 require_relative '../lib/script_helper'
 require 'optparse'
+require 'json'
 
 config = {}
 ScriptHelper.read_defaults(config)
@@ -23,4 +24,4 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-Lister.new(debug: config[:debug], availability_zone: config[:availability_zone]).list(config)
+puts JSON.pretty_generate(Lister.new(debug: config[:debug], availability_zone: config[:availability_zone]).list(config[:zone_id], config[:name]))
