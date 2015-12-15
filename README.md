@@ -35,6 +35,11 @@ or for a one-liner:
 ruby scripts/sudo.rb --name abc.wgbh-mla-test.org --command 'echo "I am sudo"'
 ```
 
+to get a handle on all the dependent resources:
+```
+ruby scripts/list.rb --name abc.wgbh-mla-test.org
+```
+
 and if this is development and we want to clear the slate:
 ```
 ruby scripts/destroy.rb --name abc.wgbh-mla-test.org
