@@ -2,26 +2,26 @@ require_relative 'base_wrapper'
 
 module ElbWrapper
   include BaseWrapper
-  
+
   private
-  
+
   def elb_client
     @elb_client ||= Aws::ElasticLoadBalancing::Client.new(client_config)
   end
-  
+
   public
-  
+
   def elb_arn(elb_name)
     account_id = Aws::IAM::CurrentUser.new.arn.match(/^arn:aws:iam::(\d+)/)[1]
     "arn:aws:elasticloadbalancing:#{availability_zone}:#{account_id}:loadbalancer/#{elb_name}"
   end
-  
+
   def elb_names(name)
-    ['a', 'b'].map{ |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
+    %w(a b).map { |i| "#{name.gsub(/\W+/, '-')}-#{i}".downcase }
   end
-  
+
   def create_elb(name)
-    elb_client.create_load_balancer({
+    elb_client.create_load_balancer(
       load_balancer_name: name, # required
       listeners: [ # required
         {
@@ -43,40 +43,38 @@ module ElbWrapper
 #          value: "TagValue",
 #        },
 #      ],
-    }).dns_name
+    ).dns_name
   end
-  
+
   def delete_elb(name)
-    elb_client.delete_load_balancer({
+    elb_client.delete_load_balancer(
       load_balancer_name: name, # required
-    })
+    )
   end
-  
+
   def lookup_elb_by_dns_name(cname)
-    matches = elb_client.describe_load_balancers().load_balancer_descriptions.select do |elb|
+    matches = elb_client.describe_load_balancers.load_balancer_descriptions.select do |elb|
       elb.dns_name == cname
     end
     fail("Expected exactly one LB with CNAME #{cname}, not #{matches.count}") if matches.count != 1
     matches.first
   end
-  
+
   def lookup_elb_by_name(name)
-    matches = elb_client.describe_load_balancers().load_balancer_descriptions.select do |elb|
+    matches = elb_client.describe_load_balancers.load_balancer_descriptions.select do |elb|
       elb.load_balancer_name == name
     end
     fail("Expected exactly one LB with name #{name}, not #{matches.count}") if matches.count != 1
     matches.first
   end
-  
+
   def register_instance_with_elb(instance_id, elb_name)
-    elb_client.register_instances_with_load_balancer({
-      load_balancer_name: elb_name, # required
-      instances: [ # required
-        {
-          instance_id: instance_id,
-        },
-      ],
-    })
+    elb_client.register_instances_with_load_balancer(load_balancer_name: elb_name, # required
+                                                     instances: [ # required
+                                                       {
+                                                         instance_id: instance_id
+                                                       }
+                                                     ])
     1.step do |try|
       break if lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
@@ -84,16 +82,14 @@ module ElbWrapper
       sleep(WAIT_INTERVAL)
     end
   end
-  
+
   def deregister_instance_from_elb(instance_id, elb_name)
-    elb_client.deregister_instances_from_load_balancer({
-      load_balancer_name: elb_name, # required
-      instances: [ # required
-        {
-          instance_id: instance_id,
-        },
-      ],
-    })
+    elb_client.deregister_instances_from_load_balancer(load_balancer_name: elb_name, # required
+                                                       instances: [ # required
+                                                         {
+                                                           instance_id: instance_id
+                                                         }
+                                                       ])
     1.step do |try|
       break unless lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
       fail('Giving up') if try >= WAIT_ATTEMPTS
@@ -101,5 +97,4 @@ module ElbWrapper
       sleep(WAIT_INTERVAL)
     end
   end
-  
 end

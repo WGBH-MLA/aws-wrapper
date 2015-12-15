@@ -1,7 +1,6 @@
 require_relative '../lib/core/ec2_wrapper'
 
 describe Ec2Wrapper do
-  
   def expect_wrapper
     wrapper = Class.new do
       include Ec2Wrapper
@@ -10,6 +9,9 @@ describe Ec2Wrapper do
       instance_double(Aws::EC2::Client).tap do |client|
         yield client
       end
+    )
+    allow(wrapper).to receive(:availability_zone).and_return(
+      'mock-availability-zone'
     )
     wrapper
   end
@@ -20,10 +22,10 @@ describe Ec2Wrapper do
       wrapper = expect_wrapper do |client|
         allow(client).to receive(:create_key_pair).and_return(kp)
       end
-      expect(wrapper.create_key('name',false)).to eq kp
+      expect(wrapper.create_key('name', false)).to eq kp
     end
   end
-  
+
   describe '#start_instances' do
     it 'makes expected SDK calls' do
       def instance(id)
@@ -32,26 +34,24 @@ describe Ec2Wrapper do
             .and_return(id).at_least(:once)
         end
       end
-      
-      instances = ['instance-1-id', 'instance-2-id'].map{ |id| instance(id) }
-      
+
+      instances = ['instance-1-id', 'instance-2-id'].map { |id| instance(id) }
+
       wrapper = expect_wrapper do |client|
         allow(client).to receive(:run_instances)
-          .and_return(
-            instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-              allow(reservation).to receive(:instances)
-                .and_return(instances)
-            end
-          )
+        .and_return(
+          instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
+            allow(reservation).to receive(:instances)
+              .and_return(instances)
+          end
+        )
         expect(client).to receive(:wait_until)
       end
-      
-      expect(wrapper.start_instances(2, 'testing')).to eq instances
+
+      expect(wrapper.start_instances(2, 'testing', 'mock-instance-type')).to eq instances
     end
   end
 
-
-  
 #  describe '#lookup_eip' do
 #    it 'makes expected calls to AWS' do
 #      wrapper = TestWrapper.new
@@ -68,11 +68,11 @@ describe Ec2Wrapper do
 #            )
 #        end
 #      )
-#      
+#
 #      expect(wrapper.lookup_eip('eip-id')).to eq 'eip.ip.address'
 #    end
 #  end
-#  
+#
 #  describe '#assign_eip' do
 #    it 'makes expected calls to AWS' do
 #      wrapper = TestWrapper.new
@@ -85,11 +85,11 @@ describe Ec2Wrapper do
 #      instance = instance_double(Aws::EC2::Instance).tap do |instance|
 #        expect(instance).to receive(:instance_id).and_return('instance-id')
 #      end
-#      
+#
 #      expect(wrapper.assign_eip('public.ip.address', instance)).to eq true
 #    end
 #  end
-#  
+#
 #  describe '#lookup_instance' do
 #    it 'makes expected calls to AWS' do
 #      wrapper = TestWrapper.new
@@ -106,15 +106,14 @@ describe Ec2Wrapper do
 #                        .and_return([
 #                          :instance
 #                        ])
-#                    end  
+#                    end
 #                  ])
 #              end
 #            )
 #        end
 #      )
-#      
+#
 #      expect(wrapper.lookup_instance('instance-id')).to eq :instance
 #    end
 #  end
-  
 end

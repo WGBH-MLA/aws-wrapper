@@ -1,4 +1,4 @@
-require_relative '../lib/util/cleanuper'
+require_relative '../lib/util/destroyer'
 require_relative '../lib/script_helper'
 require 'optparse'
 
@@ -28,6 +28,6 @@ print "Really delete everything relating to #{config[:name]}? Reenter to confirm
 unless gets.strip == config[:name]
   warn 'Quit without touching anything.'
   exit 1
-end 
+end
 
-Cleanuper.new(debug: config[:debug], availability_zone: config[:availability_zone]).cleanup(config[:zone_id], config[:name])
+Destroyer.new(debug: config[:debug], availability_zone: config[:availability_zone]).destroy(config[:zone_id], config[:name])

@@ -7,13 +7,11 @@ require 'set'
 # Was not able to make a minimal reproducer.
 
 module BaseWrapper
-  
   LOGGER = Logger.new($stderr, 'daily')
   LOGGER.formatter = proc do |severity, datetime, _progname, msg|
     "#{severity} [#{datetime.strftime('%Y-%m-%d %H:%M:%S')}]: #{msg}\n"
   end
-  
+
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 100
-  
 end

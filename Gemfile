@@ -11,3 +11,4 @@ gem 'rspec', :group => :test
 gem 'pry', :group => :development
 gem 'pry-nav', :group => :development
 
+gem 'rubocop', :group => :development

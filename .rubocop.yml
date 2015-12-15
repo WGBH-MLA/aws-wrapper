@@ -1,0 +1,15 @@
+inherit_from: .rubocop_todo.yml
+
+# %r is more unusual than a backslash, at least for me.
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+  
+Style/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+  
+# I like to distinguish code blocks which are commented out from real comments
+Style/CommentIndentation:
+  Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false
