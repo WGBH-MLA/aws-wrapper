@@ -45,5 +45,6 @@ if config[:flat]
     }
   )
 else
-  puts JSON.pretty_generate(list)
+  gratuitous_re = /([\[\]}])\s+([\]}])/
+  puts JSON.pretty_generate(list).gsub(gratuitous_re, '\1\2').gsub(gratuitous_re, '\1\2')
 end
