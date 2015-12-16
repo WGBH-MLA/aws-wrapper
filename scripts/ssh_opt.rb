@@ -7,19 +7,16 @@ ScriptHelper.read_defaults(config)
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
-  opts.on('--name NAME', 'DNS name of ELB') do |n|
-    config[:name] = n
-  end
-  opts.on('--zone_id ZONE', 'AWS Zone ID') do |z|
-    config[:zone_id] = z
-  end
-  opts.on('--availability_zone', 'Availability Zone') do |z|
-    config[:availability_zone] = z
-  end
-  opts.on('--debug', 'Turn on debugging') do
-    config[:debug] = true
-  end
-  opts.separator('Returns the ssh opts to connect to the instance behind the ELB.')
+  ScriptHelper.one_arg_opts(
+    opts, config,
+    name: 'Name to be used for PK, EBS, DNS, etc.',
+    zone_id: 'AWS Zone ID',
+    availability_zone: 'Availability Zone'
+  )
+  ScriptHelper.no_arg_opts(
+    opts, config,
+    debug: 'Turn on debug logging'
+  )
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])

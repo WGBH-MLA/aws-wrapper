@@ -36,4 +36,23 @@ module ScriptHelper
       exit 1
     end
   end
+
+  def self.one_arg_opts(opts, config, kv)
+    kv.each do |key, blurb|
+      flag = "--#{key}"
+      dummy = "#{key.to_s.gsub(/(.*_)?/, '').upcase}"
+      opts.on("#{flag} #{dummy}", blurb) do |n|
+        config[key] = n
+      end
+    end
+  end
+
+  def self.no_arg_opts(opts, config, kv)
+    kv.each do |key, blurb|
+      flag = "--#{key}"
+      opts.on(flag, blurb) do |_n|
+        config[key] = true
+      end
+    end
+  end
 end

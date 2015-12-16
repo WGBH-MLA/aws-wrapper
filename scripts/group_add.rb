@@ -7,18 +7,16 @@ ScriptHelper.read_defaults(config)
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
-  opts.on('--user USER', 'AWS user name') do |u|
-    config[:user] = u
-  end
-  opts.on('--group GROUP', 'AWS group name') do |g|
-    config[:group] = g
-  end
-  opts.on('--availability_zone', 'Availability Zone') do |z|
-    config[:availability_zone] = z
-  end
-  opts.on('--debug', 'Turn on debugging') do
-    config[:debug] = true
-  end
+  ScriptHelper.one_arg_opts(
+    opts, config,
+    user: 'AWS user name',
+    group: 'AWS group name',
+    availability_zone: 'Availability Zone'
+  )
+  ScriptHelper.no_arg_opts(
+    opts, config,
+    debug: 'Turn on debug logging'
+  )
   opts.separator('Adds user to group.')
 end
 
