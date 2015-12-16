@@ -8,7 +8,7 @@ class SshOpter < AwsWrapper
 
     # "~" was not expanding in backticks, so we lookup the homedir here.
     key_path = "#{Dir.home}/.ssh/#{name.gsub(/^demo\./, '')}.pem"
-    ssh_add = "ssh-add -K #{key_path}"
+    ssh_add = "ssh-add #{key_path}"
     system(ssh_add) || fail("Failed '#{ssh_add}'")
     LOGGER.info("Added #{key_path} to SSH agent")
     # Add key to SSH agent, and then use the agent ("-A") rather than
