@@ -2,7 +2,7 @@ require_relative 'aws_wrapper'
 require 'ostruct'
 
 class Swapper < AwsWrapper
-  def swap(zone_id, live_name, mount_path)
+  def swap(zone_id, live_name, device_name)
     demo_name = 'demo.' + live_name
 
     live = lookup_elb_and_instance(zone_id, live_name)
@@ -10,7 +10,7 @@ class Swapper < AwsWrapper
     demo = lookup_elb_and_instance(zone_id, demo_name)
     LOGGER.info("demo: #{demo.elb_name} / #{demo.instance_id}")
 
-    snapshot_id = create_snapshot(lookup_volume_id(demo.instance_id), "#{demo_name}:#{mount_path} by #{`whoami`} using #{$0}")
+    snapshot_id = create_snapshot(lookup_volume_id(demo.instance_id, device_name), "#{demo_name}:#{device_name} by #{`whoami`} using #{$0}")
     LOGGER.info("Creating snapshot #{snapshot_id}. Process is slow and will continue in background.")
 
     register_instance_with_elb(demo.instance_id, live.elb_name)

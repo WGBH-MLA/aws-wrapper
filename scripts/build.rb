@@ -27,6 +27,9 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--size_in_gb', 'Size of EBS volume, in GB') do |s|
     config[:size_in_gb] = s
   end
+  opts.on('--device_name', 'Device for EBS') do |d|
+    config[:device_name] = d
+  end
   opts.on('--mount_path', 'Path for EBS') do |m|
     config[:mount_path] = m
   end
@@ -37,7 +40,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('When this script completes, swap can be run.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :mount_path, :instance_type])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :device_name, :mount_path, :instance_type])
 
 Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
   .build(config)

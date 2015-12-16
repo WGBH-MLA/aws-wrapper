@@ -150,14 +150,16 @@ module Ec2Wrapper
     instances[0]
   end
 
-  def lookup_volume_id(instance_id)
-    ids = lookup_volume_ids(instance_id)
+  def lookup_volume_id(instance_id, device_name)
+    ids = lookup_volume_ids(instance_id, device_name)
     fail("Expected one volume_id on #{instance_id}, not #{ids}") if ids.count != 1
     ids[0]
   end
 
-  def lookup_volume_ids(instance_id)
-    lookup_instance(instance_id).block_device_mappings.map { |mapping| mapping.ebs.volume_id }
+  def lookup_volume_ids(instance_id, device_name=nil)
+    lookup_instance(instance_id).block_device_mappings
+      .select { |mapping| !device_name || mapping.device_name == device_name }
+      .map { |mapping| mapping.ebs.volume_id }
   end
 
   private

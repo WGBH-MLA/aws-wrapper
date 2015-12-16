@@ -1,4 +1,5 @@
 require_relative '../lib/util/swapper'
+require_relative '../lib/util/rsyncer'
 require_relative '../lib/script_helper'
 require 'optparse'
 
@@ -18,6 +19,9 @@ opt_parser = OptionParser.new do |opts|
   opts.on('--availability_zone', 'Availability Zone') do |z|
     config[:availability_zone] = z
   end
+  opts.on('--device_name', 'Device for EBS') do |d|
+    config[:device_name] = d
+  end
   opts.on('--mount_path', 'Path for EBS') do |m|
     config[:mount_path] = m
   end
@@ -27,9 +31,9 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('When run, the instances behind the two load balancers are swapped.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :mount_path])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :mount_path, :device_name])
 
 Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .swap(config[:zone_id], config[:name])
+  .swap(config[:zone_id], config[:name], config[:device_name])
 Rsyncer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .swap(config[:zone_id], config[:name], config[:mount_path])
+  .rsync(config[:zone_id], config[:name], config[:mount_path])
