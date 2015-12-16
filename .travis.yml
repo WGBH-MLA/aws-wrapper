@@ -3,7 +3,7 @@ sudo: false
 cache: bundler
 before_script: >
   cp scripts/defaults.template.yml scripts/defaults.yml
-  ssh-agent
+  && ssh-agent
 script: >
   bundle exec rspec --tag ~not_on_travis 
   && bundle exec rubocop -D
