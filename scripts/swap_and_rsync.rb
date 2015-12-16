@@ -29,4 +29,7 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :mount_path])
 
-Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone]).swap(config[:zone_id], config[:name], config[:mount_path])
+Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .swap(config[:zone_id], config[:name])
+Rsyncer.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .swap(config[:zone_id], config[:name], config[:mount_path])

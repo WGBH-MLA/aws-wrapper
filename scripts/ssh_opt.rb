@@ -30,4 +30,5 @@ if config[:name] !~ prefix
   exit 1
 end
 
-puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone]).ssh_opts(config[:zone_id], config[:name])
+puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .ssh_opts(config[:zone_id], config[:name])

@@ -7,7 +7,7 @@ Before running any of the examples, you will need to have an AWS IAM user,
 with your API credentials in the conventional location, and also have a zone ID 
 for your Route 53 DNS zone. The zone ID could be passed as a command line
 argument in all the examples below, but you can also specify it just once in
-`scipts/config.yml`, as you can with all command line arguments.
+`scripts/defaults.yml`, as you can with all command line arguments.
 
 Typically, bare servers can be set up:
 ```
@@ -22,7 +22,7 @@ ruby scripts/group_add.rb --user someone_else --group abc.wgbh-mla-test.org
 
 and then that user can swap them:
 ```
-ruby scripts/swap.rb --name abc.wgbh-mla-test.org
+ruby scripts/swap_and_rsync.rb --name abc.wgbh-mla-test.org
 ```
 
 log in to the demo machine:
@@ -67,6 +67,7 @@ The scripts create all kinds of interrelated AWS resources. If you want to keep 
 
 - [EC2s](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:sort=desc:launchTime)
 - [Volumes](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Volumes:sort=desc:createTime)
+- [Snapshots](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Snapshots:sort=startTime)
 - [Key Pairs](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#KeyPairs:sort=keyName)
 - [CNAMEs](https://console.aws.amazon.com/route53/home?region=us-east-1)
 - [ELBs](https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#LoadBalancers:)

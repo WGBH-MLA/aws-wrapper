@@ -30,4 +30,5 @@ unless gets.strip == config[:name]
   exit 1
 end
 
-Destroyer.new(debug: config[:debug], availability_zone: config[:availability_zone]).destroy(config[:zone_id], config[:name])
+Destroyer.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .destroy(config[:zone_id], config[:name])

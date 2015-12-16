@@ -21,4 +21,5 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :command])
 
-Sudoer.new(debug: config[:debug], availability_zone: config[:availability_zone]).sudo(config[:zone_id], config[:name], config[:command])
+Sudoer.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .sudo(config[:zone_id], config[:name], config[:command])

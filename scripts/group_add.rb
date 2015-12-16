@@ -24,4 +24,5 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :user, :group])
 
-GroupAdder.new(debug: config[:debug], availability_zone: config[:availability_zone]).add_user_to_group(config[:user], config[:group])
+GroupAdder.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .add_user_to_group(config[:user], config[:group])

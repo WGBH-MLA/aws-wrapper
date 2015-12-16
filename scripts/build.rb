@@ -39,4 +39,5 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :mount_path, :instance_type])
 
-Builder.new(debug: config[:debug], availability_zone: config[:availability_zone]).build(config)
+Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .build(config)
