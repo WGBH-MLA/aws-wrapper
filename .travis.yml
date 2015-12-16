@@ -3,7 +3,7 @@ sudo: false
 cache: bundler
 script: >
   bundle exec rspec --tag ~not_on_travis 
-  && sh spec/everything.sh $TRAVIS_BUILD_NUMBER.wgbh-mla-test.org 
+  && bundle exec sh spec/everything.sh $TRAVIS_BUILD_NUMBER.wgbh-mla-test.org 
   && bundle exec rubocop -D
 env:
   matrix: # AWS Keys
