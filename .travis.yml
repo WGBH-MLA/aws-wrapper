@@ -3,10 +3,11 @@ sudo: false
 cache: bundler
 before_script: >
   cp scripts/defaults.template.yml scripts/defaults.yml
+  ssh-agent
 script: >
   bundle exec rspec --tag ~not_on_travis 
-  && bundle exec sh spec/everything.sh $TRAVIS_BUILD_NUMBER.wgbh-mla-test.org 
   && bundle exec rubocop -D
+  && bundle exec sh spec/everything.sh $TRAVIS_BUILD_NUMBER.wgbh-mla-test.org 
 env:
   global: # AWS Keys
   - secure: sASZSg5uAoDW2O8gjwewsP4byAZLZw+QxjzAMsP3qkdq69Pth5hJsguDgynn+3dvUbeIVk5QzEZbUGMCN21fR/N/onMXsmUWITmX4A2iwe/kEfVs2Rc1yQrWP0OY0VEFf7zFiIqETYy/arMt+UbqGpdhkwx0MQU1tpX5CDa1pI2rQaa78KAczRcentwWG9wKVFyCkbvXocdKwftIj8bwb1xkcsIXCijCet6mmlSIAPyPnmeGDNVdbCOR2CEb6th41NArFzkX7LZPWlyp237tyAPxCsgcF5nLHGUT1b3yBWkFqDBDhXbt/9/wfsTQEdvNV55QcZFt5vckRx1G1iVslT9pi5Tk5VB5is7u8ioSNfD0FnmBE6lCfKuamHhbteLK9DrXYqofgcE71aRCeZatvLY1Dn1NE5mx2EHdwJcFAhRLGxmCbUBnmH+UgKOtHRSJ5AURyMXbh2LvL/lGcqT6Qb5uS/OBaz7EsJ3+C53uEQ8N2NSPqkG/dQtetwPpRRwOtrx4WzX6ro7mrJIYLm70Eu3ehGwHOgsBP5N5VbdHQ4TbVU39Nq/HHFbMVXtjLUij0FYq3VeJwSGnjN3h5y4N4Bc48GAUj601YUILIqFIwtjyWHVQK7yX20Dog3TiMgVFiYuF76faubaKjyoPcf+2MJISShCGpZLDDS8fwNOQqdE=
