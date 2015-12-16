@@ -62,7 +62,7 @@ module IamWrapper
       !matching_resources.empty?
     end
   end
-  
+
   def group_resources_hash
     @group_resources_hash ||= Hash[
       iam_client.list_groups.groups.map(&:group_name).map do |group_name|
@@ -71,17 +71,17 @@ module IamWrapper
           policy = JSON.parse(URI.decode(json_encoded))
           statement = policy['Statement']
           statements = if statement.class == Array
-            statement
-          else
-            [statement]
-          end
+                         statement
+                       else
+                         [statement]
+                       end
           statements.map { |s| s['Resource'] }
         end
         [group_name, resources.flatten]
       end
     ]
   end
-  
+
   def put_group_policy(group_name, statement)
     iam_client.put_group_policy(
       group_name: group_name, # required

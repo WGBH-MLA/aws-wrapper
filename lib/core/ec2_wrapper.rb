@@ -1,5 +1,6 @@
 require_relative 'base_wrapper'
 
+# rubocop:disable Metrics/ModuleLength
 module Ec2Wrapper
   include BaseWrapper
 
@@ -70,14 +71,14 @@ module Ec2Wrapper
     end if wait
     snapshot_id
   end
-  
+
   def list_snapshots(volume_id)
     ec2_client.describe_snapshots(
       filters: [
         {
           name: 'volume-id',
-          values: [volume_id],
-        },
+          values: [volume_id]
+        }
       ]
     ).snapshots
   end
@@ -195,7 +196,7 @@ module Ec2Wrapper
     fail("Expected one volume_id on #{instance_id}, not #{ids}") if ids.count != 1
     ids[0]
   end
-  
+
   def lookup_volume_ids(instance_id)
     lookup_instance(instance_id).block_device_mappings.map { |mapping| mapping.ebs.volume_id }
   end

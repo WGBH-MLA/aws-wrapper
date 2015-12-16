@@ -9,9 +9,9 @@ class Lister < AwsWrapper
       end
     }
   end
-  
+
   private
-  
+
   def cname_info(zone_id, cname)
     elb_dns = lookup_cname(zone_id, cname)
     elb = lookup_elb_by_dns_name(elb_dns)
@@ -19,13 +19,13 @@ class Lister < AwsWrapper
     {
       cname: cname,
       elb_name: elb_name,
-      groups: lookup_groups_by_resource('loadbalancer/'+elb_name),
+      groups: lookup_groups_by_resource('loadbalancer/' + elb_name),
       instances: elb.instances.map do |elb_instance|
         instance_info(elb_instance)
       end
     }
   end
-  
+
   def instance_info(elb_instance)
     instance_id = elb_instance.instance_id
     instance = lookup_instance(instance_id)
@@ -37,7 +37,7 @@ class Lister < AwsWrapper
       end
     }
   end
-  
+
   def volume_info(volume_id)
     {
       volume_id: volume_id,
