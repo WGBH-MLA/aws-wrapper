@@ -39,24 +39,12 @@ Metrics/MethodLength:
 Metrics/ModuleLength:
   Max: 135
 
-# Offense count: 12
 # Configuration parameters: Exclude.
 Style/Documentation:
   Exclude:
     - 'spec/**/*'
     - 'test/**/*'
-    - 'lib/core/base_wrapper.rb'
-    - 'lib/core/dns_wrapper.rb'
-    - 'lib/core/ec2_wrapper.rb'
-    - 'lib/core/elb_wrapper.rb'
-    - 'lib/core/iam_wrapper.rb'
-    - 'lib/script_helper.rb'
-    - 'lib/util/aws_wrapper.rb'
-    - 'lib/util/builder.rb'
-    - 'lib/util/destroyer.rb'
-    - 'lib/util/ssh_opter.rb'
-    - 'lib/util/sudoer.rb'
-    - 'lib/util/swapper.rb'
+    - 'lib/**/*'
 
 # Offense count: 2
 Style/MultilineBlockChain:

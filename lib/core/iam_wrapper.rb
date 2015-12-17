@@ -1,5 +1,6 @@
 require_relative 'base_wrapper'
 require 'json'
+require 'uri'
 
 module IamWrapper
   include BaseWrapper
@@ -50,6 +51,35 @@ module IamWrapper
 
   def add_current_user_to_group(group_name)
     add_user_to_group(current_user_name, group_name)
+  end
+
+  def lookup_groups_by_resource(arn_fragment)
+    groups = group_resources_hash.keys
+    groups.select do |group|
+      matching_resources = group_resources_hash[group].select do |resource|
+        resource.include?(arn_fragment)
+      end
+      !matching_resources.empty?
+    end
+  end
+
+  def group_resources_hash
+    @group_resources_hash ||= Hash[
+      iam_client.list_groups.groups.map(&:group_name).map do |group_name|
+        resources = iam_client.list_group_policies(group_name: group_name).policy_names.map do |policy_name|
+          json_encoded = iam_client.get_group_policy(group_name: group_name, policy_name: policy_name).policy_document
+          policy = JSON.parse(URI.decode(json_encoded))
+          statement = policy['Statement']
+          statements = if statement.class == Array
+                         statement
+                       else
+                         [statement]
+                       end
+          statements.map { |s| s['Resource'] }
+        end
+        [group_name, resources.flatten]
+      end
+    ]
   end
 
   def put_group_policy(group_name, statement)

@@ -1,5 +1,6 @@
 require_relative 'base_wrapper'
 
+# rubocop:disable Metrics/ModuleLength
 module Ec2Wrapper
   include BaseWrapper
 
@@ -11,11 +12,10 @@ module Ec2Wrapper
 
   public
 
-  def create_and_attach_volume(instance_id, device, size_in_gb)
+  def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id=nil)
     volume_id = ec2_client.create_volume(
-      # dry_run: true,
       size: size_in_gb,
-      # snapshot_id: "String",
+      snapshot_id: snapshot_id,
       availability_zone: availability_zone, # required
       volume_type: 'standard', # accepts standard, io1, gp2
       # iops: 1,
@@ -32,7 +32,6 @@ module Ec2Wrapper
       sleep(WAIT_INTERVAL)
     end
     ec2_client.attach_volume(
-      # dry_run: true,
       volume_id: volume_id, # required
       instance_id: instance_id, # required
       device: device, # required: /dev/sdb thru /dev/sdp
@@ -71,6 +70,17 @@ module Ec2Wrapper
     snapshot_id
   end
 
+  def list_snapshots(volume_id)
+    ec2_client.describe_snapshots(
+      filters: [
+        {
+          name: 'volume-id',
+          values: [volume_id]
+        }
+      ]
+    ).snapshots
+  end
+
   def key_path(name)
     "#{Dir.home}/.ssh/#{name}.pem"
   end
@@ -98,12 +108,12 @@ module Ec2Wrapper
     ec2_client.delete_key_pair(key_name: name)
   end
 
-  def start_instances(n, key_name, instance_type)
+  def start_instances(n, key_name, instance_type, image_id)
     response_run_instances = ec2_client.run_instances(
       placement: {
         availability_zone: availability_zone
       },
-      image_id: 'ami-cf1066aa', # PV EBS-Backed 64-bit / US East
+      image_id: image_id,
       min_count: n, # required
       max_count: n, # required
       key_name: key_name,
@@ -131,71 +141,26 @@ module Ec2Wrapper
     ec2_client.terminate_instances(instance_ids: instance_ids)
   end
 
-#  def lookup_eip(eip_ip)
-#    response = ec2_client.describe_addresses({
-#      dry_run: false,
-#      public_ips: [eip_ip],
-##      filters: [
-##        {
-##          name: "String",
-##          values: ["String"],
-##        },
-##      ],
-##      allocation_ids: ["String"],
-#    })
-#    fail("Expected exactly one match, not #{response.addresses.count}") unless response.addresses.count == 1
-#    response.addresses[0] # Returns an Address, which has .instance_id
-#  end
-
-#  def allocate_eip(instance)
-#    response_allocate_address = ec2_client.allocate_address({
-#      dry_run: false,
-#      domain: "standard", # accepts vpc, standard
-#    })
-#    public_ip = response_allocate_address.public_ip
-#    assign_eip(public_ip, instance)
-#    return public_ip
-#  end
-
-#  def assign_eip(public_ip, instance)
-#    instance_id = instance.instance_id
-#    ec2_client.associate_address({
-#      dry_run: false,
-#      instance_id: instance_id,
-#      public_ip: public_ip, # required for EC2-Classic
-#      # allocation_id: response_allocate_address.allocation_id, # required for EC2-VPC
-#      # allow_reassociation: true, # allowReassociation parameter is only supported when mapping to a VPC
-#      # TODO: Isn't the whole point of EIP that it can be reassociated?
-#    })
-#    LOGGER.info("EIP #{public_ip} -> EC2 #{instance_id}")
-#  end
-
   def lookup_instance(instance_id)
     response_describe_instances = ec2_client.describe_instances(instance_ids: [instance_id])
-    response_describe_instances.reservations[0].instances[0]
+    reservations = response_describe_instances.reservations
+    fail("Expected one reservation on #{instance_id}, not #{reservations}") if reservations.count != 1
+    instances = reservations[0].instances
+    fail("Expected one instance on #{reservations[0]}, not #{instances}") if instances.count != 1
+    instances[0]
   end
 
-  def lookup_volume_id(instance_id)
-    lookup_instance(instance_id).block_device_mappings[0].ebs.volume_id
+  def lookup_volume_id(instance_id, device_name)
+    ids = lookup_volume_ids(instance_id, device_name)
+    fail("Expected one volume_id on #{instance_id}, not #{ids}") if ids.count != 1
+    ids[0]
   end
 
-#  def stop_instances(instances)
-#    # TODO: disassociate_address?
-#    # TODO: release_address
-#    instance_ids = instances.map(&:instance_id)
-#
-#    response_stop_instances = ec2_client.stop_instances({
-#      dry_run: false,
-#      instance_ids: instance_ids,
-#      force: true,
-#    })
-#
-#    LOGGER.info("Requested EC2 instance termination: #{response_stop_instances.inspect}")
-#
-#    ec2_client.wait_until(:instance_terminated, instance_ids: instance_ids) do |w|
-#      config_wait(w)
-#    end
-#  end
+  def lookup_volume_ids(instance_id, device_name=nil)
+    lookup_instance(instance_id).block_device_mappings
+      .select { |mapping| !device_name || mapping.device_name == device_name }
+      .map { |mapping| mapping.ebs.volume_id }
+  end
 
   private
 

@@ -3,16 +3,17 @@ require_relative 'swapper'
 require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
-  DEVICE_PATH = '/dev/sdb'
-
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
     size_in_gb = config[:size_in_gb]
     skip_updates = config[:skip_updates]
+    device_name = config[:device_name]
     mount_path = config[:mount_path]
     instance_type = config[:instance_type]
+    snapshot_id = config[:snapshot_id]
+    image_id = config[:image_id]
 
     create_key(name)
     LOGGER.info("Created PK for #{name}")
@@ -21,11 +22,11 @@ class Builder < AwsWrapper
     add_current_user_to_group(name)
     LOGGER.info("Created group #{name}, and added current user")
 
-    instance_ids = start_instances(2, name, instance_type).map(&:instance_id)
+    instance_ids = start_instances(2, name, instance_type, image_id).map(&:instance_id)
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
 
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, DEVICE_PATH, size_in_gb)
+      create_and_attach_volume(instance_id, device_name, size_in_gb, snapshot_id)
     end
     LOGGER.info('Attached EBS volume to each instance')
 
@@ -49,9 +50,9 @@ class Builder < AwsWrapper
 
     Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
       commands = [
-        "mkfs -t ext4 #{DEVICE_PATH}",
+        "mkfs -t ext4 #{device_name}",
         "mkdir #{mount_path}",
-        "mount #{DEVICE_PATH} #{mount_path}",
+        "mount #{device_name} #{mount_path}",
         "chown ec2-user #{mount_path}"
       ]
       # Agent forwarding allows one machine to connect directly to the other,
@@ -62,7 +63,7 @@ class Builder < AwsWrapper
       commands_joined = commands.join (' && ')
       sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
       LOGGER.info('Swap instances and do it again.')
-      Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, mount_path)
+      Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, device_name)
       sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
     end
     LOGGER.info('Instances are up / EBS volumes are mounted.')
