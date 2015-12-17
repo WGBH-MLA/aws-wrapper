@@ -16,7 +16,8 @@ opt_parser = OptionParser.new do |opts|
     device_name: 'Device for EBS',
     mount_path: 'Path for EBS',
     instance_type: 'EC2 instance type',
-    snapshot_id: 'Snapshot ID of attached volume'
+    snapshot_id: 'Snapshot ID of attached volume',
+    image_id: 'Amazon machine image ID'
   )
   ScriptHelper.no_arg_opts(
     opts, config,

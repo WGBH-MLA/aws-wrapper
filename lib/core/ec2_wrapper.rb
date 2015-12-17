@@ -108,12 +108,12 @@ module Ec2Wrapper
     ec2_client.delete_key_pair(key_name: name)
   end
 
-  def start_instances(n, key_name, instance_type)
+  def start_instances(n, key_name, instance_type, image_id)
     response_run_instances = ec2_client.run_instances(
       placement: {
         availability_zone: availability_zone
       },
-      image_id: 'ami-cf1066aa', # PV EBS-Backed 64-bit / US East
+      image_id: image_id,
       min_count: n, # required
       max_count: n, # required
       key_name: key_name,
