@@ -12,7 +12,7 @@ module Ec2Wrapper
 
   public
 
-  def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id = nil)
+  def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id=nil)
     volume_id = ec2_client.create_volume(
       size: size_in_gb,
       snapshot_id: snapshot_id,
