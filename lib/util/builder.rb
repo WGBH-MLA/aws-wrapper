@@ -12,6 +12,7 @@ class Builder < AwsWrapper
     device_name = config[:device_name]
     mount_path = config[:mount_path]
     instance_type = config[:instance_type]
+    snapshot_id = config[:snapshot_id]
 
     create_key(name)
     LOGGER.info("Created PK for #{name}")
@@ -24,7 +25,7 @@ class Builder < AwsWrapper
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
 
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, device_name, size_in_gb)
+      create_and_attach_volume(instance_id, device_name, size_in_gb, snapshot_id)
     end
     LOGGER.info('Attached EBS volume to each instance')
 
