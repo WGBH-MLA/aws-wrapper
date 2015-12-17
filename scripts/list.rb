@@ -19,6 +19,7 @@ opt_parser = OptionParser.new do |opts|
     debug: 'Turn on debug logging',
     flat: 'Flatten the returned data structure'
   )
+  opts.separator('Prints to STDOUT a JSON structure representing the resources under this name.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])

@@ -17,7 +17,7 @@ opt_parser = OptionParser.new do |opts|
     opts, config,
     debug: 'Turn on debug logging'
   )
-  opts.separator('Adds user to group.')
+  opts.separator('Adds specified AWS user to group.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :user, :group])

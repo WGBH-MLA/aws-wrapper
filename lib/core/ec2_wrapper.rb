@@ -4,7 +4,18 @@ require_relative 'base_wrapper'
 module Ec2Wrapper
   include BaseWrapper
 
-  def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id=nil)
+  def create_tag(id, key, value)
+    ec2_client.create_tags(
+      resources: [id], # required
+      tags: [ # required
+        {
+          key: key,
+          value: value
+        }
+      ])
+  end
+
+  def create_and_attach_volume(name, instance_id, device, size_in_gb, snapshot_id=nil)
     volume_id = ec2_client.create_volume(
       size: size_in_gb,
       snapshot_id: snapshot_id,
@@ -23,6 +34,7 @@ module Ec2Wrapper
       LOGGER.info("try #{try}: Volume #{volume_id} not yet available")
       sleep(WAIT_INTERVAL)
     end
+    create_tag(volume_id, 'Name', name)
     ec2_client.attach_volume(
       volume_id: volume_id, # required
       instance_id: instance_id, # required
@@ -43,7 +55,7 @@ module Ec2Wrapper
     )
   end
 
-  def create_snapshot(volume_id, description, wait=false)
+  def create_snapshot(name, volume_id, description, wait=false)
     snapshot_id = ec2_client.create_snapshot(volume_id: volume_id, description: description).snapshot_id
     1.step do |try|
       description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
@@ -59,6 +71,7 @@ module Ec2Wrapper
         fail("Snapshot #{snapshot_id} in unexpected state: #{description.state} #{description.state_message}")
       end
     end if wait
+    create_tag(snapshot_id, 'Name', name)
     snapshot_id
   end
 
@@ -121,6 +134,11 @@ module Ec2Wrapper
 
     ec2_client.wait_until(:instance_running, instance_ids: instances.map(&:instance_id)) do |w|
       config_wait(w)
+    end
+
+    instances.map(&:instance_id).each do |instance_id|
+      # 'Name' is special value which will display in the leftmost column of the console.
+      create_tag(instance_id, 'Name', key_name)
     end
 
     instances

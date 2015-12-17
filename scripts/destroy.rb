@@ -17,7 +17,8 @@ opt_parser = OptionParser.new do |opts|
     opts, config,
     debug: 'Turn on debug logging'
   )
-  opts.separator('When run, all the AWS stuff for this name is deleted, after a prompt.')
+  opts.separator('When run you are prompted to confirm,')
+  opts.separator('and then everything relating to the name is deleted.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])

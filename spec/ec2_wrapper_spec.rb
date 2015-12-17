@@ -45,6 +45,7 @@ describe Ec2Wrapper do
               .and_return(instances)
           end
         )
+        expect(client).to receive(:create_tags).exactly(2).times
         expect(client).to receive(:wait_until)
       end
 

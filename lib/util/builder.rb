@@ -26,7 +26,7 @@ class Builder < AwsWrapper
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
 
     instance_ids.each do |instance_id|
-      create_and_attach_volume(instance_id, device_name, size_in_gb, snapshot_id)
+      create_and_attach_volume(name, instance_id, device_name, size_in_gb, snapshot_id)
     end
     LOGGER.info('Attached EBS volume to each instance')
 
@@ -39,9 +39,10 @@ class Builder < AwsWrapper
 
     # Maybe this would be better managed than inline?
     # But then that would be another thing to clean up.
-    put_group_policy(name,       'Effect' => 'Allow',
-                                 'Action' => 'elasticloadbalancing:*', # TODO: tighten
-                                 'Resource' => elb_names.map { |elb_name| elb_arn(elb_name) })
+    put_group_policy(name,
+                     'Effect' => 'Allow',
+                     'Action' => 'elasticloadbalancing:*', # TODO: tighten
+                     'Resource' => elb_names.map { |elb_name| elb_arn(elb_name) })
     LOGGER.info('Create group policy for ELB')
 
     name_target_pairs = cname_pair(name).zip(elb_a_names)
