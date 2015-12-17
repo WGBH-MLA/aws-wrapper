@@ -3,14 +3,6 @@ require_relative 'base_wrapper'
 module ElbWrapper
   include BaseWrapper
 
-  private
-
-  def elb_client
-    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(client_config)
-  end
-
-  public
-
   def elb_arn(elb_name)
     account_id = Aws::IAM::CurrentUser.new.arn.match(/^arn:aws:iam::(\d+)/)[1]
     "arn:aws:elasticloadbalancing:#{availability_zone}:#{account_id}:loadbalancer/#{elb_name}"
@@ -60,14 +52,6 @@ module ElbWrapper
     matches.first
   end
 
-  def lookup_elb_by_name(name)
-    matches = elb_client.describe_load_balancers.load_balancer_descriptions.select do |elb|
-      elb.load_balancer_name == name
-    end
-    fail("Expected exactly one LB with name #{name}, not #{matches.count}") if matches.count != 1
-    matches.first
-  end
-
   def register_instance_with_elb(instance_id, elb_name)
     elb_client.register_instances_with_load_balancer(load_balancer_name: elb_name, # required
                                                      instances: [ # required
@@ -96,5 +80,19 @@ module ElbWrapper
       LOGGER.info("try #{try}: Instance #{instance_id} not yet de-registered from ELB #{elb_name}")
       sleep(WAIT_INTERVAL)
     end
+  end
+
+  private
+
+  def elb_client
+    @elb_client ||= Aws::ElasticLoadBalancing::Client.new(client_config)
+  end
+
+  def lookup_elb_by_name(name)
+    matches = elb_client.describe_load_balancers.load_balancer_descriptions.select do |elb|
+      elb.load_balancer_name == name
+    end
+    fail("Expected exactly one LB with name #{name}, not #{matches.count}") if matches.count != 1
+    matches.first
   end
 end

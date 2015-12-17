@@ -6,8 +6,7 @@ class SshOpter < AwsWrapper
     system(ssh_delete_identities) || fail("Failed '#{ssh_delete_identities}'")
     LOGGER.info("Deleted old identities from SSH agent: #{ssh_delete_identities}")
 
-    # "~" was not expanding in backticks, so we lookup the homedir here.
-    key_path = "#{Dir.home}/.ssh/#{name.gsub(/^demo\./, '')}.pem"
+    key_path = key_path(name.gsub(/^demo\./, ''))
     ssh_add = "ssh-add #{key_path}"
     system(ssh_add) || fail("Failed '#{ssh_add}'")
     LOGGER.info("Added #{key_path} to SSH agent")

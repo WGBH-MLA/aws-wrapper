@@ -51,17 +51,6 @@ describe ElbWrapper do
     end
   end
 
-  describe '#lookup_elb_by_name' do
-    it 'makes expected SDK calls' do
-      load_balancer_name = 'test-load-balancer'
-      elb_description = elb_description(load_balancer_name: load_balancer_name)
-      wrapper = expect_wrapper do |client|
-        expect_client_to_describe_elb(client, elb_description)
-      end
-      expect(wrapper.lookup_elb_by_name(load_balancer_name)).to eq elb_description
-    end
-  end
-
   describe '#register_instance_with_elb' do
     it 'makes expected SDK calls' do
       instance_id = 'instance-id'

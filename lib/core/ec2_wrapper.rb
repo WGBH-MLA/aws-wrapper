@@ -4,14 +4,6 @@ require_relative 'base_wrapper'
 module Ec2Wrapper
   include BaseWrapper
 
-  private
-
-  def ec2_client
-    @ec2_client ||= Aws::EC2::Client.new(client_config)
-  end
-
-  public
-
   def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id=nil)
     volume_id = ec2_client.create_volume(
       size: size_in_gb,
@@ -82,6 +74,7 @@ module Ec2Wrapper
   end
 
   def key_path(name)
+    # We can't rely on "~" expanding.
     "#{Dir.home}/.ssh/#{name}.pem"
   end
 
@@ -163,6 +156,10 @@ module Ec2Wrapper
   end
 
   private
+
+  def ec2_client
+    @ec2_client ||= Aws::EC2::Client.new(client_config)
+  end
 
   def config_wait(w)
     w.interval = WAIT_INTERVAL

@@ -1,4 +1,4 @@
-require_relative '../lib/util/group_adder'
+require_relative '../lib/util/aws_wrapper' # The method we need is in core: no wrapper class needed.
 require_relative '../lib/script_helper'
 require 'optparse'
 
@@ -22,5 +22,5 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :user, :group])
 
-GroupAdder.new(debug: config[:debug], availability_zone: config[:availability_zone])
+AwsWrapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
   .add_user_to_group(config[:user], config[:group])
