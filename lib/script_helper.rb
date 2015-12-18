@@ -29,9 +29,10 @@ module ScriptHelper
       warn opt_parser
       exit 1
     end
-    unless (required - config.keys).empty?
-      required_string = required.map { |k| "--#{k}" }.join(', ')
-      warn "#{required_string} are required, either in #{YAML_PATH} or as arguments."
+    missing = required - config.keys
+    unless missing.empty?
+      required_args = missing.map { |k| "--#{k}" }.join(', ')
+      warn "#{required_args} #{missing.count > 1 ? 'are' : 'is'} required, either as params, or in #{YAML_PATH}."
       warn opt_parser
       exit 1
     end

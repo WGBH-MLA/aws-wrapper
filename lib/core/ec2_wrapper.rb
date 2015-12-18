@@ -74,6 +74,12 @@ module Ec2Wrapper
     create_tag(snapshot_id, 'Name', name)
     snapshot_id
   end
+  
+  def delete_snapshot(snapshot_id)
+    ec2_client.delete_snapshot({
+      snapshot_id: snapshot_id
+    })
+  end
 
   def list_snapshots(volume_id)
     ec2_client.describe_snapshots(
@@ -144,11 +150,16 @@ module Ec2Wrapper
     instances
   end
 
-  def terminate_instances(key_name)
-    instance_ids = ec2_client.describe_instances(filters: [{
-                                                   name: 'key-name',
-                                                   values: [key_name]
-                                                 }]).reservations.map { |res| res.instances.map(&:instance_id) }.flatten
+  def terminate_instances_by_key(key_name)
+    instance_ids = ec2_client.describe_instances(
+      filters: [{
+        name: 'key-name',
+        values: [key_name]
+      }]).reservations.map { |res| res.instances.map(&:instance_id) }.flatten
+    ec2_client.terminate_instances(instance_ids: instance_ids)
+  end
+  
+  def terminate_instances_by_id(instance_ids)
     ec2_client.terminate_instances(instance_ids: instance_ids)
   end
 

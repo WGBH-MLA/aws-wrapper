@@ -1,13 +1,30 @@
 require_relative 'aws_wrapper'
 
 class Lister < AwsWrapper
-  def list(zone_id, name)
-    {
+  def list(zone_id, name, is_flat=true)
+    list = {
       name: name,
       cnames: cname_pair(name).map do |cname|
         cname_info(zone_id, cname)
       end
     }
+    if is_flat
+      cnames = list[:cnames]
+      instances = cnames.map { |c| c[:instances] }.flatten
+      volumes = instances.map { |i| i[:volumes] }.flatten
+      # Only groups and key_name will be repeated in tree: only they need uniq.
+      {
+        cnames: cnames.map { |c| c[:cname] },
+        elb_names: cnames.map { |c| c[:elb_name] },
+        groups: cnames.map { |c| c[:groups] }.flatten.uniq,
+        instance_ids: instances.map { |i| i[:instance_id] },
+        key_names: instances.map { |i| i[:key_name] }.uniq,
+        volume_ids: volumes.map { |v| v[:volume_id] },
+        snapshot_ids: volumes.map { |v| v[:snapshot_ids] }.flatten
+      }
+    else
+      list
+    end
   end
 
   private
