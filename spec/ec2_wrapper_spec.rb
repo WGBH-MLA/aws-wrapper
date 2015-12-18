@@ -42,7 +42,7 @@ describe Ec2Wrapper do
         .and_return(
           instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
             allow(reservation).to receive(:instances)
-              .and_return(instances)
+            .and_return(instances)
           end
         )
         expect(client).to receive(:create_tags).exactly(2).times
@@ -51,5 +51,53 @@ describe Ec2Wrapper do
 
       expect(wrapper.start_instances(2, 'testing', 'mock-instance-type', 'mock-image-id')).to eq instances
     end
+  end
+
+  describe '#create_tag' do
+    # TODO
+  end
+
+  describe '#create_and_attach_volume' do
+    # TODO
+  end
+
+  describe '#create_snapshot' do
+    # TODO
+  end
+
+  describe '#delete_snapshot' do
+    # TODO
+  end
+
+  describe '#list_snapshots' do
+    # TODO
+  end
+
+  describe '#key_path' do
+    # TODO
+  end
+
+  describe '#delete_key' do
+    # TODO
+  end
+
+  describe '#terminate_instances_by_key' do
+    # TODO
+  end
+
+  describe '#terminate_instances_by_id' do
+    # TODO
+  end
+
+  describe '#lookup_instance' do
+    # TODO
+  end
+
+  describe '#lookup_volume_id' do
+    # TODO
+  end
+
+  describe '#lookup_volume_ids' do
+    # TODO
   end
 end

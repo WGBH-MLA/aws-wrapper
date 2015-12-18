@@ -18,9 +18,9 @@ describe ElbWrapper do
       .and_return(
         instance_double(Aws::ElasticLoadBalancing::Types::DescribeAccessPointsOutput).tap do |output|
           allow(output).to receive(:load_balancer_descriptions)
-            .and_return(
-              [lb_description]
-            )
+          .and_return(
+            [lb_description]
+          )
         end
       )
   end
@@ -35,9 +35,9 @@ describe ElbWrapper do
 
   def instance(instance_id)
     OpenStruct.new(instance_id: instance_id)
-#    instance_double(Aws::ElasticLoadBalancing::Types::Instance) do |instance|
-#      expect(instance).to receive(:instance_id).and_return(instance_id)
-#    end
+    #    instance_double(Aws::ElasticLoadBalancing::Types::Instance) do |instance|
+    #      expect(instance).to receive(:instance_id).and_return(instance_id)
+    #    end
   end
 
   describe '#lookup_elb_by_dns_name' do
@@ -75,5 +75,21 @@ describe ElbWrapper do
       end
       expect { wrapper.deregister_instance_from_elb(instance_id, elb_name) }.not_to raise_error
     end
+  end
+
+  describe '#elb_arn' do
+    # TODO
+  end
+
+  describe '#elb_names' do
+    # TODO
+  end
+
+  describe '#create_elb' do
+    # TODO
+  end
+
+  describe '#delete_elb' do
+    # TODO
   end
 end
