@@ -1,7 +1,7 @@
 require_relative '../lib/core/elb_wrapper'
 
 describe ElbWrapper do
-  def expect_wrapper
+  def mock_wrapper
     wrapper = Class.new do
       include ElbWrapper
     end.new
@@ -44,7 +44,7 @@ describe ElbWrapper do
     it 'makes expected SDK calls' do
       dns_name = 'elb.cname.example.org'
       elb_description = elb_description(dns_name: dns_name)
-      wrapper = expect_wrapper do |client|
+      wrapper = mock_wrapper do |client|
         expect_client_to_describe_elb(client, elb_description)
       end
       expect(wrapper.lookup_elb_by_dns_name(dns_name)).to eq elb_description
@@ -56,7 +56,7 @@ describe ElbWrapper do
       instance_id = 'instance-id'
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [instance(instance_id)])
-      wrapper = expect_wrapper do |client|
+      wrapper = mock_wrapper do |client|
         allow(client).to receive(:register_instances_with_load_balancer)
         expect_client_to_describe_elb(client, elb_description)
       end
@@ -69,7 +69,7 @@ describe ElbWrapper do
       instance_id = 'instance-id'
       elb_name = 'elb-name'
       elb_description = elb_description(load_balancer_name: elb_name, instances: [])
-      wrapper = expect_wrapper do |client|
+      wrapper = mock_wrapper do |client|
         allow(client).to receive(:deregister_instances_from_load_balancer)
         expect_client_to_describe_elb(client, elb_description)
       end

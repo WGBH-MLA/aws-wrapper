@@ -1,7 +1,7 @@
 require_relative '../lib/core/ec2_wrapper'
 
 describe Ec2Wrapper do
-  def expect_wrapper
+  def mock_wrapper
     wrapper = Class.new do
       include Ec2Wrapper
     end.new
@@ -19,7 +19,7 @@ describe Ec2Wrapper do
   describe '#create_key' do
     it 'makes expected SDK calls' do
       kp = instance_double(Aws::EC2::Types::KeyPair)
-      wrapper = expect_wrapper do |client|
+      wrapper = mock_wrapper do |client|
         allow(client).to receive(:create_key_pair).and_return(kp)
       end
       expect(wrapper.create_key('name', false)).to eq kp
@@ -37,7 +37,7 @@ describe Ec2Wrapper do
 
       instances = ['instance-1-id', 'instance-2-id'].map { |id| instance(id) }
 
-      wrapper = expect_wrapper do |client|
+      wrapper = mock_wrapper do |client|
         allow(client).to receive(:run_instances)
         .and_return(
           instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
@@ -54,11 +54,43 @@ describe Ec2Wrapper do
   end
 
   describe '#create_tag' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:create_tags)
+      end
+      expect { wrapper.create_tag('id', 'key', 'value') }.not_to raise_error
+    end
   end
 
   describe '#create_and_attach_volume' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:create_volume)
+        .and_return(
+          instance_double(Aws::EC2::Types::Volume).tap do |volume|
+            allow(volume).to receive(:volume_id).and_return('volume-id')
+          end
+        )
+        expect(client).to receive(:describe_volumes)
+        .and_return(
+          instance_double(Aws::EC2::Types::DescribeVolumesResult).tap do |result|
+            allow(result).to receive(:volumes)
+            .and_return(
+              [
+                instance_double(Aws::EC2::Types::Volume).tap do |volume|
+                  allow(volume).to receive(:volume_id).and_return('volume-id')
+                  allow(volume).to receive(:state).and_return('available')
+                end
+              ]
+            )
+          end
+        )
+        expect(client).to receive(:create_tags)
+        expect(client).to receive(:attach_volume)
+        expect(client).to receive(:modify_instance_attribute)
+      end
+      expect { wrapper.create_and_attach_volume('name', 'instance_id', 'device', 'size_in_gb', 'optional_snapshot_id') }.not_to raise_error
+    end
   end
 
   describe '#create_snapshot' do

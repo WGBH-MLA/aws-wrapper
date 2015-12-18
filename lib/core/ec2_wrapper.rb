@@ -27,7 +27,7 @@ module Ec2Wrapper
     ).volume_id
     1.step do |try|
       volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.find do |vol|
-        vol.volume_id = volume_id
+        vol.volume_id == volume_id
       end
       break if volume && volume.state == 'available'
       fail('Giving up') if try >= WAIT_ATTEMPTS
