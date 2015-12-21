@@ -157,7 +157,12 @@ describe Ec2Wrapper do
   end
 
   describe '#terminate_instances_by_id' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:terminate_instances)
+      end
+      expect { wrapper.terminate_instances_by_id('id') }.not_to raise_error
+    end
   end
 
   describe '#lookup_instance' do
