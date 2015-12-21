@@ -138,11 +138,22 @@ describe Ec2Wrapper do
   end
 
   describe '#delete_key' do
-    # TODO
+    # TODO: Does a File.delete, which could be risky.
   end
 
   describe '#terminate_instances_by_key' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:describe_instances)
+        .and_return(
+          instance_double(Aws::EC2::Types::DescribeInstancesResult ).tap do |result|
+            allow(result).to receive(:reservations).and_return([])
+          end
+        )
+        expect(client).to receive(:terminate_instances)
+      end
+      expect { wrapper.terminate_instances_by_key('key') }.not_to raise_error
+    end
   end
 
   describe '#terminate_instances_by_id' do
