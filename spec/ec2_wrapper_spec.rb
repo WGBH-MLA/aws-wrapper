@@ -94,7 +94,18 @@ describe Ec2Wrapper do
   end
 
   describe '#create_snapshot' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:create_snapshot)
+        .and_return(
+          instance_double(Aws::EC2::Types::Snapshot).tap do |snapshot|
+            allow(snapshot).to receive(:snapshot_id).and_return('snapshot-id')
+          end
+        )
+        expect(client).to receive(:create_tags)
+      end
+      expect { wrapper.create_snapshot('name', 'volume_id', 'description') }.not_to raise_error
+    end
   end
 
   describe '#delete_snapshot' do
