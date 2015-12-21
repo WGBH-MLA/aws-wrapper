@@ -118,7 +118,17 @@ describe Ec2Wrapper do
   end
 
   describe '#list_snapshots' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:describe_snapshots)
+        .and_return(
+          instance_double(Aws::EC2::Types::DescribeSnapshotsResult ).tap do |result|
+            allow(result).to receive(:snapshots).and_return([])
+          end
+        )
+      end
+      expect { wrapper.list_snapshots('volume-id') }.not_to raise_error
+    end
   end
 
   describe '#key_path' do
