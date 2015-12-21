@@ -109,7 +109,12 @@ describe Ec2Wrapper do
   end
 
   describe '#delete_snapshot' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:delete_snapshot)
+      end
+      expect { wrapper.delete_snapshot('snapshot_id') }.not_to raise_error
+    end
   end
 
   describe '#list_snapshots' do
