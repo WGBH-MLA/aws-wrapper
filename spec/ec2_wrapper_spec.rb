@@ -132,7 +132,9 @@ describe Ec2Wrapper do
   end
 
   describe '#key_path' do
-    # TODO
+    it 'has expected form' do
+      expect(mock_wrapper {}.key_path('name')).to match /\/\.ssh\/name\.pem$/
+    end
   end
 
   describe '#delete_key' do
