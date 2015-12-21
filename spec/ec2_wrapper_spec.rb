@@ -122,7 +122,7 @@ describe Ec2Wrapper do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:describe_snapshots)
         .and_return(
-          instance_double(Aws::EC2::Types::DescribeSnapshotsResult ).tap do |result|
+          instance_double(Aws::EC2::Types::DescribeSnapshotsResult).tap do |result|
             allow(result).to receive(:snapshots).and_return([])
           end
         )
@@ -133,7 +133,7 @@ describe Ec2Wrapper do
 
   describe '#key_path' do
     it 'has expected form' do
-      expect(mock_wrapper {}.key_path('name')).to match /\/\.ssh\/name\.pem$/
+      expect(mock_wrapper {}.key_path('name')).to match(/\/\.ssh\/name\.pem$/)
     end
   end
 
@@ -146,7 +146,7 @@ describe Ec2Wrapper do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:describe_instances)
         .and_return(
-          instance_double(Aws::EC2::Types::DescribeInstancesResult ).tap do |result|
+          instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
             allow(result).to receive(:reservations).and_return([])
           end
         )
@@ -166,7 +166,23 @@ describe Ec2Wrapper do
   end
 
   describe '#lookup_instance' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:describe_instances)
+        .and_return(
+          instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
+            allow(result).to receive(:reservations).and_return([
+              instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
+                allow(reservation).to receive(:instances).and_return([
+                  instance_double(Aws::EC2::Types::Instance)
+                ])
+              end
+            ])
+          end
+        )
+      end
+      expect { wrapper.lookup_instance('id') }.not_to raise_error
+    end
   end
 
   describe '#lookup_volume_id' do
