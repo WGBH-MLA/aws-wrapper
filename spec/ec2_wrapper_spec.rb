@@ -185,7 +185,8 @@ describe Ec2Wrapper do
     end
   end
 
-  describe '#lookup_volume_id' do
+  # Plain '#lookup_volume_id' is a thin wrapper around this.
+  describe '#lookup_volume_ids' do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:describe_instances)
@@ -196,6 +197,7 @@ describe Ec2Wrapper do
                 allow(reservation).to receive(:instances).and_return([
                   instance_double(Aws::EC2::Types::Instance).tap do |instance|
                     allow(instance).to receive(:block_device_mappings).and_return(
+                      # These could be doubles too.
                       [OpenStruct.new(device_name: '/dev/your-name-here',
                                       ebs: OpenStruct.new(volume_id: 'volume-id'))]
                     )
@@ -206,11 +208,7 @@ describe Ec2Wrapper do
           end
         )
       end
-      expect { wrapper.lookup_volume_id('instance-id', '/dev/your-name-here') }.not_to raise_error
+      expect(wrapper.lookup_volume_ids('instance-id', '/dev/your-name-here')).to eq(['volume-id'])
     end
-  end
-
-  describe '#lookup_volume_ids' do
-    # TODO
   end
 end
