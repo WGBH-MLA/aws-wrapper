@@ -12,7 +12,7 @@ describe IamWrapper do
     )
     wrapper
   end
-  
+
   describe '#create_group' do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
@@ -41,7 +41,7 @@ describe IamWrapper do
       wrapper = mock_wrapper do |client|
         allow(client).to receive(:add_user_to_group)
       end
-      expect { wrapper.add_user_to_group('user','group') }.not_to raise_error
+      expect { wrapper.add_user_to_group('user', 'group') }.not_to raise_error
     end
   end
 
@@ -70,7 +70,7 @@ describe IamWrapper do
       wrapper = mock_wrapper do |client|
         allow(client).to receive(:put_group_policy)
       end
-      expect { wrapper.put_group_policy('group','statement') }.not_to raise_error
+      expect { wrapper.put_group_policy('group', 'statement') }.not_to raise_error
     end
   end
 
