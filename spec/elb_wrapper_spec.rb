@@ -88,14 +88,28 @@ describe ElbWrapper do
   end
 
   describe '#elb_names' do
-    # TODO
+    it 'has expected form' do
+      expect(mock_wrapper {}.elb_names('foo')).to eq(['foo-a', 'foo-b'])
+    end
   end
 
   describe '#create_elb' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        allow(client).to receive(:create_load_balancer).and_return(
+          OpenStruct.new(dns_name: 'bar')
+        )
+      end
+      expect { wrapper.create_elb('foo') }.not_to raise_error
+    end
   end
 
   describe '#delete_elb' do
-    # TODO
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        allow(client).to receive(:delete_load_balancer)
+      end
+      expect { wrapper.delete_elb('foo') }.not_to raise_error
+    end
   end
 end
