@@ -20,7 +20,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       kp = instance_double(Aws::EC2::Types::KeyPair)
       wrapper = mock_wrapper do |client|
-        allow(client).to receive(:create_key_pair).and_return(kp)
+        expect(client).to receive(:create_key_pair).and_return(kp)
       end
       expect(wrapper.create_key('name', false)).to eq kp
     end
@@ -30,7 +30,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       def instance(id)
         instance_double(Aws::EC2::Types::Instance).tap do |instance|
-          allow(instance).to receive(:instance_id)
+          expect(instance).to receive(:instance_id)
             .and_return(id).at_least(:once)
         end
       end
@@ -38,10 +38,10 @@ describe Ec2Wrapper do
       instances = ['instance-1-id', 'instance-2-id'].map { |id| instance(id) }
 
       wrapper = mock_wrapper do |client|
-        allow(client).to receive(:run_instances)
+        expect(client).to receive(:run_instances)
         .and_return(
           instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-            allow(reservation).to receive(:instances)
+            expect(reservation).to receive(:instances)
             .and_return(instances)
           end
         )
@@ -68,18 +68,18 @@ describe Ec2Wrapper do
         expect(client).to receive(:create_volume)
         .and_return(
           instance_double(Aws::EC2::Types::Volume).tap do |volume|
-            allow(volume).to receive(:volume_id).and_return('volume-id')
+            expect(volume).to receive(:volume_id).and_return('volume-id')
           end
         )
         expect(client).to receive(:describe_volumes)
         .and_return(
           instance_double(Aws::EC2::Types::DescribeVolumesResult).tap do |result|
-            allow(result).to receive(:volumes)
+            expect(result).to receive(:volumes)
             .and_return(
               [
                 instance_double(Aws::EC2::Types::Volume).tap do |volume|
-                  allow(volume).to receive(:volume_id).and_return('volume-id')
-                  allow(volume).to receive(:state).and_return('available')
+                  expect(volume).to receive(:volume_id).and_return('volume-id')
+                  expect(volume).to receive(:state).and_return('available')
                 end
               ]
             )
@@ -99,7 +99,7 @@ describe Ec2Wrapper do
         expect(client).to receive(:create_snapshot)
         .and_return(
           instance_double(Aws::EC2::Types::Snapshot).tap do |snapshot|
-            allow(snapshot).to receive(:snapshot_id).and_return('snapshot-id')
+            expect(snapshot).to receive(:snapshot_id).and_return('snapshot-id')
           end
         )
         expect(client).to receive(:create_tags)
@@ -123,7 +123,7 @@ describe Ec2Wrapper do
         expect(client).to receive(:describe_snapshots)
         .and_return(
           instance_double(Aws::EC2::Types::DescribeSnapshotsResult).tap do |result|
-            allow(result).to receive(:snapshots).and_return([])
+            expect(result).to receive(:snapshots).and_return([])
           end
         )
       end
@@ -147,7 +147,7 @@ describe Ec2Wrapper do
         expect(client).to receive(:describe_instances)
         .and_return(
           instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
-            allow(result).to receive(:reservations).and_return([])
+            expect(result).to receive(:reservations).and_return([])
           end
         )
         expect(client).to receive(:terminate_instances)
@@ -171,9 +171,9 @@ describe Ec2Wrapper do
         expect(client).to receive(:describe_instances)
         .and_return(
           instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
-            allow(result).to receive(:reservations).and_return([
+            expect(result).to receive(:reservations).and_return([
               instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-                allow(reservation).to receive(:instances).and_return([
+                expect(reservation).to receive(:instances).and_return([
                   instance_double(Aws::EC2::Types::Instance)
                 ])
               end
@@ -192,11 +192,11 @@ describe Ec2Wrapper do
         expect(client).to receive(:describe_instances)
         .and_return(
           instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
-            allow(result).to receive(:reservations).and_return([
+            expect(result).to receive(:reservations).and_return([
               instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-                allow(reservation).to receive(:instances).and_return([
+                expect(reservation).to receive(:instances).and_return([
                   instance_double(Aws::EC2::Types::Instance).tap do |instance|
-                    allow(instance).to receive(:block_device_mappings).and_return(
+                    expect(instance).to receive(:block_device_mappings).and_return(
                       # These could be doubles too.
                       [OpenStruct.new(device_name: '/dev/your-name-here',
                                       ebs: OpenStruct.new(volume_id: 'volume-id'))]
