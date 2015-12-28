@@ -10,6 +10,9 @@ describe ElbWrapper do
         yield client
       end
     )
+    allow(wrapper).to receive(:availability_zone).and_return(
+      'availability-zone'
+    )
     wrapper
   end
 
@@ -78,7 +81,10 @@ describe ElbWrapper do
   end
 
   describe '#elb_arn' do
-    # TODO
+    it 'has expected form' do
+      Aws.config[:region] = 'us-east-1' # TODO: pull this out?
+      expect(mock_wrapper {}.elb_arn('foo')).to match(/^arn:aws:elasticloadbalancing:/)
+    end
   end
 
   describe '#elb_names' do
