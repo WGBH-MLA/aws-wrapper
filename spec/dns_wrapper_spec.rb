@@ -15,7 +15,7 @@ describe DnsWrapper do
     )
     wrapper
   end
-  
+
   describe '#cname_pair' do
     it 'has expected form' do
       expect(mock_wrapper {}.cname_pair('foo')).to eq(['foo', 'demo.foo'])
@@ -36,7 +36,7 @@ describe DnsWrapper do
             allow(response).to receive(:resource_record_sets).and_return(
               [OpenStruct.new]
             ).twice
-          end 
+          end
         ).twice
         allow(client).to receive(:change_resource_record_sets).and_return(
           OpenStruct.new(change_info: OpenStruct.new(id: 'id'))
@@ -59,7 +59,7 @@ describe DnsWrapper do
           OpenStruct.new(change_info: OpenStruct.new(status: 'INSYNC'))
         )
       end
-      expect { wrapper.create_dns_cname_records('zone-id', {'example.org' => 'target.example.org'}) }.not_to raise_error
+      expect { wrapper.create_dns_cname_records('zone-id', 'example.org' => 'target.example.org') }.not_to raise_error
     end
   end
 end
