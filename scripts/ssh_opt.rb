@@ -6,7 +6,7 @@ config = {}
 ScriptHelper.read_defaults(config)
 
 opt_parser = OptionParser.new do |opts|
-  opts.banner = "Usage: #{File.basename(__FILE__)}"
+  opts.banner = "Usage: ssh `#{File.basename(__FILE__)} ...`"
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
@@ -17,6 +17,8 @@ opt_parser = OptionParser.new do |opts|
     opts, config,
     debug: 'Turn on debug logging'
   )
+  opts.separator('Prints to STDOUT the appropriate arguments for sshing.')
+  opts.separator('(For safety\'s sake, the script only allows connections to demo.)')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])

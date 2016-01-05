@@ -20,7 +20,9 @@ opt_parser = OptionParser.new do |opts|
     opts, config,
     debug: 'Turn on debug logging'
   )
-  opts.separator('When run, the instances behind the two load balancers are swapped.')
+  opts.separator('When run, the instances behind the two load balancers are swapped,')
+  opts.separator('and the backing EBS is copied from the new live to the new demo.')
+  opts.separator('(Any state on the old live EBS is lost.)')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :mount_path, :device_name])

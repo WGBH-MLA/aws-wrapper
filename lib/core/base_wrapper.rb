@@ -13,5 +13,5 @@ module BaseWrapper
   end
 
   WAIT_INTERVAL = 5
-  WAIT_ATTEMPTS = 100
+  WAIT_ATTEMPTS = 50
 end

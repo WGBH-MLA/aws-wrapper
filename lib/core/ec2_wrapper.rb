@@ -4,15 +4,18 @@ require_relative 'base_wrapper'
 module Ec2Wrapper
   include BaseWrapper
 
-  private
-
-  def ec2_client
-    @ec2_client ||= Aws::EC2::Client.new(client_config)
+  def create_tag(id, key, value)
+    ec2_client.create_tags(
+      resources: [id], # required
+      tags: [ # required
+        {
+          key: key,
+          value: value
+        }
+      ])
   end
 
-  public
-
-  def create_and_attach_volume(instance_id, device, size_in_gb, snapshot_id=nil)
+  def create_and_attach_volume(name, instance_id, device, size_in_gb, snapshot_id=nil)
     volume_id = ec2_client.create_volume(
       size: size_in_gb,
       snapshot_id: snapshot_id,
@@ -24,13 +27,14 @@ module Ec2Wrapper
     ).volume_id
     1.step do |try|
       volume = ec2_client.describe_volumes(volume_ids: [volume_id]).volumes.find do |vol|
-        vol.volume_id = volume_id
+        vol.volume_id == volume_id
       end
       break if volume && volume.state == 'available'
       fail('Giving up') if try >= WAIT_ATTEMPTS
       LOGGER.info("try #{try}: Volume #{volume_id} not yet available")
       sleep(WAIT_INTERVAL)
     end
+    create_tag(volume_id, 'Name', name)
     ec2_client.attach_volume(
       volume_id: volume_id, # required
       instance_id: instance_id, # required
@@ -51,7 +55,7 @@ module Ec2Wrapper
     )
   end
 
-  def create_snapshot(volume_id, description, wait=false)
+  def create_snapshot(name, volume_id, description, wait=false)
     snapshot_id = ec2_client.create_snapshot(volume_id: volume_id, description: description).snapshot_id
     1.step do |try|
       description = ec2_client.describe_snapshots(snapshot_ids: [snapshot_id]).snapshots[0]
@@ -67,7 +71,12 @@ module Ec2Wrapper
         fail("Snapshot #{snapshot_id} in unexpected state: #{description.state} #{description.state_message}")
       end
     end if wait
+    create_tag(snapshot_id, 'Name', name)
     snapshot_id
+  end
+
+  def delete_snapshot(snapshot_id)
+    ec2_client.delete_snapshot(snapshot_id: snapshot_id)
   end
 
   def list_snapshots(volume_id)
@@ -82,6 +91,7 @@ module Ec2Wrapper
   end
 
   def key_path(name)
+    # We can't rely on "~" expanding.
     "#{Dir.home}/.ssh/#{name}.pem"
   end
 
@@ -130,14 +140,24 @@ module Ec2Wrapper
       config_wait(w)
     end
 
+    instances.map(&:instance_id).each do |instance_id|
+      # 'Name' is special value which will display in the leftmost column of the console.
+      create_tag(instance_id, 'Name', key_name)
+    end
+
     instances
   end
 
-  def terminate_instances(key_name)
-    instance_ids = ec2_client.describe_instances(filters: [{
-                                                   name: 'key-name',
-                                                   values: [key_name]
-                                                 }]).reservations.map { |res| res.instances.map(&:instance_id) }.flatten
+  def terminate_instances_by_key(key_name)
+    instance_ids = ec2_client.describe_instances(
+      filters: [{
+        name: 'key-name',
+        values: [key_name]
+      }]).reservations.map { |res| res.instances.map(&:instance_id) }.flatten
+    ec2_client.terminate_instances(instance_ids: instance_ids)
+  end
+
+  def terminate_instances_by_id(instance_ids)
     ec2_client.terminate_instances(instance_ids: instance_ids)
   end
 
@@ -163,6 +183,10 @@ module Ec2Wrapper
   end
 
   private
+
+  def ec2_client
+    @ec2_client ||= Aws::EC2::Client.new(client_config)
+  end
 
   def config_wait(w)
     w.interval = WAIT_INTERVAL

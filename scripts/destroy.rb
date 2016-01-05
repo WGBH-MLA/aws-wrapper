@@ -15,18 +15,20 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
-    debug: 'Turn on debug logging'
+    debug: 'Turn on debug logging',
+    unsafe: 'Delete based on name conventions, rather than dependency tree'
   )
-  opts.separator('When run, all the AWS stuff for this name is deleted, after a prompt.')
+  opts.separator('When run you are prompted to confirm,')
+  opts.separator('and then everything relating to the name is deleted.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-print "Really delete everything relating to #{config[:name]}? Reenter to confirm: "
+print "Really destroy everything relating to #{config[:name]}? Reenter to confirm: "
 unless gets.strip == config[:name]
   warn 'Quit without touching anything.'
   exit 1
 end
 
 Destroyer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .destroy(config[:zone_id], config[:name])
+  .destroy(config[:zone_id], config[:name], config[:unsafe])
