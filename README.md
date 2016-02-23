@@ -48,9 +48,9 @@ ruby scripts/destroy.rb --name abc.wgbh-mla-test.org
 ## Organization
 
 | Scripts | Utility Classes | AWS Wrapper | Client Wrappers | Base Wrapper |
-| -- | -- | -- | -- | -- |
+| ---- | ---- | ---- | ---- | ---- |
 | `scripts/elb_swap.rb` | `lib/util/elb_swapper.rb` | `lib/util/aws_wrapper.rb` | `lib/core/elb_wrapper.rb` | `lib/core/base_wrapper.rb` |
-| `scripts/.........rb` | `lib/util/.........er.rb` |                           | `lib/core/..._wrapper.rb` |                            |
+| `scripts/.........rb` | `lib/util/.........er.rb` |  | `lib/core/..._wrapper.rb` |  |
 
 Each layer should `require` only from the layer immediately below.
 
