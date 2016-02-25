@@ -4,5 +4,5 @@ device_name: '/dev/sdb'
 mount_path: '/mnt/ebs'
 size_in_gb: 1
 skip_updates: true
-instance_type: 't1.micro'
-image_id: 'ami-cf1066aa' # PV EBS-Backed 64-bit / US East
+instance_type: 'm3.medium'
+image_id: 'ami-d4f7ddbe' # PV EBS-Backed 64-bit / US East

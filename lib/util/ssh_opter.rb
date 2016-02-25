@@ -27,4 +27,8 @@ class SshOpter < AwsWrapper
     fail("Multiple instances behind ELB: #{instance_ids}") if instance_ids.count > 1
     lookup_instance(instance_ids.first).public_ip_address
   end
+
+  def just_ips(zone_id, name)
+    [lookup_ip(zone_id, name), lookup_ip(zone_id, 'demo.' + name)]
+  end
 end

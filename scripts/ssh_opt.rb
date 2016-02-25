@@ -15,6 +15,10 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
+    just_ips: 'Just return a list of IPs'
+  )
+  ScriptHelper.no_arg_opts(
+    opts, config,
     debug: 'Turn on debug logging'
   )
   opts.separator('Prints to STDOUT the appropriate arguments for sshing.')
@@ -23,11 +27,16 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-prefix = /^demo\./
-if config[:name] !~ prefix
-  warn 'The supplied name must start with "demo.": You should not touch production.'
-  exit 1
-end
+if config[:just_ips]
+  puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
+    .just_ips(config[:zone_id], config[:name]).join("\n")
+else
+  prefix = /^demo\./
+  if config[:name] !~ prefix
+    warn 'The supplied name must start with "demo.": You should not touch production.'
+    exit 1
+  end
 
-puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .ssh_opts(config[:zone_id], config[:name])
+  puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
+    .ssh_opts(config[:zone_id], config[:name])
+end
