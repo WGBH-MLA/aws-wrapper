@@ -185,6 +185,29 @@ describe Ec2Wrapper do
     end
   end
 
+  describe '#lookup_public_ips_by_name' do
+    it 'makes expected SDK calls' do
+      wrapper = mock_wrapper do |client|
+        expect(client).to receive(:describe_instances)
+        .and_return(
+          instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
+            expect(result).to receive(:reservations).and_return([
+              instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
+                expect(reservation).to receive(:instances).and_return([
+                  instance_double(Aws::EC2::Types::Instance).tap do |instance|
+                    expect(instance).to receive(:public_ip_address).and_return('1.2.3.4')
+                  end
+                ])
+              end
+            ])
+          end
+        )
+      end
+      expect(wrapper.lookup_public_ips_by_name('foo')).to eq ['1.2.3.4']
+      # expect { wrapper.lookup_public_ips_by_name('id') }.not_to raise_error
+    end
+  end
+
   # Plain '#lookup_volume_id' is a thin wrapper around this.
   describe '#lookup_volume_ids' do
     it 'makes expected SDK calls' do
