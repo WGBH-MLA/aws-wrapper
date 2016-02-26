@@ -1,7 +1,6 @@
 require_relative 'aws_wrapper'
 
 class SshOpter < AwsWrapper
-
   def ssh_opts(zone_id, name, ip=nil)
     ssh_delete_identities = 'ssh-add -D'
     system(ssh_delete_identities) || fail("Failed '#{ssh_delete_identities}'")

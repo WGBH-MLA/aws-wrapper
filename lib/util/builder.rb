@@ -3,7 +3,6 @@ require_relative 'swapper'
 require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
@@ -57,7 +56,6 @@ class Builder < AwsWrapper
   end
 
   def setup_load_balancer(config)
-
     zone_id = config[:zone_id]
     name = config[:name]
 
