@@ -31,7 +31,9 @@ class Sudoer < AwsWrapper
         LOGGER.info("try #{try}: #{ssh_command}")
         Open3.popen2e(ssh_command) do |_input, output, thread|
           output.each do |line|
-            LOGGER.info("#{name}: #{line.strip}")
+            # LOGGER.info("#{name}: #{line.strip}")
+            # TODO: name is no longer available here, but it probably should be?
+            LOGGER.info("#{line.strip}")
           end
           throw :success if thread.value.success?
           LOGGER.warn("ssh was not successful: #{thread.value}")
