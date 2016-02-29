@@ -61,7 +61,7 @@ class Builder < AwsWrapper
 
     elb_names = elb_names(name)
     elb_a_names = elb_names.map { |name| create_elb(name) }
-    instance_ids.zip(elb_names).each do |instance_id, elb_name|
+    lookup_instance_ids_by_name(name).zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
     end
     LOGGER.info('Created load balancers and registered instances')

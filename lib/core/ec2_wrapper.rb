@@ -189,6 +189,13 @@ module Ec2Wrapper
     reservations[0].instances.map(&:public_ip_address)
   end
 
+  def lookup_instance_ids_by_name(name_tag)
+    response_describe_instances = ec2_client.describe_instances(filters: [{ name: 'tag:Name', values: [name_tag] }])
+    reservations = response_describe_instances.reservations
+    fail("Expected one reservation for tag:Name = #{name_tag}, not #{reservations}") if reservations.count != 1
+    reservations[0].instances.map(&:instance_id)
+  end
+
   private
 
   def ec2_client
