@@ -3,7 +3,6 @@ require_relative 'swapper'
 require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
@@ -30,9 +29,39 @@ class Builder < AwsWrapper
     end
     LOGGER.info('Attached EBS volume to each instance')
 
+    Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
+      commands = [
+        "mkfs -t ext4 #{device_name}",
+        "mkdir #{mount_path}",
+        "mount #{device_name} #{mount_path}",
+        "chown ec2-user #{mount_path}"
+      ]
+      # Agent forwarding allows one machine to connect directly to the other,
+      # relying on the local private key.
+      one_liner = '$_="AllowAgentForwarding yes\n" if /AllowAgentForwarding/'
+      commands.push('ruby -i.back -pne ' + sh_q(one_liner) + ' /etc/ssh/sshd_config')
+      commands.push('yum update --assumeyes') unless skip_updates # Takes a long time
+      commands_joined = commands.join (' && ')
+
+      instance_ids.each do |instance_id|
+        ip = lookup_instance(instance_id).public_ip_address
+        sudoer.sudo_by_ip(zone_id, name, commands_joined, ip)
+      end
+
+      # # LOGGER.info('Swap instances and do it again.')
+      # Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, device_name)
+      # sudoer.sudo_by_ip(zone_id, "demo.#{name}", commands_joined, ip)
+    end
+    LOGGER.info('Instances are up / EBS volumes are mounted.')
+  end
+
+  def setup_load_balancer(config)
+    zone_id = config[:zone_id]
+    name = config[:name]
+
     elb_names = elb_names(name)
     elb_a_names = elb_names.map { |name| create_elb(name) }
-    instance_ids.zip(elb_names).each do |instance_id, elb_name|
+    lookup_instance_ids_by_name(name).zip(elb_names).each do |instance_id, elb_name|
       register_instance_with_elb(instance_id, elb_name)
     end
     LOGGER.info('Created load balancers and registered instances')
@@ -48,25 +77,5 @@ class Builder < AwsWrapper
     name_target_pairs = cname_pair(name).zip(elb_a_names)
     create_dns_cname_records(zone_id, name_target_pairs)
     LOGGER.info('Created CNAMEs')
-
-    Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
-      commands = [
-        "mkfs -t ext4 #{device_name}",
-        "mkdir #{mount_path}",
-        "mount #{device_name} #{mount_path}",
-        "chown ec2-user #{mount_path}"
-      ]
-      # Agent forwarding allows one machine to connect directly to the other,
-      # relying on the local private key.
-      one_liner = '$_="AllowAgentForwarding yes\n" if /AllowAgentForwarding/'
-      commands.push('ruby -i.back -pne ' + sh_q(one_liner) + ' /etc/ssh/sshd_config')
-      commands.push('yum update --assumeyes') unless skip_updates # Takes a long time
-      commands_joined = commands.join (' && ')
-      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
-      LOGGER.info('Swap instances and do it again.')
-      Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, device_name)
-      sudoer.sudo(zone_id, "demo.#{name}", commands_joined)
-    end
-    LOGGER.info('Instances are up / EBS volumes are mounted.')
   end
 end

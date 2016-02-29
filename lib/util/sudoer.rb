@@ -3,9 +3,23 @@ require_relative 'ssh_opter'
 require 'open3'
 
 class Sudoer < AwsWrapper
-  def sudo(zone_id, name, command, sudo=true) # TODO: rename method, use named params.
-    command = 'sudo sh -c ' + sh_q(command) if sudo
-    ssh_opts = SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_id, name)
+  def sudo(zone_id, name, command, is_sudo=true) # TODO: rename method, use named params.
+    command = 'sudo sh -c ' + sh_q(command) if is_sudo
+    ssh(ssh_opts(zone_id, name), command)
+  end
+
+  def sudo_by_ip(zone_id, name, command, ip)
+    command = 'sudo sh -c ' + sh_q(command)
+    ssh(ssh_opts(zone_id, name, ip), command)
+  end
+
+  private
+
+  def ssh_opts(zone_id, name, ip=nil)
+    SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_id, name, ip)
+  end
+
+  def ssh(ssh_opts, command)
     ssh_command = "ssh #{ssh_opts} -t -t " + sh_q(command)
     # With no "-t" (if the system you're connecting to is fussy):
     #   "sudo: sorry, you must have a tty to run sudo"
@@ -17,7 +31,9 @@ class Sudoer < AwsWrapper
         LOGGER.info("try #{try}: #{ssh_command}")
         Open3.popen2e(ssh_command) do |_input, output, thread|
           output.each do |line|
-            LOGGER.info("#{name}: #{line.strip}")
+            # LOGGER.info("#{name}: #{line.strip}")
+            # TODO: name is no longer available here, but it probably should be?
+            LOGGER.info("#{line.strip}")
           end
           throw :success if thread.value.success?
           LOGGER.warn("ssh was not successful: #{thread.value}")

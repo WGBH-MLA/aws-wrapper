@@ -21,6 +21,7 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
+    setup_load_balancer: 'Set up ELB with proper CNAMEs',
     debug: 'Turn on debug logging',
     skip_updates: 'Skip updates'
   )
@@ -30,5 +31,10 @@ end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :device_name, :mount_path, :instance_type])
 
-Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .build(config)
+builder = Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
+
+if config[:setup_load_balancer]
+  builder.setup_load_balancer(config)
+else
+  builder.build(config)
+end

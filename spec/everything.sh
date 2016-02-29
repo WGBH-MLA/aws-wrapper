@@ -16,6 +16,8 @@ NAME=$@
 # and is a loose test of our arg parsing.
 
 ! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --skip_updates --debug
+! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
+
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
 ! ruby scripts/sudo.rb && ruby scripts/sudo.rb --name demo.$NAME --command 'hostname; whoami' --debug
 ! ruby scripts/swap_and_rsync.rb && ruby scripts/swap_and_rsync.rb --name $NAME --debug
