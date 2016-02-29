@@ -29,7 +29,7 @@ ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name]
 
 if config[:just_ips]
   puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
-    .just_ips(config[:zone_id], config[:name]).join("\n")
+    .just_ips(config[:name]).join("\n")
 else
   prefix = /^demo\./
   if config[:name] !~ prefix
