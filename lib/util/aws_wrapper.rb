@@ -13,6 +13,7 @@ class AwsWrapper
   attr_reader :availability_zone
 
   def initialize(opts={})
+    raise ArgumentError, 'Missing required option :availability_zone' unless opts.key? :availability_zone
     @availability_zone = opts[:availability_zone]
     Aws.config[:region] = @availability_zone.gsub(/.$/, '') # Like 'us-east-1' : not sure if this is universal.
     @client_config = {
