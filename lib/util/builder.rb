@@ -14,9 +14,8 @@ class Builder < AwsWrapper
     snapshot_id = config[:snapshot_id]
     image_id = config[:image_id]
 
-    [name.length, 32].tap do |length, max|
-      fail("Name must not be longer than #{max} characters: '#{name}' is #{length}") if length > max
-    end
+    max_length = 32 - 'demo.'.length # 32 is dictated by ELB.
+    fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
 
     create_key(name)
     LOGGER.info("Created PK for #{name}")
