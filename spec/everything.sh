@@ -10,7 +10,9 @@ if [ $# -ne '1' ]; then
   exit 1
 fi
 
-NAME=$@
+N=$@
+echo $N | grep '^\d\+$' || ( echo "Expects integer argument, not $N" && exit 1 )
+NAME=$N.wgbh-mla-test.org
 
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
 # ... so this is a little scary, but probably what we want.
