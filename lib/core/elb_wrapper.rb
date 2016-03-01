@@ -13,7 +13,7 @@ module ElbWrapper
   end
 
   def create_elb(name)
-    elb_client.create_load_balancer(
+    dns_name = elb_client.create_load_balancer(
       load_balancer_name: name, # required
       listeners: [ # required
         {
@@ -36,6 +36,19 @@ module ElbWrapper
 #        },
 #      ],
     ).dns_name
+
+    elb_client.configure_health_check(
+      load_balancer_name: name, # required
+      health_check: { # required
+        target: 'HTTP:80/', # required, must contain ":"
+        interval: 20, # required, >= 5
+        timeout: 10, # required, >= 2, and < interval
+        unhealthy_threshold: 10, # required, >= 2
+        healthy_threshold: 2, # required, >= 2
+      }
+    )
+
+    dns_name
   end
 
   def delete_elb(name)

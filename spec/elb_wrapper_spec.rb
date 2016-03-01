@@ -99,6 +99,7 @@ describe ElbWrapper do
         allow(client).to receive(:create_load_balancer).and_return(
           OpenStruct.new(dns_name: 'bar')
         )
+        allow(client).to receive(:configure_health_check)
       end
       expect { wrapper.create_elb('foo') }.not_to raise_error
     end
