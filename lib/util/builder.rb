@@ -14,7 +14,7 @@ class Builder < AwsWrapper
     snapshot_id = config[:snapshot_id]
     image_id = config[:image_id]
 
-    max_length = 32 - 'demo.'.length # 32 is dictated by ELB.
+    max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
     fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
 
     create_key(name)
