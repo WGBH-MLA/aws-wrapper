@@ -10,13 +10,12 @@ if [ $# -ne '1' ]; then
   exit 1
 fi
 
-N=$@
-if ! [ "$N" -eq "$N" ]; then
+if ! [ "$@" -eq "$@" ]; then
   # -eq only supports integers, and fails otherwise.
-  echo "Expects integer argument, not $N"
+  echo "Expects integer argument, not $@"
   exit 1
 fi
-NAME=$N.wgbh-mla-test.org
+NAME=$@.wgbh-mla-test.org
 
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
 # ... so this is a little scary, but probably what we want.

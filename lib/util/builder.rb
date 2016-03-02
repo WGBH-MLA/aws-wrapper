@@ -13,6 +13,7 @@ class Builder < AwsWrapper
     instance_type = config[:instance_type]
     snapshot_id = config[:snapshot_id]
     image_id = config[:image_id]
+    number = config[:just_one] ? 1 : 2
 
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
     fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
@@ -24,8 +25,8 @@ class Builder < AwsWrapper
     add_current_user_to_group(name)
     LOGGER.info("Created group #{name}, and added current user")
 
-    instance_ids = start_instances(2, name, instance_type, image_id).map(&:instance_id)
-    LOGGER.info("Started 2 EC2 instances #{instance_ids}")
+    instance_ids = start_instances(number, name, instance_type, image_id).map(&:instance_id)
+    LOGGER.info("Started #{number} EC2 instances #{instance_ids}")
 
     instance_ids.each do |instance_id|
       create_and_attach_volume(name, instance_id, device_name, size_in_gb, snapshot_id)
