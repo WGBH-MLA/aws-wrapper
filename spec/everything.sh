@@ -11,7 +11,7 @@ if [ $# -ne '1' ]; then
 fi
 
 N=$@
-echo $N | grep '^\d\+$' || ( echo "Expects integer argument, not $N" && exit 1 )
+echo $N | egrep '^\d+$' || ( echo "Expects integer argument, not $N" && exit 1 )
 NAME=$N.wgbh-mla-test.org
 
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
