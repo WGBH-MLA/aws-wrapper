@@ -10,7 +10,18 @@ if [ $# -ne '1' ]; then
   exit 1
 fi
 
-NAME=$@
+N=$@
+if ! [ "$N" -eq "$N" ]; then
+  # -eq only supports integers, and fails otherwise.
+  echo "Expects integer argument, not $N"
+  exit 1
+fi
+NAME=$N.wgbh-mla-test.org
+
+# Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
+# ... so this is a little scary, but probably what we want.
+# destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
+trap "echo $NAME | ruby scripts/destroy.rb --unsafe --name $NAME --debug" EXIT
 
 # Trying to run each script without args gives us the doc strings, 
 # and is a loose test of our arg parsing.
@@ -23,6 +34,3 @@ NAME=$@
 ! ruby scripts/swap_and_rsync.rb && ruby scripts/swap_and_rsync.rb --name $NAME --debug
 ! ruby scripts/group_add.rb && ruby scripts/group_add.rb --user travis_ci --group $NAME --debug
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
-
-# destroy prompts you to re-enter name as confirmation
-! ruby scripts/destroy.rb && ( echo $NAME | ruby scripts/destroy.rb --name $NAME --debug )
