@@ -21,12 +21,15 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
-    setup_load_balancer: 'Set up ELB with proper CNAMEs',
+    just_one: 'Create only a single instance',
+    setup_load_balancer: 'Do not create instances, but instead set up ELBs for existing',
     debug: 'Turn on debug logging',
     skip_updates: 'Skip updates'
   )
-  opts.separator('When run, two EC2/ELB pairs are created, along with DNS entries pointing to the ELBs.')
-  opts.separator('When this script completes, swap can be run.')
+  opts.separator('With "--just_one", creates a single instance.')
+  opts.separator('Without "--just_one", creates a pair of instances,')
+  opts.separator('typically followed by "--setup_load_balancer":')
+  opts.separator('After load balancer is set up, swap can be run.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :device_name, :mount_path, :instance_type])
