@@ -2,7 +2,7 @@ require_relative 'aws_wrapper'
 require 'ostruct'
 
 class Swapper < AwsWrapper
-  def swap(zone_id, live_name, device_name)
+  def swap(zone_id, live_name)
     demo_name = 'demo.' + live_name
 
     live = lookup_elb_and_instance(zone_id, live_name)

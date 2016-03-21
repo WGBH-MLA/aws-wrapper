@@ -6,11 +6,8 @@ class Builder < AwsWrapper
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
-    size_in_gb = config[:size_in_gb]
     skip_updates = config[:skip_updates]
-    device_name = config[:device_name]
     instance_type = config[:instance_type]
-    snapshot_id = config[:snapshot_id]
     image_id = config[:image_id]
 
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".

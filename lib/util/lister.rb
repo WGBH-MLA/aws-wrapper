@@ -17,7 +17,7 @@ class Lister < AwsWrapper
         elb_names: cnames.map { |c| c[:elb_name] },
         groups: cnames.map { |c| c[:groups] }.flatten.uniq,
         instance_ids: instances.map { |i| i[:instance_id] },
-        key_names: instances.map { |i| i[:key_name] }.uniq,
+        key_names: instances.map { |i| i[:key_name] }.uniq
       }
     else
       list

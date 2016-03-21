@@ -24,4 +24,4 @@ end
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
 Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .swap(config[:zone_id], config[:name], config[:device_name])
+  .swap(config[:zone_id], config[:name])

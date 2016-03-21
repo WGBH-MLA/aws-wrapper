@@ -1,6 +1,5 @@
 require_relative 'base_wrapper'
 
-# rubocop:disable Metrics/ModuleLength
 module Ec2Wrapper
   include BaseWrapper
 
