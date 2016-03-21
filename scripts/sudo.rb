@@ -9,7 +9,7 @@ opt_parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename(__FILE__)}"
   ScriptHelper.one_arg_opts(
     opts, config,
-    name: 'Name to be used for PK, EBS, DNS, etc.',
+    name: 'Name to be used for PK, DNS, etc.',
     command: 'A command to run as sudo on the remote machine'
   )
   ScriptHelper.no_arg_opts(
