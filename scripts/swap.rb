@@ -1,7 +1,7 @@
-require_relative '../lib/util/lister'
+require_relative '../lib/util/swapper'
+require_relative '../lib/util/rsyncer'
 require_relative '../lib/script_helper'
 require 'optparse'
-require 'json'
 
 config = {}
 ScriptHelper.read_defaults(config)
@@ -16,15 +16,12 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
-    debug: 'Turn on debug logging',
-    flat: 'Flatten the returned data structure'
+    debug: 'Turn on debug logging'
   )
-  opts.separator('Prints to STDOUT a JSON structure representing the resources under this name.')
+  opts.separator('When run, the instances behind the two load balancers are swapped.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-list = Lister.new(debug: config[:debug], availability_zone: config[:availability_zone])
-       .list(config[:zone_id], config[:name], config[:flat])
-
-puts JSON.pretty_generate(list).gsub(/\s+([\]}])/, '\1')
+Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .swap(config[:zone_id], config[:name], config[:device_name])

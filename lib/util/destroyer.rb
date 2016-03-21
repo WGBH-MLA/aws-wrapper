@@ -53,7 +53,6 @@ class Destroyer < AwsWrapper
     terminate_instances_by_id(flat_list[:instance_ids]) rescue LOGGER.warn("Error terminating EC2 instances: #{$!} at #{$@}")
     LOGGER.info("Terminated EC2 instances #{flat_list[:instance_ids]}")
     flat_list.delete(:instance_ids)
-    flat_list.delete(:volume_ids) # Volumes are set to disappear with their instance.
 
     delete_dns_cname_records(zone_id, flat_list[:cnames]) rescue LOGGER.warn("Error deleting CNAMEs: #{$!} at #{$@}")
     LOGGER.info("Deleted CNAMEs #{flat_list[:cnames]}")

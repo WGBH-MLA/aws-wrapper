@@ -10,9 +10,6 @@ class Swapper < AwsWrapper
     demo = lookup_elb_and_instance(zone_id, demo_name)
     LOGGER.info("demo: #{demo.elb_name} / #{demo.instance_id}")
 
-    snapshot_id = create_snapshot(live_name, lookup_volume_id(demo.instance_id, device_name), "#{demo_name}:#{device_name} by #{`whoami`} using #{$0}")
-    LOGGER.info("Creating snapshot #{snapshot_id}. Process is slow and will continue in background.")
-
     register_instance_with_elb(demo.instance_id, live.elb_name)
     register_instance_with_elb(live.instance_id, demo.elb_name)
     LOGGER.info('Half swapped: Registered both instances to both ELBs')

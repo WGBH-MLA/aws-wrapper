@@ -12,11 +12,7 @@ opt_parser = OptionParser.new do |opts|
     name: 'Name to be used for PK, EBS, DNS, etc.',
     zone_id: 'AWS Zone ID',
     availability_zone: 'Availability Zone',
-    size_in_gb: 'Size in GB',
-    device_name: 'Device for EBS',
-    mount_path: 'Path for EBS',
     instance_type: 'EC2 instance type',
-    snapshot_id: 'Snapshot ID of attached volume',
     image_id: 'Amazon machine image ID'
   )
   ScriptHelper.no_arg_opts(
@@ -29,7 +25,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('When this script completes, swap can be run.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :size_in_gb, :device_name, :mount_path, :instance_type])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :instance_type])
 
 builder = Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
 
