@@ -1,4 +1,3 @@
-require_relative 'sudoer'
 require_relative 'swapper'
 require_relative 'aws_wrapper'
 
@@ -6,7 +5,6 @@ class Builder < AwsWrapper
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
-    skip_updates = config[:skip_updates]
     instance_type = config[:instance_type]
     image_id = config[:image_id]
 
@@ -22,22 +20,6 @@ class Builder < AwsWrapper
 
     instance_ids = start_instances(2, name, instance_type, image_id).map(&:instance_id)
     LOGGER.info("Started 2 EC2 instances #{instance_ids}")
-
-    Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
-      commands = []
-      # Agent forwarding allows one machine to connect directly to the other,
-      # relying on the local private key.
-      one_liner = '$_="AllowAgentForwarding yes\n" if /AllowAgentForwarding/'
-      commands.push('ruby -i.back -pne ' + sh_q(one_liner) + ' /etc/ssh/sshd_config')
-      commands.push('yum update --assumeyes') unless skip_updates # Takes a long time
-      commands_joined = commands.join (' && ')
-
-      instance_ids.each do |instance_id|
-        ip = lookup_instance(instance_id).public_ip_address
-        sudoer.sudo_by_ip(zone_id, name, commands_joined, ip)
-      end
-    end
-    LOGGER.info('Instances are up.')
   end
 
   def setup_load_balancer(config)

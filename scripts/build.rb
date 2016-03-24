@@ -18,8 +18,7 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.no_arg_opts(
     opts, config,
     setup_load_balancer: 'Set up ELB with proper CNAMEs',
-    debug: 'Turn on debug logging',
-    skip_updates: 'Skip updates'
+    debug: 'Turn on debug logging'
   )
   opts.separator('When run, two EC2/ELB pairs are created, along with DNS entries pointing to the ELBs.')
   opts.separator('When this script completes, swap can be run.')

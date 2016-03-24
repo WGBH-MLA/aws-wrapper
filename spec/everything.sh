@@ -26,11 +26,10 @@ trap "echo $NAME | ruby scripts/destroy.rb --unsafe --name $NAME --debug" EXIT
 # Trying to run each script without args gives us the doc strings, 
 # and is a loose test of our arg parsing.
 
-! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --skip_updates --debug
-! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
+! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --debug
+! ruby scripts/build.rb && ruby scripts/build.rb --name $NAME --setup_load_balancer --debug
 
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
-! ruby scripts/sudo.rb && ruby scripts/sudo.rb --name demo.$NAME --command 'hostname; whoami' --debug
 ! ruby scripts/swap.rb && ruby scripts/swap.rb --name $NAME --debug
 ! ruby scripts/group_add.rb && ruby scripts/group_add.rb --user travis_ci --group $NAME --debug
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
