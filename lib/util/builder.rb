@@ -3,7 +3,6 @@ require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
   def build(config)
-    zone_id = config[:zone_id]
     name = config[:name]
     instance_type = config[:instance_type]
     image_id = config[:image_id]
