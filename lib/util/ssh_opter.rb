@@ -28,7 +28,11 @@ class SshOpter < AwsWrapper
     lookup_instance(instance_ids.first).public_ip_address
   end
 
-  def just_ips(name_tag)
+  def ips_by_tag(name_tag)
     lookup_public_ips_by_name(name_tag)
+  end
+
+  def ip_by_dns(zone_id, name)
+    lookup_ip(zone_id, name)
   end
 end

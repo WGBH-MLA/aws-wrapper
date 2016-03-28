@@ -15,21 +15,28 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
-    just_ips: 'Just return a list of IPs'
+    ips_by_tag: 'look up by EC2 name tags and list IPs'
+  )
+  ScriptHelper.no_arg_opts(
+    opts, config,
+    ips_by_dns: 'look up by DNS names and list IPs'
   )
   ScriptHelper.no_arg_opts(
     opts, config,
     debug: 'Turn on debug logging'
   )
-  opts.separator('Prints to STDOUT the appropriate arguments for sshing.')
-  opts.separator('(For safety\'s sake, the script only allows connections to demo.)')
+  opts.separator('Prints to STDOUT the appropriate arguments for sshing')
+  opts.separator('... or just lists the IPs.')
 end
 
 ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name])
 
-if config[:just_ips]
+if config[:ips_by_tag]
   puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
-    .just_ips(config[:name]).join("\n")
+    .ips_by_tag(config[:name]).join("\n")
+elsif config[:ips_by_dns]
+  puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
+    .ip_by_dns(config[:zone_id], config[:name])
 else
   prefix = /^demo\./
   if config[:name] !~ prefix

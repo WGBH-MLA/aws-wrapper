@@ -30,6 +30,13 @@ log in to the demo machine:
 ssh `ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org`
 ```
 
+or just get the IPs:
+```
+ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org --ips_by_dns
+ruby scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_dns
+ruby scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_tag
+```
+
 or for a one-liner:
 ```
 ruby scripts/sudo.rb --name abc.wgbh-mla-test.org --command 'echo "I am sudo"'
