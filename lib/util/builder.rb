@@ -6,12 +6,8 @@ class Builder < AwsWrapper
   def build(config)
     zone_id = config[:zone_id]
     name = config[:name]
-    size_in_gb = config[:size_in_gb]
     skip_updates = config[:skip_updates]
-    device_name = config[:device_name]
-    mount_path = config[:mount_path]
     instance_type = config[:instance_type]
-    snapshot_id = config[:snapshot_id]
     image_id = config[:image_id]
     number = config[:just_one] ? 1 : 2
 
@@ -28,18 +24,8 @@ class Builder < AwsWrapper
     instance_ids = start_instances(number, name, instance_type, image_id).map(&:instance_id)
     LOGGER.info("Started #{number} EC2 instances #{instance_ids}")
 
-    instance_ids.each do |instance_id|
-      create_and_attach_volume(name, instance_id, device_name, size_in_gb, snapshot_id)
-    end
-    LOGGER.info('Attached EBS volume to each instance')
-
     Sudoer.new(debug: @debug, availability_zone: @availability_zone).tap do |sudoer|
-      commands = [
-        "mkfs -t ext4 #{device_name}",
-        "mkdir #{mount_path}",
-        "mount #{device_name} #{mount_path}",
-        "chown ec2-user #{mount_path}"
-      ]
+      commands = []
       # Agent forwarding allows one machine to connect directly to the other,
       # relying on the local private key.
       one_liner = '$_="AllowAgentForwarding yes\n" if /AllowAgentForwarding/'
@@ -51,12 +37,8 @@ class Builder < AwsWrapper
         ip = lookup_instance(instance_id).public_ip_address
         sudoer.sudo_by_ip(zone_id, name, commands_joined, ip)
       end
-
-      # # LOGGER.info('Swap instances and do it again.')
-      # Swapper.new(debug: @debug, availability_zone: @availability_zone).swap(zone_id, name, device_name)
-      # sudoer.sudo_by_ip(zone_id, "demo.#{name}", commands_joined, ip)
     end
-    LOGGER.info('Instances are up / EBS volumes are mounted.')
+    LOGGER.info('Instances are up.')
   end
 
   def setup_load_balancer(config)

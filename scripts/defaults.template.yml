@@ -1,8 +1,5 @@
 zone_id: 'Z1JB6V9RIBL7FX' # https://console.aws.amazon.com/route53/home?region=us-east-1#hosted-zones
 availability_zone: 'us-east-1c'
-device_name: '/dev/sdb'
-mount_path: '/mnt/ebs'
-size_in_gb: 1
 skip_updates: true
 instance_type: 'm3.medium'
 image_id: 'ami-d4f7ddbe' # PV EBS-Backed 64-bit / US East
