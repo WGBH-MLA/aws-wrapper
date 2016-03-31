@@ -36,7 +36,8 @@ ruby scripts/ssh_opt.rb --name $NAME --ips_by_dns --debug # Should differ from t
 ruby scripts/ssh_opt.rb --name $NAME --ips_by_tag --debug # Should include both.
 
 ! ruby scripts/sudo.rb && ruby scripts/sudo.rb --name demo.$NAME --command 'hostname; whoami' --debug
-! ruby scripts/swap_and_rsync.rb && ruby scripts/swap_and_rsync.rb --name $NAME --debug
+! ruby scripts/swap.rb && ruby scripts/swap.rb --name $NAME --debug
+! ruby scripts/rsync.rb && ruby scripts/rsync.rb --name $NAME --debug
 ! ruby scripts/group_add.rb && ruby scripts/group_add.rb --user travis_ci --group $NAME --debug
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
 
