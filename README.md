@@ -22,7 +22,12 @@ ruby scripts/group_add.rb --user someone_else --group abc.wgbh-mla-test.org
 
 and then that user can swap them:
 ```
-ruby scripts/swap_and_rsync.rb --name abc.wgbh-mla-test.org
+ruby scripts/swap.rb --name abc.wgbh-mla-test.org
+```
+
+and rsync a given directory from live to demo:
+```
+ruby scripts/rsync.rb --name abc.wgbh-mla-test.org --path /var/www/abc/something
 ```
 
 log in to the demo machine:

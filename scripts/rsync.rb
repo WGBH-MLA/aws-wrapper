@@ -13,21 +13,16 @@ opt_parser = OptionParser.new do |opts|
     name: 'Name to be used for PK, EBS, DNS, etc.',
     zone_id: 'AWS Zone ID',
     availability_zone: 'Availability Zone',
-    device_name: 'Device for EBS',
-    mount_path: 'Path for EBS'
+    path: 'Path of dir to rsync'
   )
   ScriptHelper.no_arg_opts(
     opts, config,
     debug: 'Turn on debug logging'
   )
-  opts.separator('When run, the instances behind the two load balancers are swapped,')
-  opts.separator('and the backing EBS is copied from the new live to the new demo.')
-  opts.separator('(Any state on the old live EBS is lost.)')
+  opts.separator('Rsync the given directory from the live machine to demo.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :mount_path, :device_name])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :path])
 
-Swapper.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .swap(config[:zone_id], config[:name], config[:device_name])
 Rsyncer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .rsync(config[:zone_id], config[:name], config[:mount_path])
+  .rsync(config[:zone_id], config[:name], config[:path])
