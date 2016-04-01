@@ -1,4 +1,4 @@
-describe 'README' do
+describe 'README.md' do
   readme = File.read(__dir__ + '/../README.md')
            .scan(/```\n(.*?)\n```/m)
            .map do |block|
