@@ -15,7 +15,6 @@ class Destroyer < AwsWrapper
 
   private
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/PerceivedComplexity
   def safe_destroy(zone_id, name)
     # More conservative: Create a list of related resources to delete.
     # The downside is that if a root resource has already been deleted,
@@ -37,18 +36,6 @@ class Destroyer < AwsWrapper
       LOGGER.info("Deleted PK #{key_name}")
     end
     flat_list.delete(:key_names)
-
-    flat_list[:snapshot_ids].each do |snapshot_id|
-      delete_snapshot(snapshot_id) rescue LOGGER.warn("Error deleting snapshot: #{$!} at #{$@}")
-      LOGGER.info("Deleted snapshot #{snapshot_id}")
-    end
-    flat_list.delete(:snapshot_ids)
-
-    flat_list[:elb_names].each do |elb_name|
-      delete_elb(elb_name) rescue LOGGER.warn("Error deleting ELB: #{$!} at #{$@}")
-      LOGGER.info("Deleted ELB #{elb_name}")
-    end
-    flat_list.delete(:elb_names)
 
     terminate_instances_by_id(flat_list[:instance_ids]) rescue LOGGER.warn("Error terminating EC2 instances: #{$!} at #{$@}")
     LOGGER.info("Terminated EC2 instances #{flat_list[:instance_ids]}")
