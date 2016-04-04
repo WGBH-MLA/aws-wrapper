@@ -18,17 +18,6 @@ fi
 NAME=$@.wgbh-mla-test.org
 JUST_ONE_NAME=one-$NAME
 
-# Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
-# ... so this is a little scary, but probably what we want.
-# destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
-trap "echo '######################';
-      echo '#';
-      echo '# See failure above';
-      echo '#';
-      echo '######################';
-      ( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
-      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug )" EXIT
-
 message()
 {
   echo
@@ -40,15 +29,38 @@ message()
   echo
 }
 
+fold_start()
+{
+  echo "travis_fold:start:$1"
+}
+
+fold_end()
+{
+  echo "travis_fold:end:$1"
+}
+
+# Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
+# ... so this is a little scary, but probably what we want.
+# destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
+trap "message 'See failure above';
+      ( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
+      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug )" EXIT
+
 
 # Trying to run each script without args gives us the doc strings, 
 # and is a loose test of our arg parsing.
 
 message 'build.rb'
 ! ruby scripts/build.rb
+fold_start 'build_just_one'
 ruby scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
+fold_end 'build_just_one'
+fold_start 'build_pair'
 ruby scripts/build.rb --name $NAME --skip_updates --debug
+fold_end 'build_pair'
+fold_start 'build_load_balancer'
 ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
+fold_end 'build_load_balancer'
 
 message 'ssh_opt.rb'
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
