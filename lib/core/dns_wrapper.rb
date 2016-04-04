@@ -8,7 +8,8 @@ module DnsWrapper
     [name, "demo.#{name}"].map(&:downcase)
   end
 
-  def lookup_cname(zone_id, name)
+  def lookup_cname(zone_name, name)
+    zone_id = lookup_zone_id(zone_name)
     cname_from_dns = Resolv::DNS.new.getresource(name, Resolv::DNS::Resource::IN::CNAME).name.to_s
     cname_from_aws = lookup_dns_cname_record(zone_id, name)
     if cname_from_dns != cname_from_aws
@@ -20,7 +21,8 @@ module DnsWrapper
   # Since it takes a while for the updates to propagate, it makes sense to make
   # both requests first, and then wait for them to complete.
 
-  def delete_dns_cname_records(zone_id, domain_names)
+  def delete_dns_cname_records(zone_name, domain_names)
+    zone_id = lookup_zone_id(zone_name)
     domain_names.map do |domain_name|
       request_delete_dns_cname_record(zone_id, domain_name)
     end.each do |request_id|
@@ -28,7 +30,8 @@ module DnsWrapper
     end
   end
 
-  def create_dns_cname_records(zone_id, domain_name_target_hash)
+  def create_dns_cname_records(zone_name, domain_name_target_hash)
+    zone_id = lookup_zone_id(zone_name)
     domain_name_target_hash.map do |domain_name, target|
       request_create_dns_cname_record(zone_id, domain_name, target)
     end.each do |request_id|
@@ -49,6 +52,14 @@ module DnsWrapper
       LOGGER.info("try #{try}: DNS update #{request_id} not yet propagated to all AWS NS")
       sleep(WAIT_INTERVAL)
     end
+  end
+
+  def lookup_zone_id(zone_name)
+    response = dns_client.list_hosted_zones(
+      max_items: 100
+    )
+    zones = Hash[response.hosted_zones.map { |zone| [zone.name, zone.id] }]
+    zones[zone_name]
   end
 
   def lookup_dns_cname_record(zone_id, domain_name)

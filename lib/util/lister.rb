@@ -1,11 +1,11 @@
 require_relative 'aws_wrapper'
 
 class Lister < AwsWrapper
-  def list(zone_id, name, is_flat=true)
+  def list(zone_name, name, is_flat=true)
     list = {
       name: name,
       cnames: cname_pair(name).map do |cname|
-        cname_info(zone_id, cname)
+        cname_info(zone_name, cname)
       end
     }
     if is_flat
@@ -26,8 +26,8 @@ class Lister < AwsWrapper
 
   private
 
-  def cname_info(zone_id, cname)
-    elb_dns = lookup_cname(zone_id, cname)
+  def cname_info(zone_name, cname)
+    elb_dns = lookup_cname(zone_name, cname)
     elb = lookup_elb_by_dns_name(elb_dns)
     elb_name = elb.load_balancer_name
     {
