@@ -19,7 +19,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('SSH and sudo what needs to be sudone.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :command])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name, :command])
 
 Sudoer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .sudo(config[:zone_id], config[:name], config[:command])
+  .sudo(config[:zone_name], config[:name], config[:command])
