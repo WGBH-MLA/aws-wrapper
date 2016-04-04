@@ -9,7 +9,7 @@ module DnsWrapper
   end
 
   def lookup_cname(zone_name, name)
-    zone_id = lookup_zone_id(zone_name)
+    zone_id = lookup_zone(zone_name) # TODO: move this call into methods, so error messages can be name-based.
     cname_from_dns = Resolv::DNS.new.getresource(name, Resolv::DNS::Resource::IN::CNAME).name.to_s
     cname_from_aws = lookup_dns_cname_record(zone_id, name)
     if cname_from_dns != cname_from_aws
@@ -22,7 +22,7 @@ module DnsWrapper
   # both requests first, and then wait for them to complete.
 
   def delete_dns_cname_records(zone_name, domain_names)
-    zone_id = lookup_zone_id(zone_name)
+    zone_id = lookup_zone(zone_name)
     domain_names.map do |domain_name|
       request_delete_dns_cname_record(zone_id, domain_name)
     end.each do |request_id|
@@ -31,7 +31,7 @@ module DnsWrapper
   end
 
   def create_dns_cname_records(zone_name, domain_name_target_hash)
-    zone_id = lookup_zone_id(zone_name)
+    zone_id = lookup_zone(zone_name)
     domain_name_target_hash.map do |domain_name, target|
       request_create_dns_cname_record(zone_id, domain_name, target)
     end.each do |request_id|
@@ -54,7 +54,7 @@ module DnsWrapper
     end
   end
 
-  def lookup_zone_id(zone_name)
+  def lookup_zone(zone_name)
     response = dns_client.list_hosted_zones(
       max_items: 100
     )
