@@ -16,17 +16,19 @@ if ! [ "$@" -eq "$@" ]; then
   exit 1
 fi
 NAME=$@.wgbh-mla-test.org
+JUST_ONE_NAME=one-$NAME
 
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
 # ... so this is a little scary, but probably what we want.
 # destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
-trap "( echo $NAME | ruby scripts/destroy.rb --unsafe --name one-$NAME --debug ) || ( echo $NAME | ruby scripts/destroy.rb --unsafe --name $NAME --debug )" EXIT
+trap "( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
+      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug )" EXIT
 
 # Trying to run each script without args gives us the doc strings, 
 # and is a loose test of our arg parsing.
 
 ! ruby scripts/build.rb
-ruby scripts/build.rb --name one-$NAME --skip_updates --just_one --debug
+ruby scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
 ruby scripts/build.rb --name $NAME --skip_updates --debug
 ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
 
