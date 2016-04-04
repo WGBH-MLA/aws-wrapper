@@ -21,7 +21,12 @@ JUST_ONE_NAME=one-$NAME
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
 # ... so this is a little scary, but probably what we want.
 # destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
-trap "( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
+trap "echo '######################';
+      echo '#';
+      echo '# See failure above';
+      echo '#';
+      echo '######################';
+      ( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
       ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug )" EXIT
 
 message()
