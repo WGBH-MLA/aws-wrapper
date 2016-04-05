@@ -58,7 +58,8 @@ module DnsWrapper
     response = dns_client.list_hosted_zones(
       max_items: 100
     )
-    zones = Hash[response.hosted_zones.map { |zone| [zone.name, zone.id] }]
+    zones = Hash[response.hosted_zones.map { |zone| [zone.name, zone.id.sub(/.*\//, '')] }]
+    # Zone IDs returned by AWS are of the form '/hostedzone/ABCD1234'
     zones[zone_name]
   end
 

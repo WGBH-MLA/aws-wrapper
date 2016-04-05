@@ -20,6 +20,7 @@ JUST_ONE_NAME=one-$NAME
 
 message()
 {
+  echo "travis_fold:end:$LAST"
   echo
   echo '######################'
   echo '#'
@@ -27,16 +28,8 @@ message()
   echo '#'
   echo '######################'
   echo
-}
-
-fold_start()
-{
   echo "travis_fold:start:$1"
-}
-
-fold_end()
-{
-  echo "travis_fold:end:$1"
+  LAST=$1
 }
 
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
@@ -52,15 +45,9 @@ trap "message 'See failure above';
 
 message 'build.rb'
 ! ruby scripts/build.rb
-fold_start 'build_just_one'
 ruby scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
-fold_end 'build_just_one'
-fold_start 'build_pair'
 ruby scripts/build.rb --name $NAME --skip_updates --debug
-fold_end 'build_pair'
-fold_start 'build_load_balancer'
 ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
-fold_end 'build_load_balancer'
 
 message 'ssh_opt.rb'
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
