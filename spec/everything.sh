@@ -35,9 +35,10 @@ message()
 # Without "--unsafe" it requires DNS to be set up, which is one of the last steps in the build,
 # ... so this is a little scary, but probably what we want.
 # destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
-trap "message 'See failure above';
+trap "message 'cleanup';
       ( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
-      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug )" EXIT
+      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug );
+      echo travis_fold:end:cleanup" EXIT
 
 
 # Trying to run each script without args gives us the doc strings, 
@@ -69,4 +70,4 @@ message 'list.rb'
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
 
 message 'destroy.rb'
-! ruby scripts/destroy.rb # Real destroy call is in the trap.
+! ruby scripts/destroy.rb # This will fail, and trap will clean up.

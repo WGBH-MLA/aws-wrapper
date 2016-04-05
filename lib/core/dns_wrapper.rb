@@ -9,9 +9,8 @@ module DnsWrapper
   end
 
   def lookup_cname(zone_name, name)
-    zone_id = lookup_zone(zone_name) # TODO: move this call into methods, so error messages can be name-based.
     cname_from_dns = Resolv::DNS.new.getresource(name, Resolv::DNS::Resource::IN::CNAME).name.to_s
-    cname_from_aws = lookup_dns_cname_record(zone_id, name)
+    cname_from_aws = lookup_dns_cname_record(zone_name, name)
     if cname_from_dns != cname_from_aws
       fail("CNAME from DNS (#{cname_from_dns}) != CNAME from AWS (#{cname_from_aws})")
     end
@@ -22,18 +21,16 @@ module DnsWrapper
   # both requests first, and then wait for them to complete.
 
   def delete_dns_cname_records(zone_name, domain_names)
-    zone_id = lookup_zone(zone_name)
     domain_names.map do |domain_name|
-      request_delete_dns_cname_record(zone_id, domain_name)
+      request_delete_dns_cname_record(zone_name, domain_name)
     end.each do |request_id|
       wait_until_updates_propagate(request_id)
     end
   end
 
   def create_dns_cname_records(zone_name, domain_name_target_hash)
-    zone_id = lookup_zone(zone_name)
     domain_name_target_hash.map do |domain_name, target|
-      request_create_dns_cname_record(zone_id, domain_name, target)
+      request_create_dns_cname_record(zone_name, domain_name, target)
     end.each do |request_id|
       wait_until_updates_propagate(request_id)
     end
@@ -55,21 +52,26 @@ module DnsWrapper
   end
 
   def lookup_zone(zone_name)
-    response = dns_client.list_hosted_zones(
-      max_items: 100
-    )
-    zones = Hash[response.hosted_zones.map { |zone| [zone.name, zone.id.sub(/.*\//, '')] }]
-    # Zone IDs returned by AWS are of the form '/hostedzone/ABCD1234'
-    zones[zone_name]
+    # We assume that the zone list will be stable, because the creation
+    # and deletion of zones is not something our wrapper worries about.
+    unless @zones
+      response = dns_client.list_hosted_zones(
+        max_items: 100
+      )
+      @zones = Hash[response.hosted_zones.map { |zone| [zone.name, zone.id.sub(/.*\//, '')] }]
+      # Zone IDs returned by AWS are of the form '/hostedzone/ABCD1234'
+    end
+    @zones[zone_name]
   end
 
-  def lookup_dns_cname_record(zone_id, domain_name)
-    resource_records = lookup_dns_cname_record_set(zone_id, domain_name).resource_records
-    fail("Expected 1 resource record, not #{resource_records.count}") unless resource_records.count == 1
+  def lookup_dns_cname_record(zone_name, domain_name)
+    resource_records = lookup_dns_cname_record_set(zone_name, domain_name).resource_records
+    fail("Expected 1 resource record for '#{domain_name}' in '#{zone_name}', not #{resource_records.count}") unless resource_records.count == 1
     resource_records[0].value
   end
 
-  def lookup_dns_cname_record_set(zone_id, domain_name)
+  def lookup_dns_cname_record_set(zone_name, domain_name)
+    zone_id = lookup_zone(zone_name)
     response = dns_client.list_resource_record_sets(
       hosted_zone_id: zone_id, # required
       start_record_name: domain_name, # NOT a filter: all are returned, unless max_items set.
@@ -77,15 +79,15 @@ module DnsWrapper
       # start_record_identifier: "ResourceRecordSetIdentifier",
       max_items: 1)
     record_sets = response.resource_record_sets
-    fail("Expected 1 record set, not #{record_sets.count}") unless record_sets.count == 1
+    fail("Expected 1 record set for '#{domain_name}' in '#{zone_name}', not #{record_sets.count}") unless record_sets.count == 1
     record_sets[0]
   end
 
-  def request_delete_dns_cname_record(zone_id, domain_name)
+  def request_delete_dns_cname_record(zone_name, domain_name)
     # Annoyingly, you need to specify the entire record in order to delete:
     # Just the name is not enough.
-    record_set = lookup_dns_cname_record_set(zone_id, domain_name)
-
+    record_set = lookup_dns_cname_record_set(zone_name, domain_name)
+    zone_id = lookup_zone(zone_name)
     dns_client.change_resource_record_sets(
       hosted_zone_id: zone_id, # required
       change_batch: { # required
@@ -119,7 +121,8 @@ module DnsWrapper
       }).change_info.id
   end
 
-  def request_create_dns_cname_record(zone_id, domain_name, target)
+  def request_create_dns_cname_record(zone_name, domain_name, target)
+    zone_id = lookup_zone(zone_name)
     dns_client.change_resource_record_sets(
       hosted_zone_id: zone_id, # required
       change_batch: { # required
