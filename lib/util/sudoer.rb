@@ -3,20 +3,20 @@ require_relative 'ssh_opter'
 require 'open3'
 
 class Sudoer < AwsWrapper
-  def sudo(zone_id, name, command, is_sudo=true) # TODO: rename method, use named params.
+  def sudo(zone_name, name, command, is_sudo=true) # TODO: rename method, use named params.
     command = 'sudo sh -c ' + sh_q(command) if is_sudo
-    ssh(ssh_opts(zone_id, name), command)
+    ssh(ssh_opts(zone_name, name), command)
   end
 
-  def sudo_by_ip(zone_id, name, command, ip)
+  def sudo_by_ip(zone_name, name, command, ip)
     command = 'sudo sh -c ' + sh_q(command)
-    ssh(ssh_opts(zone_id, name, ip), command)
+    ssh(ssh_opts(zone_name, name, ip), command)
   end
 
   private
 
-  def ssh_opts(zone_id, name, ip=nil)
-    SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_id, name, ip)
+  def ssh_opts(zone_name, name, ip=nil)
+    SshOpter.new(availability_zone: @availability_zone).ssh_opts(zone_name, name, ip)
   end
 
   def ssh(ssh_opts, command)

@@ -1,4 +1,4 @@
-zone_id: 'Z1JB6V9RIBL7FX' # https://console.aws.amazon.com/route53/home?region=us-east-1#hosted-zones
+zone_name: 'wgbh-mla-test.org.' # https://console.aws.amazon.com/route53/home?region=us-east-1#hosted-zones
 availability_zone: 'us-east-1c'
 skip_updates: true
 instance_type: 'm3.medium'

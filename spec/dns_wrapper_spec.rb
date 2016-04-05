@@ -31,6 +31,13 @@ describe DnsWrapper do
   describe '#delete_dns_cname_records' do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
+        allow(client).to receive(:list_hosted_zones).and_return(
+          instance_double(Aws::Route53::Types::ListHostedZonesResponse).tap do |response|
+            allow(response).to receive(:hosted_zones).and_return(
+              [OpenStruct.new(name: 'name', id: 'id')]
+            )
+          end
+        )
         allow(client).to receive(:list_resource_record_sets).and_return(
           instance_double(Aws::Route53::Types::ListResourceRecordSetsResponse).tap do |response|
             allow(response).to receive(:resource_record_sets).and_return(
@@ -52,6 +59,13 @@ describe DnsWrapper do
   describe '#create_dns_cname_records' do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
+        allow(client).to receive(:list_hosted_zones).and_return(
+          instance_double(Aws::Route53::Types::ListHostedZonesResponse).tap do |response|
+            allow(response).to receive(:hosted_zones).and_return(
+              [OpenStruct.new(name: 'name', id: 'id')]
+            )
+          end
+        )
         expect(client).to receive(:change_resource_record_sets).and_return(
           OpenStruct.new(change_info: OpenStruct.new(id: 'id'))
         )

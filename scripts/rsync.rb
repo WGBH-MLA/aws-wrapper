@@ -11,7 +11,7 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
-    zone_id: 'AWS Zone ID',
+    zone_name: 'AWS Route 53 zone name',
     availability_zone: 'Availability Zone',
     path: 'Path of dir to rsync'
   )
@@ -22,7 +22,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('Rsync the given directory from the live machine to demo.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_id, :name, :path])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name, :path])
 
 Rsyncer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .rsync(config[:zone_id], config[:name], config[:path])
+  .rsync(config[:zone_name], config[:name], config[:path])
