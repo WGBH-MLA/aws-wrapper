@@ -5,7 +5,7 @@ require_relative 'lister'
 class Destroyer < AwsWrapper
   def destroy(name, unsafe=false)
     # We want to do as much cleaning as possible, hence the "rescue"s.
-    
+
     zone_name = dns_zone(name)
 
     if unsafe

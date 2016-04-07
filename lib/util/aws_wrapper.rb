@@ -23,7 +23,7 @@ class AwsWrapper
       # log_formatter: Aws::Log::Formatter.new("REQUEST: :http_request_body\nRESPONSE: :http_response_body")
     }
   end
-  
+
   def dns_zone(name)
     name.sub(/^(.*\.)?(\w+\.\w+)$/, '$2') + '.'
   end

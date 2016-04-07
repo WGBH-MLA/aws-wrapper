@@ -3,7 +3,7 @@ require_relative 'aws_wrapper'
 class Lister < AwsWrapper
   def list(name, is_flat=true)
     zone_name = dns_zone(name)
-    
+
     list = {
       name: name,
       cnames: cname_pair(name).map do |cname|

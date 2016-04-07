@@ -9,7 +9,7 @@ class Builder < AwsWrapper
     instance_type = config[:instance_type]
     image_id = config[:image_id]
     number = config[:just_one] ? 1 : 2
-    
+
     zone_name = dns_zone(name)
 
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
