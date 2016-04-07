@@ -25,7 +25,7 @@ class AwsWrapper
   end
 
   def dns_zone(name)
-    name.sub(/^(.*\.)?(\w+\.\w+)$/, '$2') + '.'
+    name.sub(/^(.*\.)?([^.]+\.[^.]+)$/, '\2') + '.'
   end
 
   def sh_q(s)
