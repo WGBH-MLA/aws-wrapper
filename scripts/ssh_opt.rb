@@ -10,7 +10,6 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
-    zone_name: 'AWS Route 53 zone name',
     availability_zone: 'Availability Zone'
   )
   ScriptHelper.no_arg_opts(
@@ -29,14 +28,14 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('... or just lists the IPs.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name])
 
 if config[:ips_by_tag]
   puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
     .ips_by_tag(config[:name]).join("\n")
 elsif config[:ips_by_dns]
   puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
-    .ip_by_dns(config[:zone_name], config[:name])
+    .ip_by_dns(config[:name])
 else
   prefix = /^demo\./
   if config[:name] !~ prefix
@@ -45,5 +44,5 @@ else
   end
 
   puts SshOpter.new(debug: config[:debug], availability_zone: config[:availability_zone])
-    .ssh_opts(config[:zone_name], config[:name])
+    .ssh_opts(config[:name])
 end

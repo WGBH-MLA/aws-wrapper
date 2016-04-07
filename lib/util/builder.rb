@@ -4,12 +4,13 @@ require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
   def build(config)
-    zone_name = config[:zone_name]
     name = config[:name]
     skip_updates = config[:skip_updates]
     instance_type = config[:instance_type]
     image_id = config[:image_id]
     number = config[:just_one] ? 1 : 2
+    
+    zone_name = dns_zone(name)
 
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
     fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
