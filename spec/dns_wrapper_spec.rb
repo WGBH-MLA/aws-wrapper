@@ -73,7 +73,7 @@ describe DnsWrapper do
           OpenStruct.new(change_info: OpenStruct.new(status: 'INSYNC'))
         )
       end
-      expect { wrapper.create_dns_cname_records('zone-id', 'example.org' => 'target.example.org') }.not_to raise_error
+      expect { wrapper.create_dns_cname_records('zone-name', 'example.org' => 'target.example.org') }.not_to raise_error
     end
   end
 end

@@ -10,8 +10,6 @@ class Builder < AwsWrapper
     image_id = config[:image_id]
     number = config[:just_one] ? 1 : 2
 
-    zone_name = dns_zone(name)
-
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
     fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
 
@@ -43,7 +41,6 @@ class Builder < AwsWrapper
   end
 
   def setup_load_balancer(config)
-    zone_name = config[:zone_name]
     name = config[:name]
 
     elb_names = elb_names(name)
@@ -62,7 +59,7 @@ class Builder < AwsWrapper
     LOGGER.info('Create group policy for ELB')
 
     name_target_pairs = cname_pair(name).zip(elb_a_names)
-    create_dns_cname_records(zone_name, name_target_pairs)
+    create_dns_cname_records(dns_zone(name), name_target_pairs)
     LOGGER.info('Created CNAMEs')
   end
 end
