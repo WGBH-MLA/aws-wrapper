@@ -109,7 +109,10 @@ module Ec2Wrapper
   end
 
   def lookup_instances(name_tag)
-    response_describe_instances = ec2_client.describe_instances(filters: [{ name: 'tag:Name', values: [name_tag] }])
+    response_describe_instances = ec2_client.describe_instances(filters: [
+        { name: 'tag:Name', values: [name_tag] },
+        { name: 'instance-state-name', values: ['pending', 'running'] }
+      ])
     reservations = response_describe_instances.reservations
     fail("Expected one reservation for tag:Name = #{name_tag}, not #{reservations}") if reservations.count != 1
     reservations[0].instances
