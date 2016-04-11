@@ -95,23 +95,27 @@ module Ec2Wrapper
   end
 
   def lookup_public_ips_by_name(name_tag)
-    response_describe_instances = ec2_client.describe_instances(filters: [{ name: 'tag:Name', values: [name_tag] }])
-    reservations = response_describe_instances.reservations
-    fail("Expected one reservation for tag:Name = #{name_tag}, not #{reservations}") if reservations.count != 1
-    reservations[0].instances.map(&:public_ip_address)
+    lookup_instances(name_tag).map(&:public_ip_address)
   end
 
   def lookup_instance_ids_by_name(name_tag)
-    response_describe_instances = ec2_client.describe_instances(filters: [{ name: 'tag:Name', values: [name_tag] }])
-    reservations = response_describe_instances.reservations
-    fail("Expected one reservation for tag:Name = #{name_tag}, not #{reservations}") if reservations.count != 1
-    reservations[0].instances.map(&:instance_id)
+    lookup_instances(name_tag).map(&:instance_id)
   end
 
   private
 
   def ec2_client
     @ec2_client ||= Aws::EC2::Client.new(client_config)
+  end
+
+  def lookup_instances(name_tag)
+    response_describe_instances = ec2_client.describe_instances(filters: [
+      { name: 'tag:Name', values: [name_tag] },
+      { name: 'instance-state-name', values: %w(pending running) }
+    ])
+    reservations = response_describe_instances.reservations
+    fail("Expected one reservation for tag:Name = #{name_tag}, not #{reservations}") if reservations.count != 1
+    reservations[0].instances
   end
 
   def config_wait(w)
