@@ -15,14 +15,8 @@ opt_parser = OptionParser.new do |opts|
   )
   ScriptHelper.no_arg_opts(
     opts, config,
-    ips_by_tag: 'look up by EC2 name tags and list IPs'
-  )
-  ScriptHelper.no_arg_opts(
-    opts, config,
-    ips_by_dns: 'look up by DNS names and list IPs'
-  )
-  ScriptHelper.no_arg_opts(
-    opts, config,
+    ips_by_tag: 'look up by EC2 name tags and list IPs',
+    ips_by_dns: 'look up by DNS names and list IPs',
     debug: 'Turn on debug logging'
   )
   opts.separator('Prints to STDOUT the appropriate arguments for sshing')

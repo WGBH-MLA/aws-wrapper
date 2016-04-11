@@ -19,13 +19,15 @@ module ScriptHelper
   def self.read_args(config, opt_parser, required)
     begin
       opt_parser.parse!(ARGV)
-    rescue OptionParser::InvalidOption
+    rescue OptionParser::InvalidOption => e
+      warn e
       warn $ERROR_INFO
       warn opt_parser
       exit 1
     end
     unless ARGV.empty?
-      warn "Unexpected argument '#{ARGV.join(' ')}'"
+      # I think this only catches arguments without dashes at the end of the list.
+      warn "unexpected argument: '#{ARGV.join(' ')}'"
       warn opt_parser
       exit 1
     end
