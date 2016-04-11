@@ -10,7 +10,6 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
-    zone_name: 'AWS Route 53 zone name',
     availability_zone: 'Availability Zone',
     instance_type: 'EC2 instance type',
     image_id: 'Amazon machine image ID'
@@ -28,7 +27,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('After load balancer is set up, swap can be run.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name, :instance_type])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name, :instance_type])
 
 builder = Builder.new(debug: config[:debug], availability_zone: config[:availability_zone])
 

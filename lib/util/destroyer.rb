@@ -3,25 +3,27 @@ require_relative 'lister'
 
 # rubocop:disable Style/RescueModifier
 class Destroyer < AwsWrapper
-  def destroy(zone_id, name, unsafe=false)
+  def destroy(name, unsafe=false)
     # We want to do as much cleaning as possible, hence the "rescue"s.
 
+    zone_name = dns_zone(name)
+
     if unsafe
-      unsafe_destroy(zone_id, name)
+      unsafe_destroy(zone_name, name)
     else
-      safe_destroy(zone_id, name)
+      safe_destroy(zone_name, name)
     end
   end
 
   private
 
-  def safe_destroy(zone_id, name)
+  def safe_destroy(zone_name, name)
     # More conservative: Create a list of related resources to delete.
     # The downside is that if a root resource has already been deleted,
     # (like a DNS record) we won't find the formerly dependent records.
 
     flat_list = Lister.new(debug: @debug, availability_zone: @availability_zone)
-                .list(zone_id, name, true)
+                .list(zone_name, name, true)
 
     flat_list[:groups].each do |group_name|
       delete_group_policy(group_name) rescue LOGGER.warn("Error deleting policy: #{$!} at #{$@}")

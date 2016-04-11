@@ -10,7 +10,6 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
-    zone_name: 'AWS Route 53 zone name',
     availability_zone: 'Availability Zone'
   )
   ScriptHelper.no_arg_opts(
@@ -22,7 +21,7 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('and then everything relating to the name is deleted.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name])
 
 print "Really destroy everything relating to #{config[:name]}? Reenter to confirm: "
 unless gets.strip == config[:name]
@@ -31,4 +30,4 @@ unless gets.strip == config[:name]
 end
 
 Destroyer.new(debug: config[:debug], availability_zone: config[:availability_zone])
-  .destroy(config[:zone_name], config[:name], config[:unsafe])
+  .destroy(config[:name], config[:unsafe])

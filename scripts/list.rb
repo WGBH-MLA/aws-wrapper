@@ -11,7 +11,6 @@ opt_parser = OptionParser.new do |opts|
   ScriptHelper.one_arg_opts(
     opts, config,
     name: 'Name to be used for PK, EBS, DNS, etc.',
-    zone_name: 'AWS Route 53 zone name',
     availability_zone: 'Availability Zone'
   )
   ScriptHelper.no_arg_opts(
@@ -22,9 +21,9 @@ opt_parser = OptionParser.new do |opts|
   opts.separator('Prints to STDOUT a JSON structure representing the resources under this name.')
 end
 
-ScriptHelper.read_args(config, opt_parser, [:availability_zone, :zone_name, :name])
+ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name])
 
 list = Lister.new(debug: config[:debug], availability_zone: config[:availability_zone])
-       .list(config[:zone_name], config[:name], config[:flat])
+       .list(config[:name], config[:flat])
 
 puts JSON.pretty_generate(list).gsub(/\s+([\]}])/, '\1')

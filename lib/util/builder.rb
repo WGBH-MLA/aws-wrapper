@@ -4,7 +4,6 @@ require_relative 'aws_wrapper'
 
 class Builder < AwsWrapper
   def build(config)
-    zone_name = config[:zone_name]
     name = config[:name]
     skip_updates = config[:skip_updates]
     instance_type = config[:instance_type]
@@ -35,14 +34,13 @@ class Builder < AwsWrapper
 
       instance_ids.each do |instance_id|
         ip = lookup_instance(instance_id).public_ip_address
-        sudoer.sudo_by_ip(zone_name, name, commands_joined, ip)
+        sudoer.sudo_by_ip(name, commands_joined, ip)
       end
     end
     LOGGER.info('Instances are up.')
   end
 
   def setup_load_balancer(config)
-    zone_name = config[:zone_name]
     name = config[:name]
 
     elb_names = elb_names(name)
@@ -61,7 +59,7 @@ class Builder < AwsWrapper
     LOGGER.info('Create group policy for ELB')
 
     name_target_pairs = cname_pair(name).zip(elb_a_names)
-    create_dns_cname_records(zone_name, name_target_pairs)
+    create_dns_cname_records(dns_zone(name), name_target_pairs)
     LOGGER.info('Created CNAMEs')
   end
 end
