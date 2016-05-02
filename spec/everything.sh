@@ -71,5 +71,3 @@ message 'list.rb'
 message 'destroy.rb'
 ! ruby scripts/destroy.rb && echo $NAME | ruby scripts/destroy.rb --name $NAME --debug
 # ('echo' satisfies prompt for confirmation.)
-
-false # So that the trap will be called to exercise destroy.rb --unsafe
