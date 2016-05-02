@@ -4,26 +4,24 @@ require_relative 'lister'
 # rubocop:disable Style/RescueModifier
 class Destroyer < AwsWrapper
   def destroy(name, unsafe=false)
-    # We want to do as much cleaning as possible, hence the "rescue"s.
-
-    zone_name = dns_zone(name)
-
     if unsafe
-      unsafe_destroy(zone_name, name)
+      unsafe_destroy(name)
     else
-      safe_destroy(zone_name, name)
+      safe_destroy(name)
     end
   end
 
   private
 
-  def safe_destroy(zone_name, name)
+  # We want to do as much cleaning as possible, hence the "rescue"s.
+
+  def safe_destroy(name)
     # More conservative: Create a list of related resources to delete.
     # The downside is that if a root resource has already been deleted,
     # (like a DNS record) we won't find the formerly dependent records.
 
     flat_list = Lister.new(debug: @debug, availability_zone: @availability_zone)
-                .list(zone_name, name, true)
+                .list(name, true)
 
     flat_list[:groups].each do |group_name|
       delete_group_policy(group_name) rescue LOGGER.warn("Error deleting policy: #{$!} at #{$@}")
@@ -44,7 +42,7 @@ class Destroyer < AwsWrapper
     flat_list.delete(:instance_ids)
     flat_list.delete(:volume_ids) # Volumes are set to disappear with their instance.
 
-    delete_dns_cname_records(zone_id, flat_list[:cnames]) rescue LOGGER.warn("Error deleting CNAMEs: #{$!} at #{$@}")
+    delete_dns_cname_records(dns_zone(name), flat_list[:cnames]) rescue LOGGER.warn("Error deleting CNAMEs: #{$!} at #{$@}")
     LOGGER.info("Deleted CNAMEs #{flat_list[:cnames]}")
     flat_list.delete(:cnames)
 
@@ -53,7 +51,7 @@ class Destroyer < AwsWrapper
     end
   end
 
-  def unsafe_destroy(zone_id, name)
+  def unsafe_destroy(name)
     # Delete resources based on name conventions.
     # If names are reused, this can end up deleting resources
     # which are not actually related.
@@ -75,9 +73,7 @@ class Destroyer < AwsWrapper
     end
     LOGGER.info('Deleted ELB')
 
-    delete_dns_cname_records(zone_id, cname_pair(name)) rescue LOGGER.warn("Error deleting CNAME: #{$!} at #{$@}")
+    delete_dns_cname_records(dns_zone(name), cname_pair(name)) rescue LOGGER.warn("Error deleting CNAME: #{$!} at #{$@}")
     LOGGER.info('Deleted CNAMEs')
-
-    # TODO: delete snapshot
   end
 end
