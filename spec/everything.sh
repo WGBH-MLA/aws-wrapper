@@ -69,5 +69,4 @@ message 'group_add.rb'
 message 'list.rb'
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
 message 'destroy.rb'
-! ruby scripts/destroy.rb && echo $NAME | ruby scripts/destroy.rb --name $NAME --debug
-# ('echo' satisfies prompt for confirmation.)
+! ruby scripts/destroy.rb # This will fail, and trap will clean up. 
