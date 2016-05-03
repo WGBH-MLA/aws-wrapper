@@ -11,19 +11,19 @@ class Destroyer < AwsWrapper
     if unsafe
       unsafe_destroy(zone_name, name)
     else
-      safe_destroy(zone_name, name)
+      safe_destroy(name)
     end
   end
 
   private
 
-  def safe_destroy(zone_name, name)
+  def safe_destroy(name)
     # More conservative: Create a list of related resources to delete.
     # The downside is that if a root resource has already been deleted,
     # (like a DNS record) we won't find the formerly dependent records.
 
     flat_list = Lister.new(debug: @debug, availability_zone: @availability_zone)
-                .list(zone_name, name, true)
+                .list(name, true)
 
     flat_list[:groups].each do |group_name|
       delete_group_policy(group_name) rescue LOGGER.warn("Error deleting policy: #{$!} at #{$@}")
