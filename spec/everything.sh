@@ -68,6 +68,5 @@ message 'group_add.rb'
 ! ruby scripts/group_add.rb && ruby scripts/group_add.rb --user travis_ci --group $NAME --debug
 message 'list.rb'
 ! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
-
 message 'destroy.rb'
-! ruby scripts/destroy.rb # This will fail, and trap will clean up.
+! ruby scripts/destroy.rb # This will fail, and trap will clean up. 
