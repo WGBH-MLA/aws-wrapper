@@ -11,6 +11,11 @@ Typically, bare servers can be set up:
 ruby scripts/build.rb --name abc.wgbh-mla-test.org
 ```
 
+and load balancers are then created for the pair:
+```
+ruby scripts/build.rb --name abc.wgbh-mla-test.org --setup_load_balancer
+```
+
 The current user is added to the priv group by default,
 but another user can be added to the group:
 ```
