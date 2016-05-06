@@ -51,8 +51,11 @@ ruby scripts/build.rb --name $NAME --skip_updates --debug
 ruby scripts/build.rb --name $NAME --setup_load_balancer --debug
 
 # Confirm DNS before trying anything else.
-[ `dig      $NAME | grep CNAME | wc -l` -eq 1 ]
-[ `dig demo.$NAME | grep CNAME | wc -l` -eq 1 ]
+# (The 'dig' binary isn't available by default on travis, and we've given up sudo, so we need this function.)
+function dig_cname { N=$1 ruby -r resolv -e 'puts Resolv::DNS.new.getresource(ENV["N"], Resolv::DNS::Resource::IN::CNAME).name.to_s'; }
+for N in $NAME, demo.$NAME; do
+  [ `dig_cname $N | grep elb.amazonaws.com | wc -l` -eq 1 ]
+done
 
 message 'ssh_opt.rb'
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
