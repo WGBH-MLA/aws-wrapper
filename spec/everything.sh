@@ -48,7 +48,7 @@ message 'build.rb'
 ! ruby scripts/build.rb
 ruby scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
 ruby scripts/build.rb --name $NAME --skip_updates --debug
-ruby scripts/build.rb --name $NAME --skip_updates --setup_load_balancer --debug
+ruby scripts/build.rb --name $NAME --setup_load_balancer --debug
 
 message 'ssh_opt.rb'
 ! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
