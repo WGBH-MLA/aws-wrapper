@@ -18,6 +18,9 @@ class Swapper < AwsWrapper
     deregister_instance_from_elb(demo.instance_id, demo.elb_name)
     deregister_instance_from_elb(live.instance_id, live.elb_name)
     LOGGER.info('Swap complete: De-registered both instances from original ELBs')
+
+    stop_instances_by_ids([live.instance_id])
+    LOGGER.info('Stopping former live instance')
   end
 
   private
