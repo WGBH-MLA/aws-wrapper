@@ -27,7 +27,7 @@ class Sudoer < AwsWrapper
     #   "Pseudo-terminal will not be allocated because stdin is not a terminal."
     # ... so you need "-t -t"
     catch :success do
-      1.step do |try|
+      wait_until do |try|
         LOGGER.info("try #{try}: #{ssh_command}")
         Open3.popen2e(ssh_command) do |_input, output, thread|
           output.each do |line|
@@ -39,8 +39,6 @@ class Sudoer < AwsWrapper
           LOGGER.warn("ssh was not successful: #{thread.value}")
           LOGGER.warn('(But new servers need time to warm up. Will retry.)')
         end
-        fail('Giving up') if try >= WAIT_ATTEMPTS
-        sleep(WAIT_INTERVAL)
       end
     end
   end

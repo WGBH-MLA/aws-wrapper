@@ -72,11 +72,9 @@ module ElbWrapper
                                                          instance_id: instance_id
                                                        }
                                                      ])
-    1.step do |try|
-      break if lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
-      fail('Giving up') if try >= WAIT_ATTEMPTS
+    wait_until do |try|
       LOGGER.info("try #{try}: Instance #{instance_id} not yet registered with ELB #{elb_name}")
-      sleep(WAIT_INTERVAL)
+      lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
     end
   end
 
@@ -87,11 +85,9 @@ module ElbWrapper
                                                            instance_id: instance_id
                                                          }
                                                        ])
-    1.step do |try|
-      break unless lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
-      fail('Giving up') if try >= WAIT_ATTEMPTS
+    wait_until do |try|
       LOGGER.info("try #{try}: Instance #{instance_id} not yet de-registered from ELB #{elb_name}")
-      sleep(WAIT_INTERVAL)
+      !lookup_elb_by_name(elb_name).instances.map(&:instance_id).include?(instance_id)
     end
   end
 
