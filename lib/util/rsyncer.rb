@@ -5,6 +5,7 @@ require 'ostruct'
 
 class Rsyncer < AwsWrapper
   def rsync(live_name, path)
+    start_instances_by_name(live_name)
     demo_name = 'demo.' + live_name
 
     live_ip = SshOpter.new(debug: @debug, availability_zone: @availability_zone).lookup_ip(live_name)
