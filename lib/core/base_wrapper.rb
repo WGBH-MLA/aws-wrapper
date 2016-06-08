@@ -14,4 +14,12 @@ module BaseWrapper
 
   WAIT_INTERVAL = 5
   WAIT_ATTEMPTS = 50
+
+  def wait_until
+    1.step do |try|
+      break if yield(try)
+      fail('Giving up') if try >= WAIT_ATTEMPTS
+      sleep(WAIT_INTERVAL)
+    end
+  end
 end

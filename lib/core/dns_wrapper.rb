@@ -43,11 +43,9 @@ module DnsWrapper
   end
 
   def wait_until_updates_propagate(request_id)
-    1.step do |try|
-      break if dns_client.get_change(id: request_id).change_info.status == 'INSYNC'
-      fail('Giving up') if try >= WAIT_ATTEMPTS
+    wait_until do |try|
       LOGGER.info("try #{try}: DNS update #{request_id} not yet propagated to all AWS NS")
-      sleep(WAIT_INTERVAL)
+      dns_client.get_change(id: request_id).change_info.status == 'INSYNC'
     end
   end
 
