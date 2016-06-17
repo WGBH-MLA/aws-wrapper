@@ -1,5 +1,7 @@
 # aws-wrapper
 
+[![Build Status](https://travis-ci.org/WGBH/aws-wrapper.svg?branch=master)](https://travis-ci.org/WGBH/aws-wrapper)
+
 Scripts for our most common interactions with AWS. 
 For documentation on a particular script, run it without arguments.
 
