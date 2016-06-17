@@ -6,6 +6,7 @@ class StarterStopper < AwsWrapper
   end
 
   def stop(name)
+    fail('Did you forget "demo."?') unless name =~ /^demo\./
     stop_instances_by_id([lookup_instance_id_by_dns_name(name)])
   end
 
