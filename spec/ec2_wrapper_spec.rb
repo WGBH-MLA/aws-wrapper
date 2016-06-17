@@ -105,25 +105,12 @@ describe Ec2Wrapper do
     end
   end
 
-  describe '#start_instances_by_name' do
+  describe '#start_instances_by_id' do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:start_instances)
-        expect(client).to receive(:describe_instances).and_return(
-          instance_double(Aws::EC2::Types::DescribeInstancesResult).tap do |result|
-            expect(result).to receive(:reservations).and_return([
-              instance_double(Aws::EC2::Types::Reservation).tap do |reservation|
-                expect(reservation).to receive(:instances).and_return([
-                  instance_double(Aws::EC2::Types::Instance).tap do |instance|
-                    expect(instance).to receive(:instance_id).and_return('instance-id')
-                  end
-                ])
-              end
-            ])
-          end
-        )
       end
-      expect { wrapper.start_instances_by_name('name') }.not_to raise_error
+      expect { wrapper.start_instances_by_id('id') }.not_to raise_error
     end
   end
 

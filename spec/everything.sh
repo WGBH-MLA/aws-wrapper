@@ -60,6 +60,10 @@ TARGET=/home/ec2-user/rsync-target
 
 message 'sudo.rb'
 ! ruby scripts/sudo.rb && ruby scripts/sudo.rb --name demo.$NAME --command "mkdir $TARGET" --debug
+message 'stop.rb'
+! ruby scripts/stop.rb --name demo.$NAME
+message 'start.rb'
+! ruby scripts/start.rb --name demo.$NAME
 message 'swap.rb'
 ! ruby scripts/swap.rb && ruby scripts/swap.rb --name $NAME --debug
 message 'rsync.rb'

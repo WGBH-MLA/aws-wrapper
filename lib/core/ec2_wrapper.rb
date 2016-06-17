@@ -93,10 +93,6 @@ module Ec2Wrapper
     ec2_client.start_instances(instance_ids: instance_ids)
   end
 
-  def start_instances_by_name(name_tag)
-    start_instances_by_id(lookup_instance_ids_by_name(name_tag))
-  end
-
   def lookup_instance(instance_id)
     response_describe_instances = ec2_client.describe_instances(instance_ids: [instance_id])
     reservations = response_describe_instances.reservations

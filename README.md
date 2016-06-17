@@ -29,6 +29,12 @@ and then that user can swap them:
 ruby scripts/swap.rb --name abc.wgbh-mla-test.org
 ```
 
+and then stop the demo instance to save money, and restart before the next swap:
+```
+ruby scripts/stop.rb --name demo.abc.wgbh-mla-test.org
+ruby scripts/start.rb --name demo.abc.wgbh-mla-test.org
+```
+
 and rsync a given directory from live to demo:
 ```
 ruby scripts/rsync.rb --name abc.wgbh-mla-test.org --path /var/www/abc/something
@@ -65,7 +71,7 @@ ruby scripts/destroy.rb --name abc.wgbh-mla-test.org
 
 | Scripts | Utility Classes | AWS Wrapper | Client Wrappers | Base Wrapper |
 | ---- | ---- | ---- | ---- | ---- |
-| `scripts/elb_swap.rb` | `lib/util/elb_swapper.rb` | `lib/util/aws_wrapper.rb` | `lib/core/elb_wrapper.rb` | `lib/core/base_wrapper.rb` |
+| `scripts/build.rb` | `lib/util/builder.rb` | `lib/util/aws_wrapper.rb` | `lib/core/elb_wrapper.rb` | `lib/core/base_wrapper.rb` |
 | `scripts/.........rb` | `lib/util/.........er.rb` |  | `lib/core/..._wrapper.rb` |  |
 
 Each layer should `require` only from the layer immediately below.

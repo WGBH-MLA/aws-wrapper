@@ -1,9 +1,9 @@
 describe 'README.md' do
   readme = File.read(__dir__ + '/../README.md')
-           .scan(/```\n(.*?)\n```/m)
-           .map do |block|
-    File.basename(block[0].gsub(/.*(scripts\/\S*).*/, '\1'))
-  end
+           .scan(/scripts\/[\w-]+.rb/m)
+           .map do |path|
+    File.basename(path)
+  end.uniq
 
   describe 'compared to the scripts' do
     scripts = Dir[__dir__ + '/../scripts/*.rb'].map do |path|
