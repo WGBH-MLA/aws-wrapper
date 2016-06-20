@@ -82,6 +82,7 @@ describe Ec2Wrapper do
           end
         )
         expect(client).to receive(:terminate_instances)
+        expect(client).to receive(:wait_until)
       end
       expect { wrapper.terminate_instances_by_key('key') }.not_to raise_error
     end
@@ -91,6 +92,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:terminate_instances)
+        expect(client).to receive(:wait_until)
       end
       expect { wrapper.terminate_instances_by_id('id') }.not_to raise_error
     end
@@ -100,6 +102,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:stop_instances)
+        expect(client).to receive(:wait_until)
       end
       expect { wrapper.stop_instances_by_id('id') }.not_to raise_error
     end
@@ -109,6 +112,7 @@ describe Ec2Wrapper do
     it 'makes expected SDK calls' do
       wrapper = mock_wrapper do |client|
         expect(client).to receive(:start_instances)
+        expect(client).to receive(:wait_until)
       end
       expect { wrapper.start_instances_by_id('id') }.not_to raise_error
     end
