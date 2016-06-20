@@ -31,4 +31,16 @@ class AwsWrapper
   def sh_q(s)
     "'#{s.gsub('\'') { |_m| "'\\''" }}'"
   end
+
+  def lookup_elb_and_instance(zone_name, name)
+    # TODO: Should this be placed somewhere else?
+    cname = lookup_cname(zone_name, name)
+    elb = lookup_elb_by_dns_name(cname)
+    elb_name = elb.load_balancer_name
+    instance_ids = elb.instances.map(&:instance_id)
+    if instance_ids.count != 1
+      fail "Expected exactly 1 instance under '#{name}' (#{elb_name}), not: #{instance_ids}"
+    end
+    OpenStruct.new(elb_name: elb_name, instance_id: instance_ids.first)
+  end
 end

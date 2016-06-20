@@ -1,4 +1,4 @@
-require 'aws_wrapper'
+require_relative 'aws_wrapper'
 
 class StarterStopper < AwsWrapper
   def start(name)

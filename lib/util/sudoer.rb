@@ -26,20 +26,22 @@ class Sudoer < AwsWrapper
     # One "-t" is sufficient when running directly from the shell, but inside a script:
     #   "Pseudo-terminal will not be allocated because stdin is not a terminal."
     # ... so you need "-t -t"
-    catch :success do
-      wait_until do |try|
-        LOGGER.info("try #{try}: #{ssh_command}")
-        Open3.popen2e(ssh_command) do |_input, output, thread|
-          output.each do |line|
-            # LOGGER.info("#{name}: #{line.strip}")
-            # TODO: name is no longer available here, but it probably should be?
-            LOGGER.info("#{line.strip}")
-          end
-          throw :success if thread.value.success?
+    wait_until do |try|
+      LOGGER.info("try #{try}: #{ssh_command}")
+      @is_success = false
+      Open3.popen2e(ssh_command) do |_input, output, thread|
+        output.each do |line|
+          # LOGGER.info("#{name}: #{line.strip}")
+          # TODO: name is no longer available here, but it probably should be?
+          LOGGER.info("#{line.strip}")
+        end
+        @is_success = thread.value.success?
+        unless @is_success
           LOGGER.warn("ssh was not successful: #{thread.value}")
           LOGGER.warn('(But new servers need time to warm up. Will retry.)')
         end
       end
+      @is_success
     end
   end
 end

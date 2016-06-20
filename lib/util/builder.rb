@@ -35,6 +35,7 @@ class Builder < AwsWrapper
       instance_ids.each do |instance_id|
         ip = lookup_instance(instance_id).public_ip_address
         sudoer.sudo_by_ip(name, commands_joined, ip)
+        LOGGER.info("Updated #{name} (#{ip}) via SSH.")
       end
     end
     LOGGER.info('Instances are up.')
