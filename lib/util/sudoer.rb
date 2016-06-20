@@ -36,7 +36,7 @@ class Sudoer < AwsWrapper
           LOGGER.info("#{line.strip}")
         end
         @is_success = thread.value.success?
-        if !@is_success
+        unless @is_success
           LOGGER.warn("ssh was not successful: #{thread.value}")
           LOGGER.warn('(But new servers need time to warm up. Will retry.)')
         end
