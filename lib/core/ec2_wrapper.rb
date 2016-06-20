@@ -78,19 +78,28 @@ module Ec2Wrapper
         name: 'key-name',
         values: [key_name]
       }]).reservations.map { |res| res.instances.map(&:instance_id) }.flatten
-    ec2_client.terminate_instances(instance_ids: instance_ids)
+    terminate_instances_by_id(instance_ids)
   end
 
   def terminate_instances_by_id(instance_ids)
     ec2_client.terminate_instances(instance_ids: instance_ids)
+    ec2_client.wait_until(:instance_terminated, instance_ids: instance_ids) do |w|
+      config_wait(w)
+    end
   end
 
   def stop_instances_by_id(instance_ids)
     ec2_client.stop_instances(instance_ids: instance_ids)
+    ec2_client.wait_until(:instance_stopped, instance_ids: instance_ids) do |w|
+      config_wait(w)
+    end
   end
 
   def start_instances_by_id(instance_ids)
     ec2_client.start_instances(instance_ids: instance_ids)
+    ec2_client.wait_until(:instance_running, instance_ids: instance_ids) do |w|
+      config_wait(w)
+    end
   end
 
   def lookup_instance(instance_id)
