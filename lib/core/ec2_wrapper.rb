@@ -85,6 +85,14 @@ module Ec2Wrapper
     ec2_client.terminate_instances(instance_ids: instance_ids)
   end
 
+  def stop_instances_by_id(instance_ids)
+    ec2_client.stop_instances(instance_ids: instance_ids)
+  end
+
+  def start_instances_by_id(instance_ids)
+    ec2_client.start_instances(instance_ids: instance_ids)
+  end
+
   def lookup_instance(instance_id)
     response_describe_instances = ec2_client.describe_instances(instance_ids: [instance_id])
     reservations = response_describe_instances.reservations
