@@ -1,4 +1,5 @@
 require_relative '../lib/util/starter_stopper'
+require_relative '../lib/util/sudoer'
 require_relative '../lib/script_helper'
 require 'optparse'
 
@@ -23,3 +24,5 @@ ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name])
 
 StarterStopper.new(debug: config[:debug], availability_zone: config[:availability_zone])
   .start(config[:name])
+Sudoer.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .sudo(config[:name], 'if [ -e ~/on-startup.sh ]; then . ~/on-startup.sh; fi', false)
