@@ -23,3 +23,5 @@ ScriptHelper.read_args(config, opt_parser, [:availability_zone, :name])
 
 StarterStopper.new(debug: config[:debug], availability_zone: config[:availability_zone])
   .start(config[:name])
+Sudoer.new(debug: config[:debug], availability_zone: config[:availability_zone])
+  .sudo(config[:name], '[ -e ~/on-startup.sh ] && . ~/on-startup.sh', false)
