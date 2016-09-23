@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/util/aws_wrapper' # The method we need is in core: no wrapper class needed.
 require_relative '../lib/script_helper'
 require 'optparse'

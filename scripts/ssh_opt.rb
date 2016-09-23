@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/util/ssh_opter'
 require_relative '../lib/script_helper'
 require 'optparse'

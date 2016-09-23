@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/util/builder'
 require_relative '../lib/script_helper'
 require 'optparse'

@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/util/starter_stopper'
 require_relative '../lib/util/sudoer'
 require_relative '../lib/script_helper'
