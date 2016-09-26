@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require_relative '../lib/util/swapper'
 require_relative '../lib/util/rsyncer'
 require_relative '../lib/script_helper'

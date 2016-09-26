@@ -10,61 +10,61 @@ with your API credentials in the conventional location: `~/.aws/credentials`.
 
 Typically, bare servers can be set up:
 ```
-ruby scripts/build.rb --name abc.wgbh-mla-test.org
+bundle exec scripts/build.rb --name abc.wgbh-mla-test.org
 ```
 
 And then set up the load balancers:
 ```
-ruby scripts/build.rb --name abc.wgbh-mla-test.org --setup_load_balancer
+bundle exec scripts/build.rb --name abc.wgbh-mla-test.org --setup_load_balancer
 ```
 
 The current user is added to the priv group by default,
 but another user can be added to the group:
 ```
-ruby scripts/group_add.rb --user someone_else --group abc.wgbh-mla-test.org
+bundle exec scripts/group_add.rb --user someone_else --group abc.wgbh-mla-test.org
 ```
 
 and then that user can swap them:
 ```
-ruby scripts/swap.rb --name abc.wgbh-mla-test.org
+bundle exec scripts/swap.rb --name abc.wgbh-mla-test.org
 ```
 
 and then stop the demo instance to save money, and restart before the next swap:
 ```
-ruby scripts/stop.rb --name demo.abc.wgbh-mla-test.org
-ruby scripts/start.rb --name demo.abc.wgbh-mla-test.org
+bundle exec scripts/stop.rb --name demo.abc.wgbh-mla-test.org
+bundle exec scripts/start.rb --name demo.abc.wgbh-mla-test.org
 ```
 
 and rsync a given directory from live to demo:
 ```
-ruby scripts/rsync.rb --name abc.wgbh-mla-test.org --path /var/www/abc/something
+bundle exec scripts/rsync.rb --name abc.wgbh-mla-test.org --path /var/www/abc/something
 ```
 
 log in to the demo machine:
 ```
-ssh `ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org`
+ssh `bundle exec scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org`
 ```
 
 or just get the IPs:
 ```
-ruby scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org --ips_by_dns
-ruby scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_dns
-ruby scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_tag
+bundle exec scripts/ssh_opt.rb --name demo.abc.wgbh-mla-test.org --ips_by_dns
+bundle exec scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_dns
+bundle exec scripts/ssh_opt.rb --name abc.wgbh-mla-test.org --ips_by_tag
 ```
 
 or for a one-liner:
 ```
-ruby scripts/sudo.rb --name abc.wgbh-mla-test.org --command 'echo "I am sudo"'
+bundle exec scripts/sudo.rb --name abc.wgbh-mla-test.org --command 'echo "I am sudo"'
 ```
 
 to get a handle on all the dependent resources:
 ```
-ruby scripts/list.rb --name abc.wgbh-mla-test.org
+bundle exec scripts/list.rb --name abc.wgbh-mla-test.org
 ```
 
 and if this is development and we want to clear the slate:
 ```
-ruby scripts/destroy.rb --name abc.wgbh-mla-test.org
+bundle exec scripts/destroy.rb --name abc.wgbh-mla-test.org
 ```
 
 ## Organization
