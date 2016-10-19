@@ -36,8 +36,8 @@ message()
 # ... so this is a little scary, but probably what we want.
 # destroy.rb prompts you to re-enter name as confirmation, hence the "echo".
 trap "message 'cleanup';
-      ( echo $JUST_ONE_NAME | ruby scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
-      ( echo $NAME          | ruby scripts/destroy.rb --unsafe --name $NAME          --debug );
+      ( echo $JUST_ONE_NAME | bundle exec scripts/destroy.rb --unsafe --name $JUST_ONE_NAME --debug );
+      ( echo $NAME          | bundle exec scripts/destroy.rb --unsafe --name $NAME          --debug );
       echo travis_fold:end:cleanup" EXIT
 
 
@@ -45,32 +45,32 @@ trap "message 'cleanup';
 # and is a loose test of our arg parsing.
 
 message 'build.rb'
-! ruby scripts/build.rb
-ruby scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
-ruby scripts/build.rb --name $NAME --skip_updates --debug
-ruby scripts/build.rb --name $NAME --setup_load_balancer --debug
+! bundle exec scripts/build.rb
+bundle exec scripts/build.rb --name $JUST_ONE_NAME --skip_updates --just_one --debug
+bundle exec scripts/build.rb --name $NAME --skip_updates --debug
+bundle exec scripts/build.rb --name $NAME --setup_load_balancer --debug
 
 message 'ssh_opt.rb'
-! ruby scripts/ssh_opt.rb && ssh `ruby scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
-ruby scripts/ssh_opt.rb --name demo.$NAME --ips_by_dns --debug
-ruby scripts/ssh_opt.rb --name $NAME --ips_by_dns --debug # Should differ from the above.
-ruby scripts/ssh_opt.rb --name $NAME --ips_by_tag --debug # Should include both.
+! bundle exec scripts/ssh_opt.rb && ssh `bundle exec scripts/ssh_opt.rb --name demo.$NAME --debug` 'hostname; whoami'
+bundle exec scripts/ssh_opt.rb --name demo.$NAME --ips_by_dns --debug
+bundle exec scripts/ssh_opt.rb --name $NAME --ips_by_dns --debug # Should differ from the above.
+bundle exec scripts/ssh_opt.rb --name $NAME --ips_by_tag --debug # Should include both.
 
 TARGET=/home/ec2-user/rsync-target
 
 message 'sudo.rb'
-! ruby scripts/sudo.rb && ruby scripts/sudo.rb --name demo.$NAME --command "mkdir $TARGET" --debug
+! bundle exec scripts/sudo.rb && bundle exec scripts/sudo.rb --name demo.$NAME --command "mkdir $TARGET" --debug
 message 'stop.rb'
-! ruby scripts/stop.rb && ruby scripts/stop.rb --name demo.$NAME
+! bundle exec scripts/stop.rb && bundle exec scripts/stop.rb --name demo.$NAME
 message 'start.rb'
-! ruby scripts/start.rb && ruby scripts/start.rb --name demo.$NAME
+! bundle exec scripts/start.rb && bundle exec scripts/start.rb --name demo.$NAME
 message 'swap.rb'
-! ruby scripts/swap.rb && ruby scripts/swap.rb --name $NAME --debug
+! bundle exec scripts/swap.rb && bundle exec scripts/swap.rb --name $NAME --debug
 message 'rsync.rb'
-! ruby scripts/rsync.rb && ruby scripts/rsync.rb --name $NAME --path $TARGET --debug
+! bundle exec scripts/rsync.rb && bundle exec scripts/rsync.rb --name $NAME --path $TARGET --debug
 message 'group_add.rb'
-! ruby scripts/group_add.rb && ruby scripts/group_add.rb --user travis_ci --group $NAME --debug
+! bundle exec scripts/group_add.rb && bundle exec scripts/group_add.rb --user travis_ci --group $NAME --debug
 message 'list.rb'
-! ruby scripts/list.rb && ruby scripts/list.rb --name $NAME --flat --debug
+! bundle exec scripts/list.rb && bundle exec scripts/list.rb --name $NAME --flat --debug
 message 'destroy.rb'
-! ruby scripts/destroy.rb # This will fail, and trap will clean up. 
+! bundle exec scripts/destroy.rb # This will fail, and trap will clean up. 
