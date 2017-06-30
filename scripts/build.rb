@@ -21,7 +21,9 @@ opt_parser = OptionParser.new do |opts|
     just_one: 'Create only a single instance',
     setup_load_balancer: 'Do not create instances, but instead set up ELBs for existing',
     debug: 'Turn on debug logging',
-    skip_updates: 'Skip updates'
+    skip_updates: 'Skip updates',
+    skip_create_key_pair: 'Skip creating the key pair',
+    skip_create_group: 'Skip creating the group'
   )
   opts.separator('With "--just_one", creates a single instance.')
   opts.separator('Without "--just_one", creates a pair of instances,')

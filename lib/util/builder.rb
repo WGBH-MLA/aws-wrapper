@@ -9,16 +9,26 @@ class Builder < AwsWrapper
     instance_type = config[:instance_type]
     image_id = config[:image_id]
     number = config[:just_one] ? 1 : 2
+    skip_create_key_pair = config[:skip_create_key_pair]
+    skip_create_group = config[:skip_create_group]
 
     max_length = 30 # 32 is max for ELB names, and we append "-a" or "-b".
     fail("Name '#{name}' must not be longer than #{max_length} characters") if name.length > max_length
 
-    create_key(name)
-    LOGGER.info("Created PK for #{name}")
+    if skip_create_key_pair
+      LOGGER.info("Skipping creating key pair: #{name}")
+    else
+      create_key(name)
+      LOGGER.info("Created key pair: #{name}")
+    end
 
-    create_group(name)
-    add_current_user_to_group(name)
-    LOGGER.info("Created group #{name}, and added current user")
+    if skip_create_group
+      LOGGER.info("Skipping creating group #{name}, and added current user")
+    else
+      create_group(name)
+      add_current_user_to_group(name)
+      LOGGER.info("Created group #{name}, and added current user")
+    end
 
     instance_ids = start_instances(number, name, instance_type, image_id).map(&:instance_id)
     LOGGER.info("Started #{number} EC2 instances #{instance_ids}")
