@@ -8,6 +8,8 @@ For documentation on a particular script, run it without arguments.
 Before running any of the examples, you will need to have an AWS IAM user,
 with your API credentials in the conventional location: `~/.aws/credentials`.
 
+Being a sudo-enabled user is highly recommended - even if using homebrew.  You also need to have python `pip` and install the aws command line interface (AWS CLI), plus ruby management stuff like Ruby Version Manager (rvm) and Gem (gem) to install the required version of ruby and to `gem install bundler`.  Power tip:  `bundle install` in the project directory does a lot of heavy lifting to enable things.
+
 Typically, bare servers can be set up:
 ```
 bundle exec scripts/build.rb --name abc.wgbh-mla-test.org
